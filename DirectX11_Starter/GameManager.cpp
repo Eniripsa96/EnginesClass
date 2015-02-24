@@ -93,14 +93,14 @@ GameManager::~GameManager()
 	gameUIObjects.clear();
 	cubes.clear();
 
-	// Clean up blocks
-	for (UINT i = 0; i < 7; i++)
-	{
-		delete blocks[i].gameObject;
-		delete[] blocks[i].localGrid;
-		delete[] blocks[i].tempGrid;
-		delete[] blocks[i].grid;
-	}
+	//// Clean up blocks
+	//for (UINT i = 0; i < 7; i++)
+	//{
+	//	delete blocks[i].gameObject;
+	//	delete[] blocks[i].localGrid;
+	//	delete[] blocks[i].tempGrid;
+	//	delete[] blocks[i].grid;
+	//}
 	delete[] blocks;
 
 	delete[] pixelShaders;
@@ -180,7 +180,7 @@ bool GameManager::Init()
 	CreateSamplers();
 	LoadShadersAndInputLayout();
 	LoadMeshesAndMaterials();
-	BuildBlockTypes();
+	//BuildBlockTypes();
 
 	activeShader = 0;
 	pixelShaders = new ID3D11PixelShader*[shaderCount] {
@@ -190,6 +190,7 @@ bool GameManager::Init()
 		inverseShader
 	};
 
+	// Initialize the shadow camera
 	Camera* shadowCam = new Camera();
 	shadowCam->RotateY(-1.10715f);
 	shadowCam->Pitch(-0.930264f);
@@ -198,6 +199,7 @@ bool GameManager::Init()
 	shadowView = shadowCam->viewMatrix;
 	delete shadowCam;
 
+	// Load the fonts for the games
 	spriteBatch = new SpriteBatch(deviceContext);
 	spriteFont24 = new SpriteFont(device, L"jing24.spritefont");
 	spriteFont32 = new SpriteFont(device, L"jing32.spritefont");
@@ -216,13 +218,9 @@ bool GameManager::Init()
 	playButton = new Button(quadMesh, buttonMaterial, &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
 	quitButton = new Button(quadMesh, buttonMaterial, &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
 	mainMenuButton = new Button(quadMesh, buttonMaterial, &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
-	scoreLabel = new UIObject(quadMesh, labelMaterial, &XMFLOAT3(0, 0, 0), spriteBatch, spriteFont24, L"Score:\n0");
 	menuObjects.emplace_back(new UIObject(quadMesh, titleMaterial, &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
 	menuObjects.emplace_back(playButton);
 	menuObjects.emplace_back(quitButton);
-	gameOverObjects.emplace_back(new UIObject(quadMesh, titleMaterial, &XMFLOAT3(100, 100, 0), spriteBatch, spriteFont72, L"Game Over"));
-	gameOverObjects.emplace_back(mainMenuButton);
-	gameUIObjects.emplace_back(scoreLabel);
 
 	// Blend state - enabling alpha blending
 	BLEND_DESC blendDesc;
@@ -661,13 +659,8 @@ void GameManager::UpdateScene(float dt)
 	}
 	
 	// Draw UI Elements
-	if (uiObjects) {
-
-		int score = 0;
-		std::wstring s = std::wstring(L"Score\n") + std::to_wstring(score);
-		const wchar_t* result = s.c_str();
-		scoreLabel->SetText(result);
-
+	if (uiObjects)
+	{
 		spriteBatch->Begin();
 		for (UINT i = 0; i < uiObjects->size(); i++)
 		{
