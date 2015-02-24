@@ -212,14 +212,14 @@ bool GameManager::Init()
 	// Create particle system
 	particleSystem = new ParticleSystem(particleMesh, particleMaterial);
 
-	// Set up block manager
-	for (int j = 0; j < GRID_HEIGHT; j++) {
-		for (int i = 0; i < GRID_WIDTH; i++) {
-			cubes.push_back(new GameObject(cubeMesh, shapeMaterial, &XMFLOAT3((float)i - 4.5f, (float)j - 5.0f, 0), &XMFLOAT3(0, 0, 0)));
-		}
-	}
-	blockManager = new BlockManager(blocks, 7, cubes, XMFLOAT3(-4.5, -5, 0), XMFLOAT3(-8.5, 12.5, 0), 1, particleSystem);
-	blockManager->spawnFallingBlock();
+	//// Set up block manager
+	//for (int j = 0; j < GRID_HEIGHT; j++) {
+	//	for (int i = 0; i < GRID_WIDTH; i++) {
+	//		cubes.push_back(new GameObject(cubeMesh, shapeMaterial, &XMFLOAT3((float)i - 4.5f, (float)j - 5.0f, 0), &XMFLOAT3(0, 0, 0)));
+	//	}
+	//}
+	//blockManager = new BlockManager(blocks, 7, cubes, XMFLOAT3(-4.5, -5, 0), XMFLOAT3(-8.5, 12.5, 0), 1, particleSystem);
+	//blockManager->spawnFallingBlock();
 
 	// Create 2D meshes
 	//triangleMesh = new Mesh(device, deviceContext, TRIANGLE);
@@ -564,15 +564,15 @@ void GameManager::UpdateScene(float dt)
 {
 	CheckKeyBoard(dt);
 
-	// Update the game
-	if (gameState == GAME)
-	{
-		blockManager->update(dt);
-		if (blockManager->isGameOver())
-		{
-			gameState = GAME_OVER;
-		}
-	}
+	//// Update the game
+	//if (gameState == GAME)
+	//{
+	//	blockManager->update(dt);
+	//	if (blockManager->isGameOver())
+	//	{
+	//		gameState = GAME_OVER;
+	//	}
+	//}
 
 	// Active mesh list
 	std::vector<GameObject*> *meshObjects = 0;
@@ -625,11 +625,11 @@ void GameManager::UpdateScene(float dt)
 			(*meshObjects)[i]->Draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
 		}
 	}
-	// Draw the game if in game mode
-	if (gameState == GAME || gameState == DEBUG)
-	{
-		blockManager->draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
-	}
+	//// Draw the game if in game mode
+	//if (gameState == GAME || gameState == DEBUG)
+	//{
+	//	blockManager->draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
+	//}
 
 	//return;
 
@@ -667,10 +667,10 @@ void GameManager::UpdateScene(float dt)
 	}
 
 	// Draw the game if in game mode
-	if (gameState == GAME || gameState == DEBUG)
+	/*if (gameState == GAME || gameState == DEBUG)
 	{
 		blockManager->draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
-	}
+	}*/
 
 	// Draw the particle system
 	if (gameState == GAME || gameState == DEBUG)
@@ -694,7 +694,7 @@ void GameManager::UpdateScene(float dt)
 	// Draw UI Elements
 	if (uiObjects) {
 
-		int score = blockManager->getScore();
+		int score = 0;//blockManager->getScore();
 		std::wstring s = std::wstring(L"Score\n") + std::to_wstring(score);
 		const wchar_t* result = s.c_str();
 		scoreLabel->SetText(result);
@@ -730,52 +730,52 @@ void GameManager::DrawScene() { }
 void GameManager::CheckKeyBoard(float dt)
 {
 	// Game controls
-	if (gameState == GAME)
-	{
+	//if (gameState == GAME)
+	//{
 		// Move left
-		if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT))
-		{
-			blockManager->move(LEFT);
-		}
+		//if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT))
+		//{
+		//	blockManager->move(LEFT);
+		//}
 
-		// Move Right
-		if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT))
-		{
-			blockManager->move(RIGHT);
-		}
+		//// Move Right
+		//if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT))
+		//{
+		//	blockManager->move(RIGHT);
+		//}
 
-		// Move down faster
-		if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN))
-		{
-			blockManager->fallSpeed = FAST_FALL_SPEED;
-		}
-		else
-		{
-			blockManager->fallSpeed = SLOW_FALL_SPEED;
-		}
+		//// Move down faster
+		//if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN))
+		//{
+		//	blockManager->fallSpeed = FAST_FALL_SPEED;
+		//}
+		///*else
+		//{
+		//	blockManager->fallSpeed = SLOW_FALL_SPEED;
+		//}*/
 
-		// Rotation
-		if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP))
-		{
-			if (canRotate)
-			{
-				blockManager->rotate();
-				canRotate = false;
-			}
-		}
-		else
-		{
-			canRotate = true;
-		}
+		//// Rotation
+		//if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP))
+		//{
+		//	if (canRotate)
+		//	{
+		//		blockManager->rotate();
+		//		canRotate = false;
+		//	}
+		//}
+		//else
+		//{
+		//	canRotate = true;
+		//}
 
-		// Holding blocks
-		if (GetAsyncKeyState('E'))
-		{
-			blockManager->holdBlock();
-		}
-	}
-	else if (gameState == DEBUG)
-	{
+		//// Holding blocks
+		//if (GetAsyncKeyState('E'))
+		//{
+		//	blockManager->holdBlock();
+		//}
+	//}
+	///*else*/ if (gameState == DEBUG)
+	//{
 		// Strafing of camera
 		if (GetAsyncKeyState('A'))
 			camera->MoveHorizontal(-CAMERA_MOVE_FACTOR * dt);
@@ -790,7 +790,7 @@ void GameManager::CheckKeyBoard(float dt)
 			camera->MoveVertical(CAMERA_MOVE_FACTOR * dt);
 		else if (GetAsyncKeyState('E'))
 			camera->MoveVertical(-CAMERA_MOVE_FACTOR * dt);
-	}
+	//}
 }
 
 // Once per key press
@@ -835,7 +835,7 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 	// Main menu buttons
 	if (gameState == MENU) {
 		if (playButton->IsOver(x, y)) {
-			blockManager->reset();
+			//blockManager->reset();
 			gameState = GAME;
 		}
 		if (quitButton->IsOver(x, y)) {
