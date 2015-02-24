@@ -102,7 +102,6 @@ GameManager::~GameManager()
 		delete[] blocks[i].grid;
 	}
 	delete[] blocks;
-	delete blockManager;
 
 	delete[] pixelShaders;
 
@@ -182,7 +181,6 @@ bool GameManager::Init()
 	LoadShadersAndInputLayout();
 	LoadMeshesAndMaterials();
 	BuildBlockTypes();
-	//CreateShadowMapResources();
 
 	activeShader = 0;
 	pixelShaders = new ID3D11PixelShader*[shaderCount] {
@@ -211,15 +209,6 @@ bool GameManager::Init()
 
 	// Create particle system
 	particleSystem = new ParticleSystem(particleMesh, particleMaterial);
-
-	//// Set up block manager
-	//for (int j = 0; j < GRID_HEIGHT; j++) {
-	//	for (int i = 0; i < GRID_WIDTH; i++) {
-	//		cubes.push_back(new GameObject(cubeMesh, shapeMaterial, &XMFLOAT3((float)i - 4.5f, (float)j - 5.0f, 0), &XMFLOAT3(0, 0, 0)));
-	//	}
-	//}
-	//blockManager = new BlockManager(blocks, 7, cubes, XMFLOAT3(-4.5, -5, 0), XMFLOAT3(-8.5, 12.5, 0), 1, particleSystem);
-	//blockManager->spawnFallingBlock();
 
 	// Create 2D meshes
 	//triangleMesh = new Mesh(device, deviceContext, TRIANGLE);
@@ -564,15 +553,8 @@ void GameManager::UpdateScene(float dt)
 {
 	CheckKeyBoard(dt);
 
-	//// Update the game
-	//if (gameState == GAME)
-	//{
-	//	blockManager->update(dt);
-	//	if (blockManager->isGameOver())
-	//	{
-	//		gameState = GAME_OVER;
-	//	}
-	//}
+	// Update the game
+		// None
 
 	// Active mesh list
 	std::vector<GameObject*> *meshObjects = 0;
@@ -613,11 +595,9 @@ void GameManager::UpdateScene(float dt)
 
 	// Shadow map
 	deviceContext->OMSetRenderTargets(0, 0, shadowDSV);
-	//deviceContext->OMSetRenderTargets(1, &renderTargetView, shadowDSV);
 	deviceContext->ClearDepthStencilView(shadowDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	deviceContext->VSSetShader(shadowVS, 0, 0);
 	deviceContext->PSSetShader(0, 0, 0);
-	//deviceContext->PSSetShader(shadowPS, 0, 0);
 
 	// Draw mesh objects that can cast shadows
 	if (meshObjects) {
@@ -625,13 +605,6 @@ void GameManager::UpdateScene(float dt)
 			(*meshObjects)[i]->Draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
 		}
 	}
-	//// Draw the game if in game mode
-	//if (gameState == GAME || gameState == DEBUG)
-	//{
-	//	blockManager->draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
-	//}
-
-	//return;
 
 	// ----------- Normal Rendering --------------------------------------------------------
 
@@ -655,22 +628,18 @@ void GameManager::UpdateScene(float dt)
 	deviceContext->VSSetShader(vertexShader, 0, 0);
 	deviceContext->PSSetShader(pixelShaders[activeShader], 0, 0);
 
-	//bind shadow map texture
+	// Bind shadow map texture
 	deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
 	deviceContext->PSSetSamplers(1, 1, &pointSampler);
 	
 	// Draw each mesh
-	if (meshObjects) {
-		for (UINT i = 0; i < meshObjects->size(); i++) {
+	if (meshObjects)
+	{
+		for (UINT i = 0; i < meshObjects->size(); i++)
+		{
 			(*meshObjects)[i]->Draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
 		}
 	}
-
-	// Draw the game if in game mode
-	/*if (gameState == GAME || gameState == DEBUG)
-	{
-		blockManager->draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
-	}*/
 
 	// Draw the particle system
 	if (gameState == GAME || gameState == DEBUG)
@@ -694,7 +663,7 @@ void GameManager::UpdateScene(float dt)
 	// Draw UI Elements
 	if (uiObjects) {
 
-		int score = 0;//blockManager->getScore();
+		int score = 0;
 		std::wstring s = std::wstring(L"Score\n") + std::to_wstring(score);
 		const wchar_t* result = s.c_str();
 		scoreLabel->SetText(result);
@@ -730,67 +699,24 @@ void GameManager::DrawScene() { }
 void GameManager::CheckKeyBoard(float dt)
 {
 	// Game controls
-	//if (gameState == GAME)
-	//{
-		// Move left
-		//if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT))
-		//{
-		//	blockManager->move(LEFT);
-		//}
+		// Currently none
+	
+	// Camera controls
 
-		//// Move Right
-		//if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT))
-		//{
-		//	blockManager->move(RIGHT);
-		//}
-
-		//// Move down faster
-		//if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN))
-		//{
-		//	blockManager->fallSpeed = FAST_FALL_SPEED;
-		//}
-		///*else
-		//{
-		//	blockManager->fallSpeed = SLOW_FALL_SPEED;
-		//}*/
-
-		//// Rotation
-		//if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP))
-		//{
-		//	if (canRotate)
-		//	{
-		//		blockManager->rotate();
-		//		canRotate = false;
-		//	}
-		//}
-		//else
-		//{
-		//	canRotate = true;
-		//}
-
-		//// Holding blocks
-		//if (GetAsyncKeyState('E'))
-		//{
-		//	blockManager->holdBlock();
-		//}
-	//}
-	///*else*/ if (gameState == DEBUG)
-	//{
-		// Strafing of camera
-		if (GetAsyncKeyState('A'))
-			camera->MoveHorizontal(-CAMERA_MOVE_FACTOR * dt);
-		else if (GetAsyncKeyState('D'))
-			camera->MoveHorizontal(CAMERA_MOVE_FACTOR * dt);
-		// Forward movement of camera
-		if (GetAsyncKeyState('W'))
-			camera->MoveDepth(CAMERA_MOVE_FACTOR * dt);
-		else if (GetAsyncKeyState('S'))
-			camera->MoveDepth(-CAMERA_MOVE_FACTOR * dt);
-		if (GetAsyncKeyState('Q'))
-			camera->MoveVertical(CAMERA_MOVE_FACTOR * dt);
-		else if (GetAsyncKeyState('E'))
-			camera->MoveVertical(-CAMERA_MOVE_FACTOR * dt);
-	//}
+	// Move camera (WASD)
+	if (GetAsyncKeyState('A'))
+		camera->MoveHorizontal(-CAMERA_MOVE_FACTOR * dt);
+	else if (GetAsyncKeyState('D'))
+		camera->MoveHorizontal(CAMERA_MOVE_FACTOR * dt);
+	if (GetAsyncKeyState('W'))
+		camera->MoveDepth(CAMERA_MOVE_FACTOR * dt);
+	else if (GetAsyncKeyState('S'))
+		camera->MoveDepth(-CAMERA_MOVE_FACTOR * dt);
+	// Change height of camera (QE)
+	if (GetAsyncKeyState('Q'))
+		camera->MoveVertical(CAMERA_MOVE_FACTOR * dt);
+	else if (GetAsyncKeyState('E'))
+		camera->MoveVertical(-CAMERA_MOVE_FACTOR * dt);
 }
 
 // Once per key press
@@ -801,13 +727,6 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		// Instant drop
-		case VK_SHIFT:
-			blockManager->drop();
-		// Switch to debug mode
-		case VK_CAPITAL:
-			gameState = (gameState != DEBUG) ? DEBUG : GAME;
-			break;
 		// Change the active shader
 		case VK_TAB:
 			activeShader = (activeShader + 1) % shaderCount;
@@ -833,23 +752,26 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 	ReleaseCapture();
 
 	// Main menu buttons
-	if (gameState == MENU) {
-		if (playButton->IsOver(x, y)) {
-			//blockManager->reset();
+	if (gameState == MENU)
+	{
+		if (playButton->IsOver(x, y))
+		{
 			gameState = GAME;
 		}
-		if (quitButton->IsOver(x, y)) {
+		if (quitButton->IsOver(x, y))
+		{
 			PostQuitMessage(0);
 		}
 	}
-	else if (gameState == GAME_OVER && mainMenuButton->IsOver(x, y)) {
+	else if (gameState == GAME_OVER && mainMenuButton->IsOver(x, y)) 
+	{
 		gameState = MENU;
 	}
 }
 
 void GameManager::OnMouseMove(WPARAM btnState, int x, int y)
 {
-	if (gameState == DEBUG && (btnState & MK_LBUTTON) != 0)
+	if ((btnState & MK_LBUTTON) != 0)
 	{
 		float dx = XMConvertToRadians(0.25f * static_cast<float>(x - prevMousePos.x));
 		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - prevMousePos.y));
