@@ -101,7 +101,7 @@ GameManager::~GameManager()
 	//	delete[] blocks[i].tempGrid;
 	//	delete[] blocks[i].grid;
 	//}
-	delete[] blocks;
+	//delete[] blocks;
 
 	delete[] pixelShaders;
 
@@ -137,7 +137,6 @@ GameManager::~GameManager()
 	delete particleMaterial;
 
 	delete camera;
-	delete particleSystem;
 	
 	delete spriteBatch;
 	delete spriteFont24;
@@ -208,9 +207,6 @@ bool GameManager::Init()
 	// Load the frame
 	gameObjects.emplace_back(new GameObject(frameMesh, frameMaterial, &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(environmentMesh, tileMaterial, &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
-
-	// Create particle system
-	particleSystem = new ParticleSystem(particleMesh, particleMaterial);
 
 	// Create 2D meshes
 	//triangleMesh = new Mesh(device, deviceContext, TRIANGLE);
@@ -639,24 +635,8 @@ void GameManager::UpdateScene(float dt)
 		}
 	}
 
-	// Draw the particle system
-	if (gameState == GAME || gameState == DEBUG)
-	{
-		// [DRAW] Set up the input assembler for particle system
-		deviceContext->IASetInputLayout(InputLayouts::Particle);
-		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-
-		particleSystem->GetMaterial()->SetShaders();
-
-		if (gameState != DEBUG)
-			// [UPDATE] Update the particle system 
-			particleSystem->Update(&dataToSendToGSConstantBuffer, dt);
-
-		// [DRAW] Draw the particle system
-		particleSystem->Draw(deviceContext, *camera, gsConstantBuffer, &dataToSendToGSConstantBuffer);
-
-		deviceContext->GSSetShader(NULL, 0, 0);
-	}
+	// Draw the particle system	
+		// None
 	
 	// Draw UI Elements
 	if (uiObjects)
