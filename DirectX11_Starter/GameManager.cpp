@@ -109,13 +109,6 @@ GameManager::~GameManager()
 	delete triangleMesh;
 	delete quadMesh;
 	delete cubeMesh;
-	delete jBlockMesh;
-	delete lBlockMesh;
-	delete leftBlockMesh;
-	delete longBlockMesh;
-	delete rightBlockMesh;
-	delete squareBlockMesh;
-	delete stairsBlockMesh;
 	delete frameMesh;
 	delete environmentMesh;
 	delete particleMesh;
@@ -125,13 +118,6 @@ GameManager::~GameManager()
 	delete buttonMaterial;
 	delete titleMaterial;
 	delete labelMaterial;
-	delete jBlockMaterial;
-	delete lBlockMaterial;
-	delete leftBlockMaterial;
-	delete longBlockMaterial;
-	delete rightBlockMaterial;
-	delete squareBlockMaterial;
-	delete stairsBlockMaterial;
 	delete frameMaterial;
 	delete tileMaterial;
 	delete particleMaterial;
@@ -201,6 +187,8 @@ bool GameManager::Init()
 	// Load the frame
 	gameObjects.emplace_back(new GameObject(frameMesh, frameMaterial, &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(environmentMesh, tileMaterial, &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
+
+	gameObjects.emplace_back(new GameObject(cubeMesh, shapeMaterial, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 
 	// Create 2D meshes
 	//triangleMesh = new Mesh(device, deviceContext, TRIANGLE);
@@ -389,7 +377,6 @@ void GameManager::LoadMeshesAndMaterials()
 	frameMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
 	size = loader.Load("environment.txt", device, &vertexBuffer, &indexBuffer);
 	environmentMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-	//particleMesh = new Mesh(device, deviceContext, PARTICLE);
 }
 
 // Create the structs of the different block types
@@ -525,7 +512,12 @@ void GameManager::UpdateScene(float dt)
 
 	// Active mesh list
 	std::vector<GameObject*> *meshObjects = 0;
-	if (gameState == GAME || gameState == DEBUG) meshObjects = &gameObjects;
+	if (gameState == GAME || gameState == DEBUG)
+	{
+		gameObjects[gameObjects.size() - 1]->Rotate(&XMFLOAT3(0.0f * dt, 1.0f * dt, 0.0f * dt));
+
+		meshObjects = &gameObjects;
+	}
 	
 	// Active UI list
 	std::vector<UIObject*> *uiObjects = 0;
