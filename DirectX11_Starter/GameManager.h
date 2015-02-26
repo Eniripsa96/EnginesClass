@@ -5,6 +5,7 @@
 #include <vector>
 #include <SpriteFont.h>
 #include <SpriteBatch.h>
+#include <xmmintrin.h>
 
 #include "DirectXGame.h"
 #include "GameObject.h"
