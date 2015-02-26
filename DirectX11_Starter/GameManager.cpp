@@ -190,13 +190,7 @@ bool GameManager::Init()
 	};
 
 	// Initialize the shadow camera
-	Camera* shadowCam = new Camera();
-	shadowCam->RotateY(-1.10715f);
-	shadowCam->Pitch(-0.930264f);
-	shadowCam->MoveTo(&XMFLOAT3(-20, 30, -10));
-	shadowCam->Update(0);
-	shadowView = shadowCam->viewMatrix;
-	delete shadowCam;
+		// None
 
 	// Load the fonts for the games
 	spriteBatch = new SpriteBatch(deviceContext);
@@ -384,13 +378,6 @@ void GameManager::LoadMeshesAndMaterials()
 	buttonMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"button.png");
 	titleMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"title.png");
 	labelMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"label.png");
-	jBlockMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"texJBlock.png");
-	lBlockMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"texLBlock.png");
-	leftBlockMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"texLeftBlock.png");
-	longBlockMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"texLongBlock.png");
-	rightBlockMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"texRightBlock.png");
-	squareBlockMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"texSquareBlock.png");
-	stairsBlockMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"texStairsBlock.png");
 	frameMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"texFrame.png");
 	tileMaterial = new Material(device, deviceContext, vertexShader, pixelShader, anisotropicSampler, L"tile.png");
 	particleMaterial = new Material(device, deviceContext, particleVertexShader, particlePixelShader, linearSampler, L"texLBlock.png", particleGeometryShader);
@@ -398,25 +385,11 @@ void GameManager::LoadMeshesAndMaterials()
 	// Load meshes
 	size = loader.Load("cube.txt", device, &vertexBuffer, &indexBuffer);
 	cubeMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-	size = loader.Load("jBlock.txt", device, &vertexBuffer, &indexBuffer);
-	jBlockMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-	size = loader.Load("lBlock.txt", device, &vertexBuffer, &indexBuffer);
-	lBlockMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-	size = loader.Load("leftBlock.txt", device, &vertexBuffer, &indexBuffer);
-	leftBlockMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-	size = loader.Load("longBlock.txt", device, &vertexBuffer, &indexBuffer);
-	longBlockMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-	size = loader.Load("rightBlock.txt", device, &vertexBuffer, &indexBuffer);
-	rightBlockMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-	size = loader.Load("squareBlock.txt", device, &vertexBuffer, &indexBuffer);
-	squareBlockMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-	size = loader.Load("stairsBlock.txt", device, &vertexBuffer, &indexBuffer);
-	stairsBlockMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
 	size = loader.Load("frame.txt", device, &vertexBuffer, &indexBuffer);
 	frameMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
 	size = loader.Load("environment.txt", device, &vertexBuffer, &indexBuffer);
 	environmentMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-	particleMesh = new Mesh(device, deviceContext, PARTICLE);
+	//particleMesh = new Mesh(device, deviceContext, PARTICLE);
 }
 
 // Create the structs of the different block types
