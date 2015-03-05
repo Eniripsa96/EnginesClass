@@ -39,7 +39,8 @@ class NormalQuaternion
 {
 public:
 	NormalQuaternion(float x, float y, float z, float w);
-	inline void slerp(NormalQuaternion q2, NormalQuaternion& out, float t);
+	inline void slerp(NormalQuaternion q2, NormalQuaternion out, float t);
+	inline void normalize();
 private:
 	float x, y, z, w;
 };
@@ -50,7 +51,7 @@ public:
 	SSEQuaternion(float, float, float, float);
 	SSEQuaternion(float*);
 	SSEQuaternion(__m128);
-	inline void slerp(SSEQuaternion, SSEQuaternion&, float);
+	inline void slerp(SSEQuaternion, SSEQuaternion, float);
 private:
 	__m128 data;
 };
