@@ -73,6 +73,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="InputLayouts.cpp" />
+    <ClCompile Include="Math.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="UIObject.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -89,6 +90,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputLayouts.h" />
+    <ClInclude Include="Math.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="UIObject.h" />
     <ClInclude Include="Material.h" />
