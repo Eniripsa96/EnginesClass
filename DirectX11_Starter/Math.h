@@ -1,6 +1,7 @@
 #pragma once
 
 #include <xmmintrin.h>
+#include <ctgmath>
 
 /**
  * Quick note: the __m128 type has 2 underscores
@@ -38,8 +39,10 @@
 class NormalQuaternion
 {
 public:
+	NormalQuaternion();
 	NormalQuaternion(float x, float y, float z, float w);
-	inline void slerp(NormalQuaternion q2, NormalQuaternion out, float t);
+	inline float dot(NormalQuaternion q2);
+	void slerp(NormalQuaternion q2, NormalQuaternion out, float t);
 	inline void normalize();
 private:
 	float x, y, z, w;
@@ -48,11 +51,14 @@ private:
 class SSEQuaternion
 {
 public:
+	SSEQuaternion();
 	SSEQuaternion(float, float, float, float);
 	SSEQuaternion(float*);
 	SSEQuaternion(__m128);
+	inline __m128 dot(SSEQuaternion);
 	inline void slerp(SSEQuaternion, SSEQuaternion, float);
 private:
 	__m128 data;
+	_declspec(align(16)) float buffer[4];
 };
 
