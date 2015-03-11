@@ -50,15 +50,18 @@ private:
 
 class SSEQuaternion
 {
+
 public:
 	SSEQuaternion();
 	SSEQuaternion(float, float, float, float);
 	SSEQuaternion(float*);
 	SSEQuaternion(__m128);
-	inline __m128 dot(SSEQuaternion);
-	inline void slerp(SSEQuaternion, SSEQuaternion, float);
+	static void Initialize(void);
+	inline __m128 dot(SSEQuaternion&);
+	inline void slerp(SSEQuaternion&, SSEQuaternion&, float);
+	inline __m128 sin(float);
+
 private:
 	__m128 data;
-	_declspec(align(16)) float buffer[4];
 };
 
