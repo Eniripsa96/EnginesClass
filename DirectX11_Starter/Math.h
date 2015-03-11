@@ -61,8 +61,13 @@ public:
 	inline __m128 dot(SSEQuaternion&);
 	void slerp(SSEQuaternion&, SSEQuaternion&, float);
 	void slerp2(SSEQuaternion&, SSEQuaternion&, float);
+	void slerp3(SSEQuaternion&, SSEQuaternion&, float);
 	inline __m128 aCos(float x);
 	inline __m128 sin(float);
+
+	inline __m128 sin2(__m128 theta);
+	inline __m128 acos2(__m128 dot);
+	inline __m128 sincos(__m128 theta);
 
 	float* getData(void);
 

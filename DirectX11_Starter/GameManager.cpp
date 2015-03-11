@@ -83,21 +83,30 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 	SSEQuaternion q4(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2, c1);
 	SSEQuaternion q5(0.0f, s2 * sqrt(2) / 2, s2 * sqrt(2) / 2, c2);
 	SSEQuaternion q6;;
+
+	// SSE Attempt 1 - Two unloads, no trig
 	start = std::clock();
 	for (int i = 0; i < 400000; i++)
 	{
 		q4.slerp(q5, q6, 0.5f);
-
 	}
 	double duration2 = std::clock() - start;
 
+	// SSE Attempt 2 - One unload, regular acos call
 	start = std::clock();
 	for (int i = 0; i < 400000; i++)
 	{
 		q4.slerp2(q5, q6, 0.5f);
-
 	}
 	double duration3 = std::clock() - start;
+
+	// SSE Attempt 3 - no unloading, no trig
+	start = std::clock();
+	for (int i = 0; i < 400000; i++)
+	{
+		q4.slerp3(q5, q6, 0.5f);
+	}
+	double duration4 = std::clock() - start;
 
 	int i = 0;
 }
