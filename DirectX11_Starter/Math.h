@@ -2,6 +2,7 @@
 
 #include <xmmintrin.h>
 #include <ctgmath>
+#include <DirectXMath.h>
 
 /**
  * Quick note: the __m128 type has 2 underscores
@@ -59,6 +60,8 @@ public:
 	static void Initialize(void);
 	inline __m128 dot(SSEQuaternion&);
 	void slerp(SSEQuaternion&, SSEQuaternion&, float);
+	void slerp2(SSEQuaternion&, SSEQuaternion&, float);
+	inline __m128 aCos(float x);
 	inline __m128 sin(float);
 
 	float* getData(void);
