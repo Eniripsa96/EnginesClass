@@ -102,7 +102,7 @@ void SSEQuaternion::Initialize()
 
 	_1111 = _mm_set_ps(1.0f, 1.0f, 1.0f, 1.0f);
 	_0011 = _mm_set_ps(0.0f, 0.0f, 1.0f, 1.0f);
-	_absMask = _mm_set_ps(0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF);
+	_absMask = _mm_castsi128_ps(_mm_setr_epi32(-1, 0x7FFFFFFF, -1, 0x7FFFFFFF));
 }
 
 inline __m128 SSEQuaternion::dot(SSEQuaternion& q2)
@@ -222,7 +222,7 @@ void SSEQuaternion::slerp3(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	theta = _mm_abs_ps(theta);
 
 	// Load the scalar
-	__m128 tv = _mm_set1_ps(t);
+	__m128 tv = _mm_set1_ps(t * 0.5f);
 	__m128 tv2 = _mm_sub_ps(_1111, tv);
 
 	// Sin values
@@ -252,11 +252,11 @@ __m128 SSEQuaternion::acos2(__m128 dot) {
 	factor = _mm_mul_ps(dot, factor);       // x, x, x^5, x^5
 
 	// Get the inside terms
-	__m128 terms = _mm_shuffle_ps(mask, mask, SHUFFLE_PARAM(0, 2, 1, 3));
-	terms = _mm_mul_ps(terms, acosConst_2);
+	__m128 terms = _mm_shuffle_ps(mask, mask, SHUFFLE_PARAM(0, 2, 1, 3)); // 1 x^2 1 x^2
+	terms = _mm_mul_ps(terms, acosConst); // a bx^2 c dx^2
 
 	// Multiply by the factor to get each final term
-	terms = _mm_mul_ps(terms, factor);
+	terms = _mm_mul_ps(terms, factor); // ax bx^3 cx^5 dx^7
 
 	// Sum the results together
 	__m128 shuffle = _mm_shuffle_ps(terms, terms, SHUFFLE_PARAM(3, 2, 1, 0));
@@ -264,7 +264,7 @@ __m128 SSEQuaternion::acos2(__m128 dot) {
 	shuffle = _mm_shuffle_ps(terms, terms, SHUFFLE_PARAM(2, 3, 0, 1));
 
 	// Return acos(x) as m128
-	return _mm_add_ps(_mm_add_ps(terms, shuffle), PI_4);
+	return _mm_add_ps(_mm_add_ps(terms, shuffle), PI_2);
 }
 
 __m128 SSEQuaternion::sin2(__m128 theta) {
@@ -292,7 +292,7 @@ __m128 SSEQuaternion::sin2(__m128 theta) {
 	shuffle = _mm_shuffle_ps(terms, terms, SHUFFLE_PARAM(2, 3, 0, 1));
 
 	// Return acos(x) as m128
-	return _mm_add_ps(_mm_add_ps(terms, shuffle), PI_2);
+	return _mm_add_ps(terms, shuffle);
 }
 
 __m128 SSEQuaternion::sincos(__m128 theta) {
