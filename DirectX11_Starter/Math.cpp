@@ -177,7 +177,24 @@ void SSEQuaternion::slerp(SSEQuaternion& q2, SSEQuaternion& out, float t)
 // Slerp with only sin converted to SSE
 void SSEQuaternion::slerp2(SSEQuaternion& q2, SSEQuaternion& out, float t)
 {
+	// Calculate the dot product of this quaternion and q2
+	__m128 dp = dot(q2);
+	_declspec(align(16))float thetaArray[4];
+	_mm_store_ps(thetaArray, dp);
+	t = t / 2.0f;
 
+	float theta = acos(thetaArray[0]);
+
+	if (theta<0.0) theta = -theta;
+
+	__m128 st = sin(theta);
+	__m128 sut = sin(t * theta);
+	__m128 sout = sin((1 - t) * theta);
+
+	__m128 c1 = _mm_div_ps(sout, st);
+	__m128 c2 = _mm_div_ps(sut, st);
+
+	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
 }
 
 float* SSEQuaternion::getData()

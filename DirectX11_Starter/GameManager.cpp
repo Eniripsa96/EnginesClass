@@ -90,6 +90,15 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 
 	}
 	double duration2 = std::clock() - start;
+
+	start = std::clock();
+	for (int i = 0; i < 400000; i++)
+	{
+		q4.slerp2(q5, q6, 0.5f);
+
+	}
+	double duration3 = std::clock() - start;
+
 	int i = 0;
 }
 
