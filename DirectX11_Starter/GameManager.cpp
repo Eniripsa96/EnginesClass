@@ -62,6 +62,26 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 	windowHeight = 600;
 
 	gameState = MENU;
+
+	float c1 = cos(1);
+	float s1 = sin(1);
+	float c2 = cos(2);
+	float s2 = sin(2);
+
+	SSEQuaternion::Initialize();
+
+	NormalQuaternion q1(s1 * 0.5f, 0.0f, s1 * sqrt(3)/2, c1);
+	NormalQuaternion q2(0.0f, s2 * sqrt(2) / 2, s2 * sqrt(2) / 2, c2);
+	NormalQuaternion q3;
+	q1.slerp(q2, q3, 0.5f);
+	std::cout << q3.x << std::endl;
+	
+	SSEQuaternion* q4 = new SSEQuaternion(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2, c1);
+	SSEQuaternion* q5 = new SSEQuaternion(0.0f, s2 * sqrt(2) / 2, s2 * sqrt(2) / 2, c2);
+	SSEQuaternion* q6 = new SSEQuaternion();
+	q4->slerp(*q5, *q6, 0.5f);
+	float* array = q6->getData();
+	std::cout << q6->getData()[0] << std::endl;
 }
 
 // Clean up here

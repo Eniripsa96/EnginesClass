@@ -6,6 +6,7 @@
 #include <SpriteFont.h>
 #include <SpriteBatch.h>
 #include <xmmintrin.h>
+#include <iostream>
 
 #include "DirectXGame.h"
 #include "GameObject.h"
@@ -15,6 +16,7 @@
 #include "ObjLoader.h"
 #include "InputLayouts.h"
 #include "ParticleSystem.h"
+#include "Math.h"
 
 // Include run-time memory checking in debug builds
 #if defined(DEBUG) || defined(_DEBUG)
