@@ -137,7 +137,7 @@ void SSEQuaternion::slerp(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	__m128 c1 = _mm_div_ps(sout, st);
 	__m128 c2 = _mm_div_ps(sut, st);
 
-	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, data));
+	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
 }
 
 float* SSEQuaternion::getData()
