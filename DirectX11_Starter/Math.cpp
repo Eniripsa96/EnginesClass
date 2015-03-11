@@ -16,7 +16,7 @@ NormalQuaternion::NormalQuaternion(float xp, float yp, float zp, float wp)
 	w = wp;
 }
 
-void NormalQuaternion::slerp(NormalQuaternion q2, NormalQuaternion out, float t)
+void NormalQuaternion::slerp(NormalQuaternion& q2, NormalQuaternion& out, float t)
 {
 	float dotproduct = dot(q2);
 	
@@ -60,6 +60,10 @@ inline void NormalQuaternion::normalize()
 // Fraction constant for taylor series
 __m128 fracConst;
 
+SSEQuaternion::SSEQuaternion()
+{
+}
+
 SSEQuaternion::SSEQuaternion(float x, float y, float z, float w)
 {
 	data = _mm_set_ps(x, y, z, w);
@@ -82,7 +86,7 @@ void SSEQuaternion::Initialize()
 
 inline __m128 SSEQuaternion::dot(SSEQuaternion& q2)
 {
-	__m128 mul = _mm_mul_ps(data, q2.data);
+	__m128 mul = _mm_mul_ps(q2.data, data);
 	__m128 shuffle = _mm_shuffle_ps(mul, mul, SHUFFLE_PARAM(3, 2, 1, 0));
 	__m128 sum = _mm_add_ps(mul, shuffle);
 	shuffle = _mm_shuffle_ps(sum, sum, SHUFFLE_PARAM(2, 3, 0, 1));
@@ -114,7 +118,7 @@ inline __m128 SSEQuaternion::sin(float x)
 	return _mm_add_ps(result, shuffle);
 }
 
-inline void SSEQuaternion::slerp(SSEQuaternion& q2, SSEQuaternion& out, float t)
+void SSEQuaternion::slerp(SSEQuaternion& q2, SSEQuaternion& out, float t)
 {
 	// Calculate the dot product of this quaternion and q2
 	__m128 dp = dot(q2);
@@ -124,7 +128,7 @@ inline void SSEQuaternion::slerp(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	t = t / 2.0f;
 	
 	float theta = acos(thetaArray[0]);
-	if (theta<0.0) theta = -theta;
+ 	if (theta<0.0) theta = -theta;
 	
 	__m128 st = sin(theta);
 	__m128 sut = sin(t * theta);
@@ -134,4 +138,28 @@ inline void SSEQuaternion::slerp(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	__m128 c2 = _mm_div_ps(sut, st);
 
 	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, data));
+}
+
+float* SSEQuaternion::getData()
+{
+	_declspec(align(16))float array[4];
+	_mm_store_ps(array, data);
+
+	float x = array[0];
+	float y = array[1];
+	float z = array[2];
+	float w = array[3];
+
+	float l = 1 / sqrt(x * x + y * y + z * z + w * w);
+	x *= l;
+	y *= l;
+	z *= l;
+	w *= l;
+
+	array[0] = x;
+	array[1] = y;
+	array[2] = z;
+	array[3] = w;
+
+	return array;
 }

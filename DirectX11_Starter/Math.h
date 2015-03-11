@@ -42,9 +42,9 @@ public:
 	NormalQuaternion();
 	NormalQuaternion(float x, float y, float z, float w);
 	inline float dot(NormalQuaternion q2);
-	void slerp(NormalQuaternion q2, NormalQuaternion out, float t);
+	void slerp(NormalQuaternion& q2, NormalQuaternion& out, float t);
 	inline void normalize();
-private:
+
 	float x, y, z, w;
 };
 
@@ -58,8 +58,10 @@ public:
 	SSEQuaternion(__m128);
 	static void Initialize(void);
 	inline __m128 dot(SSEQuaternion&);
-	inline void slerp(SSEQuaternion&, SSEQuaternion&, float);
+	void slerp(SSEQuaternion&, SSEQuaternion&, float);
 	inline __m128 sin(float);
+
+	float* getData(void);
 
 private:
 	__m128 data;
