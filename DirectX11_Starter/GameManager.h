@@ -7,6 +7,7 @@
 #include <SpriteBatch.h>
 #include <xmmintrin.h>
 #include <iostream>
+#include <ctime>
 
 #include "DirectXGame.h"
 #include "GameObject.h"

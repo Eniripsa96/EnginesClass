@@ -70,18 +70,27 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 
 	SSEQuaternion::Initialize();
 
-	NormalQuaternion q1(s1 * 0.5f, 0.0f, s1 * sqrt(3)/2, c1);
+	NormalQuaternion q1(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2, c1);
 	NormalQuaternion q2(0.0f, s2 * sqrt(2) / 2, s2 * sqrt(2) / 2, c2);
 	NormalQuaternion q3;
-	q1.slerp(q2, q3, 0.5f);
-	std::cout << q3.x << std::endl;
-	
-	SSEQuaternion* q4 = new SSEQuaternion(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2, c1);
-	SSEQuaternion* q5 = new SSEQuaternion(0.0f, s2 * sqrt(2) / 2, s2 * sqrt(2) / 2, c2);
-	SSEQuaternion* q6 = new SSEQuaternion();
-	q4->slerp(*q5, *q6, 0.5f);
-	float* array = q6->getData();
-	std::cout << q6->getData()[0] << std::endl;
+	std::clock_t start = std::clock();
+	for (int i = 0; i < 400000; i++)
+	{
+		q1.slerp(q2, q3, 0.5f);
+	}
+	double duration1 = std::clock() - start;
+
+	SSEQuaternion q4(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2, c1);
+	SSEQuaternion q5(0.0f, s2 * sqrt(2) / 2, s2 * sqrt(2) / 2, c2);
+	SSEQuaternion q6;;
+	start = std::clock();
+	for (int i = 0; i < 400000; i++)
+	{
+		q4.slerp(q5, q6, 0.5f);
+
+	}
+	double duration2 = std::clock() - start;
+	int i = 0;
 }
 
 // Clean up here
