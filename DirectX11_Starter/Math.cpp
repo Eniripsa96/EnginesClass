@@ -1,6 +1,7 @@
 #include "Math.h"
 
 #define _mm_abs_ps(x) _mm_and_ps(x, _absMask)
+#define PI 3.14159265358979323846264338327950288f
 
 // ----- Normal quaternion implementation ----- //
 
@@ -102,8 +103,6 @@ void SSEQuaternion::Initialize()
 	sinConst = _mm_set_ps(1.0f, -0.166666666f, 0.008333333f, -0.0001984126984f);
 	acosConst = _mm_set_ps(-1.0f, -0.166666666f, -0.008333333f, -0.0001984126984f);
 	acosConst_2 = _mm_set_ps(-0.5f, -0.083333333333333f, -0.0041666666666666f, -0.0000992063492f);
-
-	float PI = 3.14159265358979323846264338327950288f;
 
 	PI_2 = _mm_set_ps(PI / 2.0f, PI / 2.0f, PI / 2.0f, PI / 2.0f);
 	PI_4 = _mm_set_ps(PI / 4.0f, PI / 4.0f, PI / 4.0f, PI / 4.0f);
@@ -230,7 +229,7 @@ void SSEQuaternion::slerp2(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
 }
 
-// Slerp with only sin converted to SSE
+// Slerp with only sin converted to SSE - BROKEN
 void SSEQuaternion::slerp3(SSEQuaternion& q2, SSEQuaternion& out, float t)
 {
 	// Calculate the dot product of this quaternion and q2
@@ -257,6 +256,7 @@ void SSEQuaternion::slerp3(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
 }
 
+// Attempted q0(q0* q1)^t formula - BROKEN
 void SSEQuaternion::slerp4(SSEQuaternion& q2, SSEQuaternion& out, float t)
 {
 	// Conjugate of q2
@@ -266,9 +266,16 @@ void SSEQuaternion::slerp4(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	__m128 q1q2c = mulQuat(data, q2c);
 
 	// Theta betweem the quaternions
-	__m128 theta = acos2(dot(q2));
+	__m128 dp = dot(q2);
+	float theta = acos(_mm_cvtss_f32(dp));
+	
+	__m128 sc = sincos(theta);
+	sc = _mm_shuffle_ps(sc, sc, SHUFFLE_PARAM(0, 0, 0, 1));
+
+	out.data = mulQuat(data, _mm_mul_ps(sc, q1q2c));
 }
 
+// Attempted shared sine calculation - BROKEN
 void SSEQuaternion::slerp5(SSEQuaternion& q2, SSEQuaternion& out, float t)
 {
 	// Calculate the dot product of this quaternion and q2
@@ -279,13 +286,15 @@ void SSEQuaternion::slerp5(SSEQuaternion& q2, SSEQuaternion& out, float t)
 
 	float theta = acos(thetaArray[0]);
 
-	if (theta<0.0) theta = -theta;
+	if (theta < 0.0) theta = -theta;
 
-	__m128 thetas = _mm_set_ps(theta, t * theta, (1 - t) * theta, 0);
+	__m128 thetas = _mm_set_ps(0, 0, (1 - t) * theta, t * theta);
+	__m128 ntheta = _mm_set1_ps(theta);
 	__m128 sins = sin2(thetas);
+	__m128 nsin = sin2(ntheta);
 
-	__m128 c1 = _mm_div_ps(_mm_replicate_ps(thetas, 2), _mm_replicate_ps(thetas, 0));
-	__m128 c2 = _mm_div_ps(_mm_replicate_ps(thetas, 1), _mm_replicate_ps(thetas, 0));
+	__m128 c1 = _mm_div_ps(_mm_replicate_ps(thetas, 0), ntheta);
+	__m128 c2 = _mm_div_ps(_mm_replicate_ps(thetas, 1), ntheta);
 
 	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
 }
@@ -336,27 +345,19 @@ __m128 SSEQuaternion::mulQuat(__m128 q1, __m128 q2)
 	return _mm_shuffle_ps(XZWY, XZWY, SHUFFLE_PARAM(2, 1, 3, 0));
 }
 
+// Sin formula from
+// https://dtosoftware.wordpress.com/2013/01/07/fast-sin-and-cos-functions/
+// Seems to not work
 __m128 SSEQuaternion::sin2(__m128 theta) {
-	__m128 m1 = _mm_cmpnlt_ps(theta, m_pi);
-	m1 = _mm_and_ps(m1, m_2pi);
-	theta = _mm_sub_ps(theta, m1);
-	m1 = _mm_cmpngt_ps(theta, m_mpi);
-	m1 = _mm_and_ps(m1, m_2pi);
-	theta = _mm_add_ps(theta, m1);
-	__m128 m_abs = _mm_abs_ps(theta);
-	m1 = _mm_mul_ps(m_abs, m_C);
-	m1 = _mm_add_ps(m1, m_B);
-	__m128 m_y = _mm_mul_ps(m1, theta);
-	m_abs = _mm_abs_ps(m_y);
-	m1 = _mm_mul_ps(m_abs, m_y);
-	m1 = _mm_sub_ps(m1, m_y);
-	m1 = _mm_mul_ps(m1, m_P);
-	m_y = _mm_add_ps(m1, m_y);
-	return m_y;
+	__m128 y = _mm_add_ps(_mm_mul_ps(theta, m_B), _mm_mul_ps(_mm_mul_ps(theta, m_C), _mm_abs_ps(theta)));
+	return _mm_add_ps(y, _mm_mul_ps(_mm_sub_ps(_mm_mul_ps(y, _mm_abs_ps(y)), y), m_P));
 }
 
-__m128 SSEQuaternion::sincos(__m128 theta) {
-
+__m128 SSEQuaternion::sincos(float theta) {
+	__m128 m_both = _mm_set_ps(0.f, 0.f, theta + PI / 2.f, theta);
+	__m128 m_sincos = sin2(m_both);
+	__m128 m_cos = _mm_shuffle_ps(m_sincos, m_sincos, _MM_SHUFFLE(0, 0, 0, 1));
+	return m_sincos;
 }
 
 float* SSEQuaternion::getData()
