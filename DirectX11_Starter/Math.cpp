@@ -69,6 +69,14 @@ __m128 PI_4;
 __m128 _1111;
 __m128 _0011;
 __m128 _absMask;
+__m128 _conjugate;
+
+__m128 m_pi;
+__m128 m_mpi;
+__m128 m_2pi;
+__m128 m_B;
+__m128 m_C;
+__m128 m_P;
 
 SSEQuaternion::SSEQuaternion()
 {
@@ -101,8 +109,19 @@ void SSEQuaternion::Initialize()
 	PI_4 = _mm_set_ps(PI / 4.0f, PI / 4.0f, PI / 4.0f, PI / 4.0f);
 
 	_1111 = _mm_set_ps(1.0f, 1.0f, 1.0f, 1.0f);
-	_0011 = _mm_set_ps(0.0f, 0.0f, 1.0f, 1.0f);
+	_0011 = _mm_castsi128_ps(_mm_setr_epi32(0, 0, 0xFFFFFFFF, 0xFFFFFFFF));
 	_absMask = _mm_castsi128_ps(_mm_setr_epi32(-1, 0x7FFFFFFF, -1, 0x7FFFFFFF));
+	_conjugate = _mm_castsi128_ps(_mm_set_epi32(0x80000000, 0x80000000, 0x80000000, 0));
+
+	const float B = 4.f / PI;
+	const float C = -4.f / (PI * PI);
+	const float P = 0.225f;
+	m_pi = _mm_set1_ps(PI);
+	m_mpi = _mm_set1_ps(-PI);
+	m_2pi = _mm_set1_ps(PI * 2);
+	m_B = _mm_set1_ps(B);
+	m_C = _mm_set1_ps(C);
+	m_P = _mm_set1_ps(P);
 }
 
 inline __m128 SSEQuaternion::dot(SSEQuaternion& q2)
@@ -238,12 +257,45 @@ void SSEQuaternion::slerp3(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
 }
 
+void SSEQuaternion::slerp4(SSEQuaternion& q2, SSEQuaternion& out, float t)
+{
+	// Conjugate of q2
+	__m128 q2c = _mm_xor_ps(q2.data, _conjugate);
+
+	// this * q2c
+	__m128 q1q2c = mulQuat(data, q2c);
+
+	// Theta betweem the quaternions
+	__m128 theta = acos2(dot(q2));
+}
+
+void SSEQuaternion::slerp5(SSEQuaternion& q2, SSEQuaternion& out, float t)
+{
+	// Calculate the dot product of this quaternion and q2
+	__m128 dp = dot(q2);
+	_declspec(align(16))float thetaArray[4];
+	_mm_store_ps(thetaArray, dp);
+	t = t / 2.0f;
+
+	float theta = acos(thetaArray[0]);
+
+	if (theta<0.0) theta = -theta;
+
+	__m128 thetas = _mm_set_ps(theta, t * theta, (1 - t) * theta, 0);
+	__m128 sins = sin2(thetas);
+
+	__m128 c1 = _mm_div_ps(_mm_replicate_ps(thetas, 2), _mm_replicate_ps(thetas, 0));
+	__m128 c2 = _mm_div_ps(_mm_replicate_ps(thetas, 1), _mm_replicate_ps(thetas, 0));
+
+	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
+}
+
 // Returns have the acos of the dot product value
 __m128 SSEQuaternion::acos2(__m128 dot) {
 
 	// Mask xxxx to 1, 1, x^2, x^2
 	__m128 mask = _mm_sub_ps(dot, _1111); // x-1, x-1, x-1, x-1
-	mask = _mm_mul_ps(mask, _0011);       // 0, 0, x-1, x-1
+	mask = _mm_and_ps(mask, _0011);       // 0, 0, x-1, x-1
 	mask = _mm_add_ps(mask, _1111);       // 1, 1, x, x
 	mask = _mm_mul_ps(mask, mask);        // 1, 1, x^2, x^2
 
@@ -267,32 +319,40 @@ __m128 SSEQuaternion::acos2(__m128 dot) {
 	return _mm_add_ps(_mm_add_ps(terms, shuffle), PI_2);
 }
 
+// Multiplies two quaternions
+// http://stackoverflow.com/questions/18542894/how-to-multiply-two-quaternions-with-minimal-instructions
+__m128 SSEQuaternion::mulQuat(__m128 q1, __m128 q2)
+{
+	__m128 wzyx = _mm_shuffle_ps(q1, q1, SHUFFLE_PARAM(0, 1, 2, 3));
+	__m128 baba = _mm_shuffle_ps(q2, q2, SHUFFLE_PARAM(0, 1, 0, 1));
+	__m128 dcdc = _mm_shuffle_ps(q2, q2, SHUFFLE_PARAM(2, 3, 2, 3));
+
+	__m128 ZnXWY = _mm_hsub_ps(_mm_mul_ps(q1, baba), _mm_mul_ps(wzyx, dcdc));
+	__m128 XZYnW = _mm_hadd_ps(_mm_mul_ps(q1, dcdc), _mm_mul_ps(wzyx, baba));
+
+	__m128 XZWY = _mm_addsub_ps(_mm_shuffle_ps(XZYnW, ZnXWY, SHUFFLE_PARAM(3, 2, 1, 0)),
+								_mm_shuffle_ps(ZnXWY, XZYnW, SHUFFLE_PARAM(2, 3, 0, 1)));
+
+	return _mm_shuffle_ps(XZWY, XZWY, SHUFFLE_PARAM(2, 1, 3, 0));
+}
+
 __m128 SSEQuaternion::sin2(__m128 theta) {
-
-	// Mask xxxx to 1, 1, x^2, x^2
-	__m128 mask = _mm_sub_ps(theta, _1111); // x-1, x-1, x-1, x-1
-	mask = _mm_mul_ps(mask, _0011);       // 0, 0, x-1, x-1
-	mask = _mm_add_ps(mask, _1111);       // 1, 1, x, x
-	mask = _mm_mul_ps(mask, mask);        // 1, 1, x^2, x^2
-
-	// Multiply further to get x, x, x^5, x^5
-	__m128 factor = _mm_mul_ps(mask, mask); // 1, 1, x^4, x^4
-	factor = _mm_mul_ps(theta, factor);       // x, x, x^5, x^5
-
-	// Get the inside terms
-	__m128 terms = _mm_shuffle_ps(mask, mask, SHUFFLE_PARAM(0, 2, 1, 3));
-	terms = _mm_mul_ps(terms, sinConst);
-
-	// Multiply by the factor to get each final term
-	terms = _mm_mul_ps(terms, factor);
-
-	// Sum the results together
-	__m128 shuffle = _mm_shuffle_ps(terms, terms, SHUFFLE_PARAM(3, 2, 1, 0));
-	terms = _mm_add_ps(terms, shuffle);
-	shuffle = _mm_shuffle_ps(terms, terms, SHUFFLE_PARAM(2, 3, 0, 1));
-
-	// Return acos(x) as m128
-	return _mm_add_ps(terms, shuffle);
+	__m128 m1 = _mm_cmpnlt_ps(theta, m_pi);
+	m1 = _mm_and_ps(m1, m_2pi);
+	theta = _mm_sub_ps(theta, m1);
+	m1 = _mm_cmpngt_ps(theta, m_mpi);
+	m1 = _mm_and_ps(m1, m_2pi);
+	theta = _mm_add_ps(theta, m1);
+	__m128 m_abs = _mm_abs_ps(theta);
+	m1 = _mm_mul_ps(m_abs, m_C);
+	m1 = _mm_add_ps(m1, m_B);
+	__m128 m_y = _mm_mul_ps(m1, theta);
+	m_abs = _mm_abs_ps(m_y);
+	m1 = _mm_mul_ps(m_abs, m_y);
+	m1 = _mm_sub_ps(m1, m_y);
+	m1 = _mm_mul_ps(m1, m_P);
+	m_y = _mm_add_ps(m1, m_y);
+	return m_y;
 }
 
 __m128 SSEQuaternion::sincos(__m128 theta) {

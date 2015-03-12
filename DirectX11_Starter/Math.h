@@ -62,8 +62,11 @@ public:
 	void slerp(SSEQuaternion&, SSEQuaternion&, float);
 	void slerp2(SSEQuaternion&, SSEQuaternion&, float);
 	void slerp3(SSEQuaternion&, SSEQuaternion&, float);
+	void slerp4(SSEQuaternion&, SSEQuaternion&, float);
+	void slerp5(SSEQuaternion&, SSEQuaternion&, float);
 	inline __m128 aCos(float x);
 	inline __m128 sin(float);
+	inline __m128 mulQuat(__m128 q1, __m128 q2);
 
 	inline __m128 sin2(__m128 theta);
 	inline __m128 acos2(__m128 dot);
