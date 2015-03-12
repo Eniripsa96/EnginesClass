@@ -100,7 +100,15 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 	}
 	double duration3 = std::clock() - start;
 
-	// SSE Attempt 2 - One unload, regular acos call
+	// SSE Attempt 3 - All SSE functions
+	start = std::clock();
+	for (int i = 0; i < 400000; i++)
+	{
+		q4.slerp3(q5, q6, 0.5f);
+	}
+	double duration4 = std::clock() - start;
+
+	// SSE Attempt 5 - One unload, regular acos call, parallel sin calculations
 	start = std::clock();
 	for (int i = 0; i < 400000; i++)
 	{

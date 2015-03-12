@@ -181,7 +181,7 @@ inline __m128 SSEQuaternion::aCos(float x)
 	return _mm_add_ps(_mm_add_ps(result, shuffle), PI_2);
 }
 
-// Slerp with all trig functions converted to SSE
+// Slerp with all trig functions converted to SSE - 2nd slowest
 void SSEQuaternion::slerp(SSEQuaternion& q2, SSEQuaternion& out, float t)
 {
 	// Calculate the dot product of this quaternion and q2
@@ -206,7 +206,7 @@ void SSEQuaternion::slerp(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
 }
 
-// Slerp with only sin converted to SSE
+// Slerp with only sin converted to SSE - slowest
 void SSEQuaternion::slerp2(SSEQuaternion& q2, SSEQuaternion& out, float t)
 {
 	// Calculate the dot product of this quaternion and q2
@@ -229,7 +229,7 @@ void SSEQuaternion::slerp2(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
 }
 
-// Slerp with only sin converted to SSE - BROKEN
+// Slerp with all SSE functions - 2nd fastest
 void SSEQuaternion::slerp3(SSEQuaternion& q2, SSEQuaternion& out, float t)
 {
 	// Calculate the dot product of this quaternion and q2
@@ -240,17 +240,16 @@ void SSEQuaternion::slerp3(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	theta = _mm_abs_ps(theta);
 
 	// Load the scalar
-	__m128 tv = _mm_set1_ps(t * 0.5f);
-	__m128 tv2 = _mm_sub_ps(_1111, tv);
+	t *= 0.5f;
+	__m128 tm = _mm_set_ps(t, 1 - t, 1, 0);
 
 	// Sin values
-	__m128 st = sin2(theta);
-	__m128 sut = sin2(_mm_mul_ps(theta, tv));
-	__m128 sout = sin2(_mm_mul_ps(theta, tv2));
+	__m128 sins = sin2(_mm_mul_ps(tm, theta));
 
 	// Coefficients
-	__m128 c1 = _mm_div_ps(sout, st);
-	__m128 c2 = _mm_div_ps(sut, st);
+	__m128 s = _mm_replicate_ps(sins, 1);
+	__m128 c1 = _mm_div_ps(_mm_replicate_ps(sins, 2), s);
+	__m128 c2 = _mm_div_ps(_mm_replicate_ps(sins, 3), s);
 
 	// Final result
 	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
@@ -260,22 +259,24 @@ void SSEQuaternion::slerp3(SSEQuaternion& q2, SSEQuaternion& out, float t)
 void SSEQuaternion::slerp4(SSEQuaternion& q2, SSEQuaternion& out, float t)
 {
 	// Conjugate of q2
-	__m128 q2c = _mm_xor_ps(q2.data, _conjugate);
+	__m128 qc = _mm_xor_ps(data, _conjugate);
 
 	// this * q2c
-	__m128 q1q2c = mulQuat(data, q2c);
+	__m128 qcq2 = mulQuat(qc, q2.data);
 
 	// Theta betweem the quaternions
 	__m128 dp = dot(q2);
 	float theta = acos(_mm_cvtss_f32(dp));
 	
-	__m128 sc = sincos(theta);
-	sc = _mm_shuffle_ps(sc, sc, SHUFFLE_PARAM(0, 0, 0, 1));
+	// cos*w + sin*xyz
+	__m128 sc = sin2(_mm_set_ps(theta * t, theta * t + PI * 0.5f, 0, 0));
+	sc = _mm_shuffle_ps(sc, sc, SHUFFLE_PARAM(3, 3, 3, 2));
 
-	out.data = mulQuat(data, _mm_mul_ps(sc, q1q2c));
+	// final multiplication
+	out.data = mulQuat(data, _mm_mul_ps(sc, qcq2));
 }
 
-// Attempted shared sine calculation - BROKEN
+// Attempted shared sine calculation - fastest
 void SSEQuaternion::slerp5(SSEQuaternion& q2, SSEQuaternion& out, float t)
 {
 	// Calculate the dot product of this quaternion and q2
@@ -285,35 +286,47 @@ void SSEQuaternion::slerp5(SSEQuaternion& q2, SSEQuaternion& out, float t)
 	t = t / 2.0f;
 
 	float theta = acos(thetaArray[0]);
-
 	if (theta < 0.0) theta = -theta;
 
+	// Calculate sine values
 	__m128 thetas = _mm_set_ps(0, theta, (1 - t) * theta, t * theta);
 	__m128 sins = sin2(thetas);
 
+	// Get the coefficients
 	__m128 s = _mm_replicate_ps(sins, 2);
 	__m128 c1 = _mm_div_ps(_mm_replicate_ps(sins, 1), s);
 	__m128 c2 = _mm_div_ps(_mm_replicate_ps(sins, 0), s);
 
+	// Return the result
 	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
 }
 
-// Returns have the acos of the dot product value
+// Calculating multiple sine values at once
+__m128 SSEQuaternion::sin2(__m128 theta) {
+	__m128 theta2 = _mm_mul_ps(theta, theta);
+	__m128 sin = _mm_mul_ps(theta2, _mm_replicate_ps(sinConst, 0));           // dx^2
+	sin = _mm_mul_ps(theta2, _mm_add_ps(sin, _mm_replicate_ps(sinConst, 1))); // cx^2 + dx^4
+	sin = _mm_mul_ps(theta2, _mm_add_ps(sin, _mm_replicate_ps(sinConst, 2))); // bx^2 + cx^4 + dx^6
+	return _mm_mul_ps(theta, _mm_add_ps(sin, _mm_replicate_ps(sinConst, 3))); // ax + bx^3 + cx^5 + dx^7
+}
+
+// Returns have the acos of the dot product value - BROKEN
 __m128 SSEQuaternion::acos2(__m128 dot) {
 
 	// Mask xxxx to 1, 1, x^2, x^2
-	__m128 mask = _mm_sub_ps(dot, _1111); // x-1, x-1, x-1, x-1
-	mask = _mm_and_ps(mask, _0011);       // 0, 0, x-1, x-1
-	mask = _mm_add_ps(mask, _1111);       // 1, 1, x, x
-	mask = _mm_mul_ps(mask, mask);        // 1, 1, x^2, x^2
+	__m128 mask = _mm_mul_ps(dot, dot); // x^2, x^2, x^2, x^2
+	mask = _mm_sub_ps(mask, _1111);      // x^2-1, x^2-1, x^2-1, x^2-1
+	mask = _mm_and_ps(mask, _0011);     // 0, 0, x^2-1, x^2-1
+	mask = _mm_add_ps(mask, _1111);     // 1, 1, x^2, x^2
 
 	// Multiply further to get x, x, x^5, x^5
 	__m128 factor = _mm_mul_ps(mask, mask); // 1, 1, x^4, x^4
 	factor = _mm_mul_ps(dot, factor);       // x, x, x^5, x^5
 
 	// Get the inside terms
-	__m128 terms = _mm_shuffle_ps(mask, mask, SHUFFLE_PARAM(0, 2, 1, 3)); // 1 x^2 1 x^2
-	terms = _mm_mul_ps(terms, acosConst); // a bx^2 c dx^2
+	__m128 terms = _mm_shuffle_ps(mask, mask, SHUFFLE_PARAM(2, 0, 3, 1)); // x^2, 1, x^2, 1
+	terms = _mm_mul_ps(terms, acosConst);                                // dx^2, c, bx^2, a
+	terms = _mm_shuffle_ps(terms, terms, SHUFFLE_PARAM(3, 2, 1, 0));    // a, bx^2, c, dx^2
 
 	// Multiply by the factor to get each final term
 	terms = _mm_mul_ps(terms, factor); // ax bx^3 cx^5 dx^7
@@ -342,22 +355,6 @@ __m128 SSEQuaternion::mulQuat(__m128 q1, __m128 q2)
 								_mm_shuffle_ps(ZnXWY, XZYnW, SHUFFLE_PARAM(2, 3, 0, 1)));
 
 	return _mm_shuffle_ps(XZWY, XZWY, SHUFFLE_PARAM(2, 1, 3, 0));
-}
-
-// Calculating multiple sine values at once
-__m128 SSEQuaternion::sin2(__m128 theta) {
-	__m128 theta2 = _mm_mul_ps(theta, theta);
-	__m128 sin = _mm_mul_ps(theta2, _mm_replicate_ps(sinConst, 0)); // dx^2
-	sin = _mm_mul_ps(theta2, _mm_add_ps(sin, _mm_replicate_ps(sinConst, 1))); // cx^2 + dx^4
-	sin = _mm_mul_ps(theta2, _mm_add_ps(sin, _mm_replicate_ps(sinConst, 2))); // bx^2 + cx^4 + dx^6
-	return _mm_mul_ps(theta, _mm_add_ps(sin, _mm_replicate_ps(sinConst, 3))); // ax + bx^3 + cx^5 + dx^7
-}
-
-__m128 SSEQuaternion::sincos(float theta) {
-	__m128 m_both = _mm_set_ps(0.f, 0.f, theta + PI / 2.f, theta);
-	__m128 m_sincos = sin2(m_both);
-	__m128 m_cos = _mm_shuffle_ps(m_sincos, m_sincos, _MM_SHUFFLE(0, 0, 0, 1));
-	return m_sincos;
 }
 
 float* SSEQuaternion::getData()
