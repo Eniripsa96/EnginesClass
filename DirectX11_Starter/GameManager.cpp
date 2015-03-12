@@ -151,8 +151,6 @@ GameManager::~GameManager()
 	//}
 	//delete[] blocks;
 
-	delete[] pixelShaders;
-
 	// Clean up meshes
 	delete triangleMesh;
 	delete quadMesh;
@@ -177,18 +175,9 @@ GameManager::~GameManager()
 	delete spriteFont32;
 	delete spriteFont72;
 
-	// Release DX
-	ReleaseMacro(vertexShader);
-	ReleaseMacro(shadowVS);
-	ReleaseMacro(shadowPS);
-	ReleaseMacro(particleVertexShader);
-	ReleaseMacro(particleGeometryShader);
-	ReleaseMacro(pixelShader);
-	ReleaseMacro(grayscaleShader);
-	ReleaseMacro(sepiaShader);
-	ReleaseMacro(inverseShader);
+	Shaders::Destructor();
 
-	ReleaseMacro(vsConstantBuffer);
+	// Release DirectX variables
 	ReleaseMacro(blendState);
 
 	ReleaseMacro(linearSampler);
@@ -211,17 +200,9 @@ bool GameManager::Init()
 		return false;
 
 	CreateSamplers();
-	LoadShadersAndInputLayout();
+	Shaders::LoadShadersAndInputLayout(device, deviceContext);
 	LoadMeshesAndMaterials();
 	//BuildBlockTypes();
-
-	activeShader = 0;
-	pixelShaders = new ID3D11PixelShader*[shaderCount] {
-		pixelShader,
-		grayscaleShader,
-		sepiaShader,
-		inverseShader
-	};
 
 	// Initialize the shadow camera
 		// None
@@ -297,109 +278,6 @@ void GameManager::CreateSamplers() {
 	delete desc;
 }
 
-// Loads shaders from compiled shader object (.cso) files, and uses the
-// vertex shader to create an input layout which is needed when sending
-// vertex data to the device
-void GameManager::LoadShadersAndInputLayout()
-{
-	// Load Vertex Shaders --------------------------------------
-	LoadVertexShader(L"VertexShader.cso", VERTEX_LAYOUT, &vertexShader);
-	LoadVertexShader(L"ShadowVertexShader.cso", SHADOW_LAYOUT, &shadowVS);
-	LoadVertexShader(L"ParticleVertexShader.cso", PARTICLE_LAYOUT, &particleVertexShader);
-
-	// Load Geometry Shader -------------------------------------
-	LoadGeometryShader(L"ParticleGeometryShader.cso", &particleGeometryShader);
-
-	// Load Pixel Shaders ---------------------------------------
-	LoadPixelShader(L"PixelShader.cso", &pixelShader);
-	LoadPixelShader(L"GrayscalePixelShader.cso", &grayscaleShader);
-	LoadPixelShader(L"SepiaPixelShader.cso", &sepiaShader);
-	LoadPixelShader(L"InversePixelShader.cso", &inverseShader);
-	LoadPixelShader(L"ShadowPixelShader.cso", &shadowPS);
-	LoadPixelShader(L"ParticlePixelShader.cso", &particlePixelShader);
-
-	// Constant buffers ----------------------------------------
-	D3D11_BUFFER_DESC cBufferDesc;
-	cBufferDesc.ByteWidth = sizeof(dataToSendToVSConstantBuffer);
-	cBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	cBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cBufferDesc.CPUAccessFlags = 0;
-	cBufferDesc.MiscFlags = 0;
-	cBufferDesc.StructureByteStride = 0;
-	HR(device->CreateBuffer(
-		&cBufferDesc,
-		NULL,
-		&vsConstantBuffer));
-
-	D3D11_BUFFER_DESC GSCBufferDesc;
-	GSCBufferDesc.ByteWidth = sizeof(dataToSendToGSConstantBuffer);
-	GSCBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	GSCBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	GSCBufferDesc.CPUAccessFlags = 0;
-	GSCBufferDesc.MiscFlags = 0;
-	GSCBufferDesc.StructureByteStride = 0;
-	HR(device->CreateBuffer(
-		&GSCBufferDesc,
-		NULL,
-		&gsConstantBuffer));
-}
-
-void GameManager::LoadPixelShader(wchar_t* file, ID3D11PixelShader** shader)
-{
-	ID3DBlob* psBlob;
-	D3DReadFileToBlob(file, &psBlob);
-
-	// Create the shader on the device
-	HR(device->CreatePixelShader(
-		psBlob->GetBufferPointer(),
-		psBlob->GetBufferSize(),
-		NULL,
-		shader));
-
-	// Clean up
-	ReleaseMacro(psBlob);
-}
-
-void GameManager::LoadVertexShader(wchar_t* file, LAYOUT inputLayoutType, ID3D11VertexShader** shader)
-{
-	// Load shader blob
-	ID3DBlob* vsBlob;
-	D3DReadFileToBlob(file, &vsBlob);
-
-	if (inputLayoutType == VERTEX_LAYOUT)
-		InputLayouts::InitializeVertexLayout(device, vsBlob);
-	else if (inputLayoutType == PARTICLE_LAYOUT)
-		InputLayouts::InitializeParticleLayout(device, vsBlob);
-	else
-		InputLayouts::InitializeShadowLayout(device, vsBlob);
-
-	// Create the shader on the device
-	HR(device->CreateVertexShader(
-		vsBlob->GetBufferPointer(),
-		vsBlob->GetBufferSize(),
-		NULL,
-		shader));
-
-	// Clean up
-	ReleaseMacro(vsBlob);
-}
-
-void GameManager::LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader)
-{
-	ID3DBlob* gsBlob; 
-	HR(D3DReadFileToBlob(file, &gsBlob));
-
-	// Create the shader on the device
-	HR(device->CreateGeometryShader(
-		gsBlob->GetBufferPointer(),
-		gsBlob->GetBufferSize(),
-		NULL,
-		&particleGeometryShader));
-
-	// Clean up
-	ReleaseMacro(gsBlob);
-}
-
 // Load each of the game's meshes and materials
 void GameManager::LoadMeshesAndMaterials()
 {
@@ -410,13 +288,13 @@ void GameManager::LoadMeshesAndMaterials()
 	int size;
 
 	// Create materials
-	shapeMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"image.png");
-	buttonMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"button.png");
-	titleMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"title.png");
-	labelMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"label.png");
-	frameMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"texFrame.png");
-	tileMaterial = new Material(device, deviceContext, vertexShader, pixelShader, anisotropicSampler, L"tile.png");
-	particleMaterial = new Material(device, deviceContext, particleVertexShader, particlePixelShader, linearSampler, L"texLBlock.png", particleGeometryShader);
+	shapeMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			linearSampler, L"image.png");
+	buttonMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			linearSampler, L"button.png");
+	titleMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			linearSampler, L"title.png");
+	labelMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			linearSampler, L"label.png");
+	frameMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			linearSampler, L"texFrame.png");
+	tileMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			anisotropicSampler, L"tile.png");
+	particleMaterial	=		new Material(device,	deviceContext,		Shaders::particleVertexShader,	Shaders::particlePixelShader,	linearSampler, L"texLBlock.png", Shaders::particleGeometryShader);
 
 	// Load meshes
 	size = loader.Load("cube.txt", device, &vertexBuffer, &indexBuffer);
@@ -590,26 +468,26 @@ void GameManager::UpdateScene(float dt)
 	//shadowCam->Update(dt);
 
 	// [UPDATE] Update constant buffer data
-	dataToSendToVSConstantBuffer.view = camera->viewMatrix;
-	dataToSendToVSConstantBuffer.projection = projectionMatrix;
-	dataToSendToVSConstantBuffer.lightView = shadowView;
-	dataToSendToVSConstantBuffer.lightProjection = shadowProjection;
-	dataToSendToVSConstantBuffer.lightDirection = XMFLOAT4(2.0f, -3.0f, 1.0f, 0.95f);
-	dataToSendToVSConstantBuffer.color = XMFLOAT4(1, 1, 1, 1);
+	Shaders::dataToSendToVSConstantBuffer.view = camera->viewMatrix;
+	Shaders::dataToSendToVSConstantBuffer.projection = projectionMatrix;
+	Shaders::dataToSendToVSConstantBuffer.lightView = shadowView;
+	Shaders::dataToSendToVSConstantBuffer.lightProjection = shadowProjection;
+	Shaders::dataToSendToVSConstantBuffer.lightDirection = XMFLOAT4(2.0f, -3.0f, 1.0f, 0.95f);
+	Shaders::dataToSendToVSConstantBuffer.color = XMFLOAT4(1, 1, 1, 1);
 
-	dataToSendToGSConstantBuffer.view = camera->viewMatrix;
-	dataToSendToGSConstantBuffer.projection = projectionMatrix;
+	Shaders::dataToSendToGSConstantBuffer.view = camera->viewMatrix;
+	Shaders::dataToSendToGSConstantBuffer.projection = projectionMatrix;
 
 	// Shadow map
 	deviceContext->OMSetRenderTargets(0, 0, shadowDSV);
 	deviceContext->ClearDepthStencilView(shadowDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	deviceContext->VSSetShader(shadowVS, 0, 0);
+	deviceContext->VSSetShader(Shaders::shadowVS, 0, 0);
 	deviceContext->PSSetShader(0, 0, 0);
 
 	// Draw mesh objects that can cast shadows
 	if (meshObjects) {
 		for (UINT i = 0; i < meshObjects->size(); i++) {
-			(*meshObjects)[i]->Draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
+			(*meshObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
 		}
 	}
 
@@ -632,8 +510,7 @@ void GameManager::UpdateScene(float dt)
 	deviceContext->PSSetSamplers(1, 1, &pointSampler);
 
 	// Set the shaders
-	deviceContext->VSSetShader(vertexShader, 0, 0);
-	deviceContext->PSSetShader(pixelShaders[activeShader], 0, 0);
+	Shaders::Update();
 
 	// Bind shadow map texture
 	deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
@@ -644,7 +521,7 @@ void GameManager::UpdateScene(float dt)
 	{
 		for (UINT i = 0; i < meshObjects->size(); i++)
 		{
-			(*meshObjects)[i]->Draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
+			(*meshObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
 		}
 	}
 
@@ -658,7 +535,7 @@ void GameManager::UpdateScene(float dt)
 		for (UINT i = 0; i < uiObjects->size(); i++)
 		{
 			// [DRAW] Draw the object
-			(*uiObjects)[i]->Draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
+			(*uiObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
 		}
 		spriteBatch->End();
 
@@ -715,7 +592,7 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 		// Change the active shader
 		case VK_TAB:
-			activeShader = (activeShader + 1) % shaderCount;
+			Shaders::activeShader = (Shaders::activeShader + 1) % Shaders::shaderCount;
 			break;
 		}
 	}
