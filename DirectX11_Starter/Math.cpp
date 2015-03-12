@@ -288,13 +288,12 @@ void SSEQuaternion::slerp5(SSEQuaternion& q2, SSEQuaternion& out, float t)
 
 	if (theta < 0.0) theta = -theta;
 
-	__m128 thetas = _mm_set_ps(0, 0, (1 - t) * theta, t * theta);
-	__m128 ntheta = _mm_set1_ps(theta);
+	__m128 thetas = _mm_set_ps(0, theta, (1 - t) * theta, t * theta);
 	__m128 sins = sin2(thetas);
-	__m128 nsin = sin2(ntheta);
 
-	__m128 c1 = _mm_div_ps(_mm_replicate_ps(thetas, 0), ntheta);
-	__m128 c2 = _mm_div_ps(_mm_replicate_ps(thetas, 1), ntheta);
+	__m128 s = _mm_replicate_ps(sins, 2);
+	__m128 c1 = _mm_div_ps(_mm_replicate_ps(sins, 1), s);
+	__m128 c2 = _mm_div_ps(_mm_replicate_ps(sins, 0), s);
 
 	out.data = _mm_add_ps(_mm_mul_ps(c1, data), _mm_mul_ps(c2, q2.data));
 }
@@ -345,12 +344,13 @@ __m128 SSEQuaternion::mulQuat(__m128 q1, __m128 q2)
 	return _mm_shuffle_ps(XZWY, XZWY, SHUFFLE_PARAM(2, 1, 3, 0));
 }
 
-// Sin formula from
-// https://dtosoftware.wordpress.com/2013/01/07/fast-sin-and-cos-functions/
-// Seems to not work
+// Calculating multiple sine values at once
 __m128 SSEQuaternion::sin2(__m128 theta) {
-	__m128 y = _mm_add_ps(_mm_mul_ps(theta, m_B), _mm_mul_ps(_mm_mul_ps(theta, m_C), _mm_abs_ps(theta)));
-	return _mm_add_ps(y, _mm_mul_ps(_mm_sub_ps(_mm_mul_ps(y, _mm_abs_ps(y)), y), m_P));
+	__m128 theta2 = _mm_mul_ps(theta, theta);
+	__m128 sin = _mm_mul_ps(theta2, _mm_replicate_ps(sinConst, 0)); // dx^2
+	sin = _mm_mul_ps(theta2, _mm_add_ps(sin, _mm_replicate_ps(sinConst, 1))); // cx^2 + dx^4
+	sin = _mm_mul_ps(theta2, _mm_add_ps(sin, _mm_replicate_ps(sinConst, 2))); // bx^2 + cx^4 + dx^6
+	return _mm_mul_ps(theta, _mm_add_ps(sin, _mm_replicate_ps(sinConst, 3))); // ax + bx^3 + cx^5 + dx^7
 }
 
 __m128 SSEQuaternion::sincos(float theta) {

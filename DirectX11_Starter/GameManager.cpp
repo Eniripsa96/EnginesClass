@@ -100,6 +100,14 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 	}
 	double duration3 = std::clock() - start;
 
+	// SSE Attempt 2 - One unload, regular acos call
+	start = std::clock();
+	for (int i = 0; i < 400000; i++)
+	{
+		q4.slerp5(q5, q6, 0.5f);
+	}
+	double duration6 = std::clock() - start;
+
 	int i = 0;
 }
 
