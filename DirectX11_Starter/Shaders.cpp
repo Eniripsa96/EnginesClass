@@ -44,6 +44,7 @@ void Shaders::Destructor()
 	ReleaseMacro(inverseShader);
 
 	ReleaseMacro(vsConstantBuffer);
+	ReleaseMacro(gsConstantBuffer);
 }
 
 void Shaders::Update()

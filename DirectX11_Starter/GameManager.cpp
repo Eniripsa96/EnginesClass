@@ -151,12 +151,18 @@ GameManager::~GameManager()
 	// Release DirectX variables
 	ReleaseMacro(blendState);
 
+	ReleaseMacro(shadowTex);
+	ReleaseMacro(shadowSRV);
+	ReleaseMacro(shadowDSV);
+	ReleaseMacro(shadowIL);
+
 	ReleaseMacro(Samplers::linearSampler);
 	ReleaseMacro(Samplers::anisotropicSampler);
 	ReleaseMacro(Samplers::pointSampler);
 
 	ReleaseMacro(InputLayouts::Vertex);
 	ReleaseMacro(InputLayouts::Particle);
+	ReleaseMacro(InputLayouts::Shadow);
 }
 
 #pragma endregion
