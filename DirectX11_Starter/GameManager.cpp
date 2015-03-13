@@ -192,6 +192,9 @@ bool GameManager::Init()
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::environmentMesh, MeshesMaterials::tileMaterial, &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::cubeMesh, MeshesMaterials::shapeMaterial, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	
+	// Create particle system
+	particleSystem = new ParticleSystem(MeshesMaterials::particleMesh, MeshesMaterials::particleMaterial);
+
 	// Create buttons for UI
 	playButton = new Button(MeshesMaterials::quadMesh, MeshesMaterials::buttonMaterial, &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
 	quitButton = new Button(MeshesMaterials::quadMesh, MeshesMaterials::buttonMaterial, &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
@@ -366,7 +369,24 @@ void GameManager::UpdateScene(float dt)
 	}
 
 	// Draw the particle system	
-		// None
+	if (gameState == GAME || gameState == DEBUG)
+	{
+		// [DRAW] Set up the input assembler for particle system
+		deviceContext->IASetInputLayout(InputLayouts::Particle);
+		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+		particleSystem->GetMaterial()->SetShaders();
+
+		if (gameState != DEBUG)
+			// [UPDATE] Update the particle system 
+			particleSystem->Update(&Shaders::dataToSendToGSConstantBuffer, dt);
+
+		// [DRAW] Draw the particle system
+		particleSystem->Draw(deviceContext, *camera, Shaders::gsConstantBuffer, &Shaders::dataToSendToGSConstantBuffer);
+
+		deviceContext->GSSetShader(NULL, 0, 0);
+	}
+
 	
 	// Draw UI Elements
 	if (uiObjects)
@@ -453,6 +473,8 @@ void GameManager::OnMouseDown(WPARAM btnState, int x, int y)
 void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
+
+	particleSystem->Reset();
 
 	// Main menu buttons
 	if (gameState == MENU)

@@ -72,4 +72,5 @@ void MeshesMaterials::LoadMeshesAndMaterials(ID3D11Device* device, ID3D11DeviceC
 	// Create 2D meshes
 	triangleMesh = new Mesh(device, deviceContext, TRIANGLE);
 	quadMesh = new Mesh(device, deviceContext, QUAD);
+	particleMesh = new Mesh(device, deviceContext, PARTICLE);
 }
