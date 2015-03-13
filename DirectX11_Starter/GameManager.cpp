@@ -141,7 +141,32 @@ GameManager::~GameManager()
 	gameUIObjects.clear();
 	cubes.clear();
 
-	MeshesMaterials::Destructor();
+	//// Clean up blocks
+	//for (UINT i = 0; i < 7; i++)
+	//{
+	//	delete blocks[i].gameObject;
+	//	delete[] blocks[i].localGrid;
+	//	delete[] blocks[i].tempGrid;
+	//	delete[] blocks[i].grid;
+	//}
+	//delete[] blocks;
+
+	// Clean up meshes
+	delete triangleMesh;
+	delete quadMesh;
+	delete cubeMesh;
+	delete frameMesh;
+	delete environmentMesh;
+	delete particleMesh;
+
+	// Clean up materials
+	delete shapeMaterial;
+	delete buttonMaterial;
+	delete titleMaterial;
+	delete labelMaterial;
+	delete frameMaterial;
+	delete tileMaterial;
+	delete particleMaterial;
 
 	delete camera;
 	
@@ -155,9 +180,9 @@ GameManager::~GameManager()
 	// Release DirectX variables
 	ReleaseMacro(blendState);
 
-	ReleaseMacro(Samplers::linearSampler);
-	ReleaseMacro(Samplers::anisotropicSampler);
-	ReleaseMacro(Samplers::pointSampler);
+	ReleaseMacro(linearSampler);
+	ReleaseMacro(anisotropicSampler);
+	ReleaseMacro(pointSampler);
 
 	ReleaseMacro(InputLayouts::Vertex);
 	ReleaseMacro(InputLayouts::Particle);
@@ -174,9 +199,10 @@ bool GameManager::Init()
 	if (!DirectXGame::Init())
 		return false;
 
-	Samplers::CreateSamplers(device, deviceContext);
+	CreateSamplers();
 	Shaders::LoadShadersAndInputLayout(device, deviceContext);
-	MeshesMaterials::LoadMeshesAndMaterials(device, deviceContext);
+	LoadMeshesAndMaterials();
+	//BuildBlockTypes();
 
 	// Initialize the shadow camera
 		// None
@@ -188,15 +214,18 @@ bool GameManager::Init()
 	spriteFont72 = new SpriteFont(device, L"jing72.spritefont");
 
 	// Load the frame
-	gameObjects.emplace_back(new GameObject(MeshesMaterials::frameMesh, MeshesMaterials::frameMaterial, &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
-	gameObjects.emplace_back(new GameObject(MeshesMaterials::environmentMesh, MeshesMaterials::tileMaterial, &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
-	gameObjects.emplace_back(new GameObject(MeshesMaterials::cubeMesh, MeshesMaterials::shapeMaterial, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
-	
-	// Create buttons for UI
-	playButton = new Button(MeshesMaterials::quadMesh, MeshesMaterials::buttonMaterial, &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
-	quitButton = new Button(MeshesMaterials::quadMesh, MeshesMaterials::buttonMaterial, &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
-	mainMenuButton = new Button(MeshesMaterials::quadMesh, MeshesMaterials::buttonMaterial, &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
-	menuObjects.emplace_back(new UIObject(MeshesMaterials::quadMesh, MeshesMaterials::titleMaterial, &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
+	gameObjects.emplace_back(new GameObject(frameMesh, frameMaterial, &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
+	gameObjects.emplace_back(new GameObject(environmentMesh, tileMaterial, &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
+
+	gameObjects.emplace_back(new GameObject(cubeMesh, shapeMaterial, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
+
+	// Create 2D meshes
+	//triangleMesh = new Mesh(device, deviceContext, TRIANGLE);
+	quadMesh = new Mesh(device, deviceContext, QUAD);
+	playButton = new Button(quadMesh, buttonMaterial, &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
+	quitButton = new Button(quadMesh, buttonMaterial, &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
+	mainMenuButton = new Button(quadMesh, buttonMaterial, &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
+	menuObjects.emplace_back(new UIObject(quadMesh, titleMaterial, &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
 	menuObjects.emplace_back(playButton);
 	menuObjects.emplace_back(quitButton);
 
@@ -221,6 +250,137 @@ bool GameManager::Init()
 		XMStoreFloat4x4(&(gameObjects[i]->worldMatrix), XMMatrixTranspose(W));
 
 	return true;
+}
+
+// Creates the samplers used by the game
+void GameManager::CreateSamplers() {
+
+	// Sample state - linear wrap filtering
+	D3D11_SAMPLER_DESC* desc = new D3D11_SAMPLER_DESC();
+	desc->MaxLOD = D3D11_FLOAT32_MAX;
+	desc->Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	desc->AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc->AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc->AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	device->CreateSamplerState(desc, &linearSampler);
+
+	// Sample state - anisotropic wrap filtering
+	desc->Filter = D3D11_FILTER_ANISOTROPIC;
+	desc->MaxAnisotropy = 16;
+	device->CreateSamplerState(desc, &anisotropicSampler);
+	
+	// Sample state - point wrap filtering
+	desc->Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	desc->AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc->AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc->AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	device->CreateSamplerState(desc, &pointSampler);
+	delete desc;
+}
+
+// Load each of the game's meshes and materials
+void GameManager::LoadMeshesAndMaterials()
+{
+	// Prepare some variables
+	ObjLoader loader = ObjLoader();
+	ID3D11Buffer* vertexBuffer;
+	ID3D11Buffer* indexBuffer;
+	int size;
+
+	// Create materials
+	shapeMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			linearSampler, L"image.png");
+	buttonMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			linearSampler, L"button.png");
+	titleMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			linearSampler, L"title.png");
+	labelMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			linearSampler, L"label.png");
+	frameMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			linearSampler, L"texFrame.png");
+	tileMaterial		=		new Material(device,	deviceContext,		Shaders::vertexShader,			Shaders::pixelShader,			anisotropicSampler, L"tile.png");
+	particleMaterial	=		new Material(device,	deviceContext,		Shaders::particleVertexShader,	Shaders::particlePixelShader,	linearSampler, L"texLBlock.png", Shaders::particleGeometryShader);
+
+	// Load meshes
+	size = loader.Load("cube.txt", device, &vertexBuffer, &indexBuffer);
+	cubeMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
+	size = loader.Load("frame.txt", device, &vertexBuffer, &indexBuffer);
+	frameMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
+	size = loader.Load("environment.txt", device, &vertexBuffer, &indexBuffer);
+	environmentMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
+}
+
+// Create the structs of the different block types
+void GameManager::BuildBlockTypes()
+{
+	blocks = new Block[7];
+
+	blocks[0].threeByThree = true;
+	blocks[0].gameObject = new GameObject(jBlockMesh, jBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.0f, 1.5f, 0.0f));
+	blocks[0].localGrid = new bool[9];
+	blocks[0].tempGrid = new bool[9];
+	blocks[0].grid = new bool[9] {
+		true, true, true,
+			true, false, false,
+			false, false, false
+	};
+
+	blocks[1].threeByThree = true;
+	blocks[1].gameObject = new GameObject(lBlockMesh, lBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.0f, 1.5f, 0.0f));
+	blocks[1].localGrid = new bool[9];
+	blocks[1].tempGrid = new bool[9];
+	blocks[1].grid = new bool[9] {
+		true, true, true,
+			false, false, true,
+			false, false, false
+	};
+
+	blocks[2].threeByThree = true;
+	blocks[2].gameObject = new GameObject(leftBlockMesh, leftBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.0f, 1.5f, 0.0f));
+	blocks[2].localGrid = new bool[9];
+	blocks[2].tempGrid = new bool[9];
+	blocks[2].grid = new bool[9] {
+		false, true, true,
+			true, true, false,
+			false, false, false
+	};
+
+	blocks[3].threeByThree = false;
+	blocks[3].gameObject = new GameObject(longBlockMesh, longBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.5f, 2.0f, 0.0f));
+	blocks[3].localGrid = new bool[16];
+	blocks[3].tempGrid = new bool[16];
+	blocks[3].grid = new bool[16] {
+		false, false, false, false,
+			true, true, true, true,
+			false, false, false, false,
+			false, false, false, false
+	};
+
+	blocks[4].threeByThree = true;
+	blocks[4].gameObject = new GameObject(rightBlockMesh, rightBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.0f, 1.5f, 0.0f));
+	blocks[4].localGrid = new bool[9];
+	blocks[4].tempGrid = new bool[9];
+	blocks[4].grid = new bool[9] {
+		true, true, false,
+			false, true, true,
+			false, false, false
+	};
+
+	blocks[5].threeByThree = false;
+	blocks[5].gameObject = new GameObject(squareBlockMesh, squareBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.5f, 2.0f, 0.0f));
+	blocks[5].localGrid = new bool[16];
+	blocks[5].tempGrid = new bool[16];
+	blocks[5].grid = new bool[16] {
+		false, false, false, false,
+			false, true, true, false,
+			false, true, true, false,
+			false, false, false, false
+	};
+
+	blocks[6].threeByThree = true;
+	blocks[6].gameObject = new GameObject(stairsBlockMesh, stairsBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.0f, 1.5f, 0.0f));
+	blocks[6].localGrid = new bool[9];
+	blocks[6].tempGrid = new bool[9];
+	blocks[6].grid = new bool[9] {
+		true, true, true,
+			false, true, false,
+			false, false, false
+	};
 }
 
 void GameManager::CreateShadowMapResources() 
@@ -347,14 +507,14 @@ void GameManager::UpdateScene(float dt)
 
 	// Bind shadow map
 	deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
-	deviceContext->PSSetSamplers(1, 1, &(Samplers::pointSampler));
+	deviceContext->PSSetSamplers(1, 1, &pointSampler);
 
 	// Set the shaders
 	Shaders::Update();
 
 	// Bind shadow map texture
 	deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
-	deviceContext->PSSetSamplers(1, 1, &(Samplers::pointSampler));
+	deviceContext->PSSetSamplers(1, 1, &pointSampler);
 	
 	// Draw each mesh
 	if (meshObjects)

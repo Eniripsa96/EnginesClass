@@ -20,8 +20,6 @@
 #include "ParticleSystem.h"
 #include "Math.h"
 #include "Shaders.h"
-#include "MeshesMaterials.h"
-#include "Samplers.h"
 
 // Include run-time memory checking in debug builds
 #if defined(DEBUG) || defined(_DEBUG)
@@ -52,6 +50,9 @@ public:
 
 	// Overrides for base level methods
 	bool Init();
+	void CreateSamplers();
+	void BuildBlockTypes();
+	void LoadMeshesAndMaterials();
 	void CreateShadowMapResources();
 	void OnResize();
 	void UpdateScene(float dt);
@@ -64,6 +65,13 @@ public:
 	void OnMouseMove(WPARAM btnState, int x, int y);
 
 	LRESULT MsgProc(HWND, UINT, WPARAM, LPARAM);
+
+	// Shaders
+	
+
+	// A few more odds and ends we'll need
+	ID3D11InputLayout* inputLayout;
+	ID3D11InputLayout* particleInputLayout;
 
 	// Blend state
 	ID3D11BlendState* blendState;
@@ -81,6 +89,39 @@ private:
 	SpriteFont* spriteFont24;
 	SpriteFont* spriteFont32;
 	SpriteFont* spriteFont72;
+
+	Mesh* triangleMesh;
+	Mesh* quadMesh;
+	Mesh* cubeMesh;
+	Mesh* jBlockMesh;
+	Mesh* lBlockMesh;
+	Mesh* leftBlockMesh;
+	Mesh* longBlockMesh;
+	Mesh* rightBlockMesh;
+	Mesh* squareBlockMesh;
+	Mesh* stairsBlockMesh;
+	Mesh* frameMesh;
+	Mesh* environmentMesh;
+	Mesh* particleMesh;
+
+	Material* shapeMaterial;
+	Material* buttonMaterial;
+	Material* titleMaterial;
+	Material* labelMaterial;
+	Material* jBlockMaterial;
+	Material* lBlockMaterial;
+	Material* leftBlockMaterial;
+	Material* longBlockMaterial;
+	Material* rightBlockMaterial;
+	Material* squareBlockMaterial;
+	Material* stairsBlockMaterial;
+	Material* frameMaterial;
+	Material* tileMaterial;
+	Material* particleMaterial;
+
+	ID3D11SamplerState* linearSampler;
+	ID3D11SamplerState* pointSampler;
+	ID3D11SamplerState* anisotropicSampler;
 
 	Block* blocks;
 	vector<GameObject*> cubes;
