@@ -48,8 +48,8 @@ void Shaders::Destructor()
 
 void Shaders::Update()
 {
-	//deviceContext->VSSetShader(vertexShader, 0, 0);
-	//deviceContext->PSSetShader(pixelShaders[activeShader], 0, 0);
+	deviceContext->VSSetShader(vertexShader, 0, 0);
+	deviceContext->PSSetShader(pixelShaders[activeShader], 0, 0);
 }
 
 // Loads shaders from compiled shader object (.cso) files, and uses the
