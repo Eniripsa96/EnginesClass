@@ -14,7 +14,6 @@
 #include "GameObject.h"
 #include "Button.h"
 #include "Camera.h"
-#include "BlockManager.h"
 #include "ObjLoader.h"
 #include "InputLayouts.h"
 #include "ParticleSystem.h"
@@ -75,21 +74,15 @@ private:
 	std::vector<UIObject*> gameUIObjects;
 	std::vector<UIObject*> menuObjects;
 	std::vector<UIObject*> gameOverObjects;
-	BlockManager* blockManager;
 
 	SpriteBatch* spriteBatch;
 	SpriteFont* spriteFont24;
 	SpriteFont* spriteFont32;
 	SpriteFont* spriteFont72;
 
-	Block* blocks;
-	vector<GameObject*> cubes;
-	bool canRotate = false;
-
 	Button* playButton;
 	Button* quitButton;
 	Button* mainMenuButton;
-	UIObject* scoreLabel;
 
 	ParticleSystem* particleSystem;
 	Camera* camera;

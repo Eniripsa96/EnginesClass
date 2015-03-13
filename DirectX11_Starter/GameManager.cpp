@@ -63,15 +63,15 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 
 	gameState = MENU;
 
-	float c1 = cos(1);
-	float s1 = sin(1);
-	float c2 = cos(2);
-	float s2 = sin(2);
+	float c1 = cos(1.0f);
+	float s1 = sin(1.0f);
+	float c2 = cos(2.0f);
+	float s2 = sin(2.0f);
 
 	SSEQuaternion::Initialize();
 
-	NormalQuaternion q1(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2, c1);
-	NormalQuaternion q2(0.0f, s2 * sqrt(2) / 2, s2 * sqrt(2) / 2, c2);
+	NormalQuaternion q1(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2.0f, c1);
+	NormalQuaternion q2(0.0f, s2 * sqrt(2.0f) / 2.0f, s2 * sqrt(2.0f) / 2.0f, c2);
 	NormalQuaternion q3;
 	std::clock_t start = std::clock();
 	for (int i = 0; i < 400000; i++)
@@ -80,8 +80,8 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 	}
 	double duration1 = std::clock() - start;
 
-	SSEQuaternion q4(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2, c1);
-	SSEQuaternion q5(0.0f, s2 * sqrt(2) / 2, s2 * sqrt(2) / 2, c2);
+	SSEQuaternion q4(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2.0f, c1);
+	SSEQuaternion q5(0.0f, s2 * sqrt(2.0f) / 2.0f, s2 * sqrt(2) / 2.0f, c2);
 	SSEQuaternion q6;;
 
 	// SSE Attempt 1 - Two unloads, no trig
@@ -123,10 +123,6 @@ GameManager::~GameManager()
 	{
 		delete menuObjects[i];
 	}
-	for (UINT i = 0; i < cubes.size(); i++)
-	{
-		delete cubes[i];
-	}
 	for (UINT i = 0; i < gameUIObjects.size(); i++)
 	{
 		delete gameUIObjects[i];
@@ -139,11 +135,11 @@ GameManager::~GameManager()
 	menuObjects.clear();
 	gameOverObjects.clear();
 	gameUIObjects.clear();
-	cubes.clear();
 
 	MeshesMaterials::Destructor();
 
 	delete camera;
+	delete particleSystem;
 	
 	delete spriteBatch;
 	delete spriteFont24;
