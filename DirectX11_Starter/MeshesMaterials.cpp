@@ -1,14 +1,7 @@
 #include "MeshesMaterials.h"
 
-Material* MeshesMaterials::shapeMaterial = NULL;
-Material* MeshesMaterials::buttonMaterial = NULL;
-Material* MeshesMaterials::titleMaterial = NULL;
-Material* MeshesMaterials::labelMaterial = NULL;
-Material* MeshesMaterials::frameMaterial = NULL;
-Material* MeshesMaterials::tileMaterial = NULL;
-Material* MeshesMaterials::particleMaterial = NULL;
-
 map<char*, Mesh*> MeshesMaterials::meshes = {};
+map<char*, Material*> MeshesMaterials::materials = {};
 
 MeshesMaterials::MeshesMaterials()
 {
@@ -21,21 +14,18 @@ MeshesMaterials::~MeshesMaterials()
 void MeshesMaterials::Destructor()
 {
 	// Clean up meshes
-	std::map<char*, Mesh*>::iterator it = meshes.begin();
-	for (; it != meshes.end(); ++it)
+	std::map<char*, Mesh*>::iterator it1 = meshes.begin();
+	for (; it1 != meshes.end(); ++it1)
 	{
-		delete it->second;
+		delete it1->second;
 	}
 
-
 	// Clean up materials
-	delete shapeMaterial;
-	delete buttonMaterial;
-	delete titleMaterial;
-	delete labelMaterial;
-	delete frameMaterial;
-	delete tileMaterial;
-	delete particleMaterial;
+	std::map<char*, Material*>::iterator it2 = materials.begin();
+	for (; it2 != materials.end(); ++it2)
+	{
+		delete it2->second;
+	}
 }
 
 // Load each of the game's meshes and materials
@@ -48,13 +38,13 @@ void MeshesMaterials::LoadMeshesAndMaterials(ID3D11Device* device, ID3D11DeviceC
 	int size;
 
 	// Create materials
-	shapeMaterial = new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::linearSampler, L"image.png");
-	buttonMaterial = new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::linearSampler, L"button.png");
-	titleMaterial = new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::linearSampler, L"title.png");
-	labelMaterial = new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::linearSampler, L"label.png");
-	frameMaterial = new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::linearSampler, L"texFrame.png");
-	tileMaterial = new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::anisotropicSampler, L"tile.png");
-	particleMaterial = new Material(device, deviceContext, Shaders::particleVertexShader, Shaders::particlePixelShader, Samplers::linearSampler, L"texLBlock.png", Shaders::particleGeometryShader);
+	materials.insert(pair<char*, Material*>("shape", new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::linearSampler, L"image.png")));
+	materials.insert(pair<char*, Material*>("button", new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::linearSampler, L"button.png")));
+	materials.insert(pair<char*, Material*>("title", new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::linearSampler, L"title.png")));
+	materials.insert(pair<char*, Material*>("label", new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::linearSampler, L"label.png")));
+	materials.insert(pair<char*, Material*>("frame", new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::linearSampler, L"texFrame.png")));
+	materials.insert(pair<char*, Material*>("tile", new Material(device, deviceContext, Shaders::vertexShader, Shaders::pixelShader, Samplers::anisotropicSampler, L"tile.png")));
+	materials.insert(pair<char*, Material*>("particle", new Material(device, deviceContext, Shaders::particleVertexShader, Shaders::particlePixelShader, Samplers::linearSampler, L"texLBlock.png", Shaders::particleGeometryShader)));
 
 	// Load meshes
 	size = loader.Load("cube.txt", device, &vertexBuffer, &indexBuffer);

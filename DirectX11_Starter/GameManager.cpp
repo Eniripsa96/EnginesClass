@@ -72,7 +72,7 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 
 	SSEQuaternion::Initialize();
 
-	NormalQuaternion q1(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2.0f, c1);
+	NormalQuaternion q1(s1 * 0.5f, 0.0f, s1 * sqrt(3.0f) / 2.0f, c1);
 	NormalQuaternion q2(0.0f, s2 * sqrt(2.0f) / 2.0f, s2 * sqrt(2.0f) / 2.0f, c2);
 	NormalQuaternion q3;
 	std::clock_t start = std::clock();
@@ -82,8 +82,8 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 	}
 	double duration1 = std::clock() - start;
 
-	SSEQuaternion q4(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2.0f, c1);
-	SSEQuaternion q5(0.0f, s2 * sqrt(2.0f) / 2.0f, s2 * sqrt(2) / 2.0f, c2);
+	SSEQuaternion q4(s1 * 0.5f, 0.0f, s1 * sqrt(3.0f) / 2.0f, c1);
+	SSEQuaternion q5(0.0f, s2 * sqrt(2.0f) / 2.0f, s2 * sqrt(2.0f) / 2.0f, c2);
 	SSEQuaternion q6;;
 
 	// SSE Attempt 1 - Two unloads, no trig
@@ -183,7 +183,7 @@ bool GameManager::Init()
 	Shaders::LoadShadersAndInputLayout(device, deviceContext);
 	MeshesMaterials::LoadMeshesAndMaterials(device, deviceContext);
 	camera = new Camera();
-	particleSystem = new ParticleSystem(MeshesMaterials::meshes["particle"], MeshesMaterials::particleMaterial);
+	particleSystem = new ParticleSystem(MeshesMaterials::meshes["particle"], MeshesMaterials::materials["particle"]);
 
 	// Initialize the shadow camera
 		// None
@@ -195,15 +195,15 @@ bool GameManager::Init()
 	spriteFont72 = new SpriteFont(device, L"jing72.spritefont");
 
 	// Load the frame
-	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::frameMaterial, &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
-	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::tileMaterial, &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
-	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::shapeMaterial, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
+	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
+	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::materials["tile"], &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
+	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 
 	// Create buttons for UI
-	playButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::buttonMaterial, &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
-	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::buttonMaterial, &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
-	mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::buttonMaterial, &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
-	menuObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::titleMaterial, &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
+	playButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
+	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
+	mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
+	menuObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["title"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
 	menuObjects.emplace_back(playButton);
 	menuObjects.emplace_back(quitButton);
 
