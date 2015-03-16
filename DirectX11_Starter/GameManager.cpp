@@ -63,6 +63,8 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 
 	gameState = MENU;
 
+
+#pragma region SSE test code
 	float c1 = cos(1.0f);
 	float s1 = sin(1.0f);
 	float c2 = cos(2.0f);
@@ -109,6 +111,7 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 	double duration6 = std::clock() - start;
 
 	int i = 0;
+#pragma endregion
 }
 
 // Clean up here
@@ -136,8 +139,9 @@ GameManager::~GameManager()
 	gameOverObjects.clear();
 	gameUIObjects.clear();
 
+	// Clean up engine components
 	MeshesMaterials::Destructor();
-
+	Shaders::Destructor();
 	delete camera;
 	delete particleSystem;
 	
@@ -145,8 +149,6 @@ GameManager::~GameManager()
 	delete spriteFont24;
 	delete spriteFont32;
 	delete spriteFont72;
-
-	Shaders::Destructor();
 
 	// Release DirectX variables
 	ReleaseMacro(blendState);
@@ -176,9 +178,12 @@ bool GameManager::Init()
 	if (!DirectXGame::Init())
 		return false;
 
+	// Initialize and load core engine components
 	Samplers::CreateSamplers(device, deviceContext);
 	Shaders::LoadShadersAndInputLayout(device, deviceContext);
 	MeshesMaterials::LoadMeshesAndMaterials(device, deviceContext);
+	camera = new Camera();
+	particleSystem = new ParticleSystem(MeshesMaterials::particleMesh, MeshesMaterials::particleMaterial);
 
 	// Initialize the shadow camera
 		// None
@@ -193,9 +198,6 @@ bool GameManager::Init()
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::frameMesh, MeshesMaterials::frameMaterial, &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::environmentMesh, MeshesMaterials::tileMaterial, &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::cubeMesh, MeshesMaterials::shapeMaterial, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
-	
-	// Create particle system
-	particleSystem = new ParticleSystem(MeshesMaterials::particleMesh, MeshesMaterials::particleMaterial);
 
 	// Create buttons for UI
 	playButton = new Button(MeshesMaterials::quadMesh, MeshesMaterials::buttonMaterial, &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
@@ -217,8 +219,6 @@ bool GameManager::Init()
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	device->CreateBlendState(&blendDesc, &blendState);
-
-	camera = new Camera();
 
 	// Set up the world matrix for each mesh
 	XMMATRIX W = XMMatrixIdentity();
@@ -281,7 +281,7 @@ void GameManager::UpdateScene(float dt)
 	// Update the game
 		// None
 
-	// Active mesh list
+	// Set active mesh list
 	std::vector<GameObject*> *meshObjects = 0;
 	if (gameState == GAME || gameState == DEBUG)
 	{
@@ -437,6 +437,7 @@ void GameManager::CheckKeyBoard(float dt)
 		camera->MoveDepth(CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('S'))
 		camera->MoveDepth(-CAMERA_MOVE_FACTOR * dt);
+
 	// Change height of camera (QE)
 	if (GetAsyncKeyState('Q'))
 		camera->MoveVertical(CAMERA_MOVE_FACTOR * dt);
