@@ -1,12 +1,5 @@
 #include "MeshesMaterials.h"
 
-Mesh* MeshesMaterials::triangleMesh = NULL;
-Mesh* MeshesMaterials::quadMesh = NULL;
-Mesh* MeshesMaterials::cubeMesh = NULL;
-Mesh* MeshesMaterials::frameMesh = NULL;
-Mesh* MeshesMaterials::environmentMesh = NULL;
-Mesh* MeshesMaterials::particleMesh = NULL;
-
 Material* MeshesMaterials::shapeMaterial = NULL;
 Material* MeshesMaterials::buttonMaterial = NULL;
 Material* MeshesMaterials::titleMaterial = NULL;
@@ -14,6 +7,8 @@ Material* MeshesMaterials::labelMaterial = NULL;
 Material* MeshesMaterials::frameMaterial = NULL;
 Material* MeshesMaterials::tileMaterial = NULL;
 Material* MeshesMaterials::particleMaterial = NULL;
+
+map<char*, Mesh*> MeshesMaterials::meshes = {};
 
 MeshesMaterials::MeshesMaterials()
 {
@@ -26,12 +21,12 @@ MeshesMaterials::~MeshesMaterials()
 void MeshesMaterials::Destructor()
 {
 	// Clean up meshes
-	delete triangleMesh;
-	delete quadMesh;
-	delete cubeMesh;
-	delete frameMesh;
-	delete environmentMesh;
-	delete particleMesh;
+	std::map<char*, Mesh*>::iterator it = meshes.begin();
+	for (; it != meshes.end(); ++it)
+	{
+		delete it->second;
+	}
+
 
 	// Clean up materials
 	delete shapeMaterial;
@@ -63,14 +58,14 @@ void MeshesMaterials::LoadMeshesAndMaterials(ID3D11Device* device, ID3D11DeviceC
 
 	// Load meshes
 	size = loader.Load("cube.txt", device, &vertexBuffer, &indexBuffer);
-	cubeMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
+	meshes.insert(pair<char*, Mesh*>("cube", new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size)));
 	size = loader.Load("frame.txt", device, &vertexBuffer, &indexBuffer);
-	frameMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
+	meshes.insert(pair<char*, Mesh*>("frame", new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size)));
 	size = loader.Load("environment.txt", device, &vertexBuffer, &indexBuffer);
-	environmentMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
+	meshes.insert(pair<char*, Mesh*>("environment", new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size)));
 
 	// Create 2D meshes
-	triangleMesh = new Mesh(device, deviceContext, TRIANGLE);
-	quadMesh = new Mesh(device, deviceContext, QUAD);
-	particleMesh = new Mesh(device, deviceContext, PARTICLE);
+	meshes.insert(pair<char*, Mesh*>("triangle", new Mesh(device, deviceContext, TRIANGLE)));
+	meshes.insert(pair<char*, Mesh*>("quad", new Mesh(device, deviceContext, QUAD)));
+	meshes.insert(pair<char*, Mesh*>("particle", new Mesh(device, deviceContext, PARTICLE)));
 }

@@ -5,6 +5,8 @@
 #include "ObjLoader.h"
 #include "Material.h"
 
+#include <map>
+
 class MeshesMaterials
 {
 public:
@@ -13,13 +15,6 @@ public:
 
 	static void Destructor(void);
 	static void LoadMeshesAndMaterials(ID3D11Device*, ID3D11DeviceContext*);
-
-	static Mesh* triangleMesh;
-	static Mesh* quadMesh;
-	static Mesh* cubeMesh;
-	static Mesh* frameMesh;
-	static Mesh* environmentMesh;
-	static Mesh* particleMesh;
 	 
 	static Material* shapeMaterial;
 	static Material* buttonMaterial;
@@ -28,6 +23,9 @@ public:
 	static Material* frameMaterial;
 	static Material* tileMaterial;
 	static Material* particleMaterial;
+
+	static map<char*, Mesh*> meshes;
+	static map<char*, Material*> materials;
 };
 
 #endif
