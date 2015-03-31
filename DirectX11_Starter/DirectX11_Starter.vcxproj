@@ -74,7 +74,10 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="InputLayouts.cpp" />
     <ClCompile Include="Math.cpp" />
+    <ClCompile Include="MeshesMaterials.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
+    <ClCompile Include="Samplers.cpp" />
+    <ClCompile Include="Shaders.cpp" />
     <ClCompile Include="UIObject.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -91,7 +94,10 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputLayouts.h" />
     <ClInclude Include="Math.h" />
+    <ClInclude Include="MeshesMaterials.h" />
     <ClInclude Include="ParticleSystem.h" />
+    <ClInclude Include="Samplers.h" />
+    <ClInclude Include="Shaders.h" />
     <ClInclude Include="UIObject.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />

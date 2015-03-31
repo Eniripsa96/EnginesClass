@@ -78,9 +78,3 @@ void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera& cam, ID3D11Buff
 	material->Draw();
 	mesh->Draw();
 }
-
-// TODO
-	// Implement init
-		// Create vertex buffers, etc
-	// Figure what the ParticleEffect type is, and convert if necessary
-	// Convert desired fx/technique to a .hlsl

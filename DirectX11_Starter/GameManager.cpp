@@ -63,15 +63,17 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 
 	gameState = MENU;
 
-	float c1 = cos(1);
-	float s1 = sin(1);
-	float c2 = cos(2);
-	float s2 = sin(2);
+
+#pragma region SSE test code
+	float c1 = cos(1.0f);
+	float s1 = sin(1.0f);
+	float c2 = cos(2.0f);
+	float s2 = sin(2.0f);
 
 	SSEQuaternion::Initialize();
 
-	NormalQuaternion q1(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2, c1);
-	NormalQuaternion q2(0.0f, s2 * sqrt(2) / 2, s2 * sqrt(2) / 2, c2);
+	NormalQuaternion q1(s1 * 0.5f, 0.0f, s1 * sqrt(3.0f) / 2.0f, c1);
+	NormalQuaternion q2(0.0f, s2 * sqrt(2.0f) / 2.0f, s2 * sqrt(2.0f) / 2.0f, c2);
 	NormalQuaternion q3;
 	std::clock_t start = std::clock();
 	for (int i = 0; i < 400000; i++)
@@ -80,8 +82,8 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 	}
 	double duration1 = std::clock() - start;
 
-	SSEQuaternion q4(s1 * 0.5f, 0.0f, s1 * sqrt(3) / 2, c1);
-	SSEQuaternion q5(0.0f, s2 * sqrt(2) / 2, s2 * sqrt(2) / 2, c2);
+	SSEQuaternion q4(s1 * 0.5f, 0.0f, s1 * sqrt(3.0f) / 2.0f, c1);
+	SSEQuaternion q5(0.0f, s2 * sqrt(2.0f) / 2.0f, s2 * sqrt(2.0f) / 2.0f, c2);
 	SSEQuaternion q6;;
 
 	// SSE Attempt 1 - Two unloads, no trig
@@ -117,6 +119,7 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 	double duration6 = std::clock() - start;
 
 	int i = 0;
+#pragma endregion
 }
 
 // Clean up here
@@ -131,10 +134,6 @@ GameManager::~GameManager()
 	{
 		delete menuObjects[i];
 	}
-	for (UINT i = 0; i < cubes.size(); i++)
-	{
-		delete cubes[i];
-	}
 	for (UINT i = 0; i < gameUIObjects.size(); i++)
 	{
 		delete gameUIObjects[i];
@@ -147,64 +146,33 @@ GameManager::~GameManager()
 	menuObjects.clear();
 	gameOverObjects.clear();
 	gameUIObjects.clear();
-	cubes.clear();
 
-	//// Clean up blocks
-	//for (UINT i = 0; i < 7; i++)
-	//{
-	//	delete blocks[i].gameObject;
-	//	delete[] blocks[i].localGrid;
-	//	delete[] blocks[i].tempGrid;
-	//	delete[] blocks[i].grid;
-	//}
-	//delete[] blocks;
-
-	delete[] pixelShaders;
-
-	// Clean up meshes
-	delete triangleMesh;
-	delete quadMesh;
-	delete cubeMesh;
-	delete frameMesh;
-	delete environmentMesh;
-	delete particleMesh;
-
-	// Clean up materials
-	delete shapeMaterial;
-	delete buttonMaterial;
-	delete titleMaterial;
-	delete labelMaterial;
-	delete frameMaterial;
-	delete tileMaterial;
-	delete particleMaterial;
-
+	// Clean up engine components
+	MeshesMaterials::Destructor();
+	Shaders::Destructor();
 	delete camera;
+	delete particleSystem;
 	
 	delete spriteBatch;
 	delete spriteFont24;
 	delete spriteFont32;
 	delete spriteFont72;
 
-	// Release DX
-	ReleaseMacro(vertexShader);
-	ReleaseMacro(shadowVS);
-	ReleaseMacro(shadowPS);
-	ReleaseMacro(particleVertexShader);
-	ReleaseMacro(particleGeometryShader);
-	ReleaseMacro(pixelShader);
-	ReleaseMacro(grayscaleShader);
-	ReleaseMacro(sepiaShader);
-	ReleaseMacro(inverseShader);
-
-	ReleaseMacro(vsConstantBuffer);
+	// Release DirectX variables
 	ReleaseMacro(blendState);
 
-	ReleaseMacro(linearSampler);
-	ReleaseMacro(anisotropicSampler);
-	ReleaseMacro(pointSampler);
+	ReleaseMacro(shadowTex);
+	ReleaseMacro(shadowSRV);
+	ReleaseMacro(shadowDSV);
+	ReleaseMacro(shadowIL);
+
+	ReleaseMacro(Samplers::linearSampler);
+	ReleaseMacro(Samplers::anisotropicSampler);
+	ReleaseMacro(Samplers::pointSampler);
 
 	ReleaseMacro(InputLayouts::Vertex);
 	ReleaseMacro(InputLayouts::Particle);
+	ReleaseMacro(InputLayouts::Shadow);
 }
 
 #pragma endregion
@@ -218,18 +186,12 @@ bool GameManager::Init()
 	if (!DirectXGame::Init())
 		return false;
 
-	CreateSamplers();
-	LoadShadersAndInputLayout();
-	LoadMeshesAndMaterials();
-	//BuildBlockTypes();
-
-	activeShader = 0;
-	pixelShaders = new ID3D11PixelShader*[shaderCount] {
-		pixelShader,
-		grayscaleShader,
-		sepiaShader,
-		inverseShader
-	};
+	// Initialize and load core engine components
+	Samplers::CreateSamplers(device, deviceContext);
+	Shaders::LoadShadersAndInputLayout(device, deviceContext);
+	MeshesMaterials::LoadMeshesAndMaterials(device, deviceContext);
+	camera = new Camera();
+	particleSystem = new ParticleSystem(MeshesMaterials::meshes["particle"], MeshesMaterials::materials["particle"]);
 
 	// Initialize the shadow camera
 		// None
@@ -241,18 +203,15 @@ bool GameManager::Init()
 	spriteFont72 = new SpriteFont(device, L"jing72.spritefont");
 
 	// Load the frame
-	gameObjects.emplace_back(new GameObject(frameMesh, frameMaterial, &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
-	gameObjects.emplace_back(new GameObject(environmentMesh, tileMaterial, &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
+	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
+	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::materials["tile"], &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
+	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 
-	gameObjects.emplace_back(new GameObject(cubeMesh, shapeMaterial, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
-
-	// Create 2D meshes
-	//triangleMesh = new Mesh(device, deviceContext, TRIANGLE);
-	quadMesh = new Mesh(device, deviceContext, QUAD);
-	playButton = new Button(quadMesh, buttonMaterial, &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
-	quitButton = new Button(quadMesh, buttonMaterial, &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
-	mainMenuButton = new Button(quadMesh, buttonMaterial, &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
-	menuObjects.emplace_back(new UIObject(quadMesh, titleMaterial, &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
+	// Create buttons for UI
+	playButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
+	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
+	mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
+	menuObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["title"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
 	menuObjects.emplace_back(playButton);
 	menuObjects.emplace_back(quitButton);
 
@@ -269,248 +228,12 @@ bool GameManager::Init()
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	device->CreateBlendState(&blendDesc, &blendState);
 
-	camera = new Camera();
-
 	// Set up the world matrix for each mesh
 	XMMATRIX W = XMMatrixIdentity();
 	for (UINT i = 0; i < gameObjects.size(); i++)
 		XMStoreFloat4x4(&(gameObjects[i]->worldMatrix), XMMatrixTranspose(W));
 
 	return true;
-}
-
-// Creates the samplers used by the game
-void GameManager::CreateSamplers() {
-
-	// Sample state - linear wrap filtering
-	D3D11_SAMPLER_DESC* desc = new D3D11_SAMPLER_DESC();
-	desc->MaxLOD = D3D11_FLOAT32_MAX;
-	desc->Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	desc->AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc->AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc->AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	device->CreateSamplerState(desc, &linearSampler);
-
-	// Sample state - anisotropic wrap filtering
-	desc->Filter = D3D11_FILTER_ANISOTROPIC;
-	desc->MaxAnisotropy = 16;
-	device->CreateSamplerState(desc, &anisotropicSampler);
-	
-	// Sample state - point wrap filtering
-	desc->Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	desc->AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	desc->AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	desc->AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	device->CreateSamplerState(desc, &pointSampler);
-	delete desc;
-}
-
-// Loads shaders from compiled shader object (.cso) files, and uses the
-// vertex shader to create an input layout which is needed when sending
-// vertex data to the device
-void GameManager::LoadShadersAndInputLayout()
-{
-	// Load Vertex Shaders --------------------------------------
-	LoadVertexShader(L"VertexShader.cso", VERTEX_LAYOUT, &vertexShader);
-	LoadVertexShader(L"ShadowVertexShader.cso", SHADOW_LAYOUT, &shadowVS);
-	LoadVertexShader(L"ParticleVertexShader.cso", PARTICLE_LAYOUT, &particleVertexShader);
-
-	// Load Geometry Shader -------------------------------------
-	LoadGeometryShader(L"ParticleGeometryShader.cso", &particleGeometryShader);
-
-	// Load Pixel Shaders ---------------------------------------
-	LoadPixelShader(L"PixelShader.cso", &pixelShader);
-	LoadPixelShader(L"GrayscalePixelShader.cso", &grayscaleShader);
-	LoadPixelShader(L"SepiaPixelShader.cso", &sepiaShader);
-	LoadPixelShader(L"InversePixelShader.cso", &inverseShader);
-	LoadPixelShader(L"ShadowPixelShader.cso", &shadowPS);
-	LoadPixelShader(L"ParticlePixelShader.cso", &particlePixelShader);
-
-	// Constant buffers ----------------------------------------
-	D3D11_BUFFER_DESC cBufferDesc;
-	cBufferDesc.ByteWidth = sizeof(dataToSendToVSConstantBuffer);
-	cBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	cBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cBufferDesc.CPUAccessFlags = 0;
-	cBufferDesc.MiscFlags = 0;
-	cBufferDesc.StructureByteStride = 0;
-	HR(device->CreateBuffer(
-		&cBufferDesc,
-		NULL,
-		&vsConstantBuffer));
-
-	D3D11_BUFFER_DESC GSCBufferDesc;
-	GSCBufferDesc.ByteWidth = sizeof(dataToSendToGSConstantBuffer);
-	GSCBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	GSCBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	GSCBufferDesc.CPUAccessFlags = 0;
-	GSCBufferDesc.MiscFlags = 0;
-	GSCBufferDesc.StructureByteStride = 0;
-	HR(device->CreateBuffer(
-		&GSCBufferDesc,
-		NULL,
-		&gsConstantBuffer));
-}
-
-void GameManager::LoadPixelShader(wchar_t* file, ID3D11PixelShader** shader)
-{
-	ID3DBlob* psBlob;
-	D3DReadFileToBlob(file, &psBlob);
-
-	// Create the shader on the device
-	HR(device->CreatePixelShader(
-		psBlob->GetBufferPointer(),
-		psBlob->GetBufferSize(),
-		NULL,
-		shader));
-
-	// Clean up
-	ReleaseMacro(psBlob);
-}
-
-void GameManager::LoadVertexShader(wchar_t* file, LAYOUT inputLayoutType, ID3D11VertexShader** shader)
-{
-	// Load shader blob
-	ID3DBlob* vsBlob;
-	D3DReadFileToBlob(file, &vsBlob);
-
-	if (inputLayoutType == VERTEX_LAYOUT)
-		InputLayouts::InitializeVertexLayout(device, vsBlob);
-	else if (inputLayoutType == PARTICLE_LAYOUT)
-		InputLayouts::InitializeParticleLayout(device, vsBlob);
-	else
-		InputLayouts::InitializeShadowLayout(device, vsBlob);
-
-	// Create the shader on the device
-	HR(device->CreateVertexShader(
-		vsBlob->GetBufferPointer(),
-		vsBlob->GetBufferSize(),
-		NULL,
-		shader));
-
-	// Clean up
-	ReleaseMacro(vsBlob);
-}
-
-void GameManager::LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader)
-{
-	ID3DBlob* gsBlob; 
-	HR(D3DReadFileToBlob(file, &gsBlob));
-
-	// Create the shader on the device
-	HR(device->CreateGeometryShader(
-		gsBlob->GetBufferPointer(),
-		gsBlob->GetBufferSize(),
-		NULL,
-		&particleGeometryShader));
-
-	// Clean up
-	ReleaseMacro(gsBlob);
-}
-
-// Load each of the game's meshes and materials
-void GameManager::LoadMeshesAndMaterials()
-{
-	// Prepare some variables
-	ObjLoader loader = ObjLoader();
-	ID3D11Buffer* vertexBuffer;
-	ID3D11Buffer* indexBuffer;
-	int size;
-
-	// Create materials
-	shapeMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"image.png");
-	buttonMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"button.png");
-	titleMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"title.png");
-	labelMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"label.png");
-	frameMaterial = new Material(device, deviceContext, vertexShader, pixelShader, linearSampler, L"texFrame.png");
-	tileMaterial = new Material(device, deviceContext, vertexShader, pixelShader, anisotropicSampler, L"tile.png");
-	particleMaterial = new Material(device, deviceContext, particleVertexShader, particlePixelShader, linearSampler, L"texLBlock.png", particleGeometryShader);
-
-	// Load meshes
-	size = loader.Load("cube.txt", device, &vertexBuffer, &indexBuffer);
-	cubeMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-	size = loader.Load("frame.txt", device, &vertexBuffer, &indexBuffer);
-	frameMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-	size = loader.Load("environment.txt", device, &vertexBuffer, &indexBuffer);
-	environmentMesh = new Mesh(device, deviceContext, vertexBuffer, indexBuffer, size);
-}
-
-// Create the structs of the different block types
-void GameManager::BuildBlockTypes()
-{
-	blocks = new Block[7];
-
-	blocks[0].threeByThree = true;
-	blocks[0].gameObject = new GameObject(jBlockMesh, jBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.0f, 1.5f, 0.0f));
-	blocks[0].localGrid = new bool[9];
-	blocks[0].tempGrid = new bool[9];
-	blocks[0].grid = new bool[9] {
-		true, true, true,
-			true, false, false,
-			false, false, false
-	};
-
-	blocks[1].threeByThree = true;
-	blocks[1].gameObject = new GameObject(lBlockMesh, lBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.0f, 1.5f, 0.0f));
-	blocks[1].localGrid = new bool[9];
-	blocks[1].tempGrid = new bool[9];
-	blocks[1].grid = new bool[9] {
-		true, true, true,
-			false, false, true,
-			false, false, false
-	};
-
-	blocks[2].threeByThree = true;
-	blocks[2].gameObject = new GameObject(leftBlockMesh, leftBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.0f, 1.5f, 0.0f));
-	blocks[2].localGrid = new bool[9];
-	blocks[2].tempGrid = new bool[9];
-	blocks[2].grid = new bool[9] {
-		false, true, true,
-			true, true, false,
-			false, false, false
-	};
-
-	blocks[3].threeByThree = false;
-	blocks[3].gameObject = new GameObject(longBlockMesh, longBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.5f, 2.0f, 0.0f));
-	blocks[3].localGrid = new bool[16];
-	blocks[3].tempGrid = new bool[16];
-	blocks[3].grid = new bool[16] {
-		false, false, false, false,
-			true, true, true, true,
-			false, false, false, false,
-			false, false, false, false
-	};
-
-	blocks[4].threeByThree = true;
-	blocks[4].gameObject = new GameObject(rightBlockMesh, rightBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.0f, 1.5f, 0.0f));
-	blocks[4].localGrid = new bool[9];
-	blocks[4].tempGrid = new bool[9];
-	blocks[4].grid = new bool[9] {
-		true, true, false,
-			false, true, true,
-			false, false, false
-	};
-
-	blocks[5].threeByThree = false;
-	blocks[5].gameObject = new GameObject(squareBlockMesh, squareBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.5f, 2.0f, 0.0f));
-	blocks[5].localGrid = new bool[16];
-	blocks[5].tempGrid = new bool[16];
-	blocks[5].grid = new bool[16] {
-		false, false, false, false,
-			false, true, true, false,
-			false, true, true, false,
-			false, false, false, false
-	};
-
-	blocks[6].threeByThree = true;
-	blocks[6].gameObject = new GameObject(stairsBlockMesh, stairsBlockMaterial, &XMFLOAT3(0, 0, 0), &XMFLOAT3(0, 0, 0), &XMFLOAT3(1.0f, 1.5f, 0.0f));
-	blocks[6].localGrid = new bool[9];
-	blocks[6].tempGrid = new bool[9];
-	blocks[6].grid = new bool[9] {
-		true, true, true,
-			false, true, false,
-			false, false, false
-	};
 }
 
 void GameManager::CreateShadowMapResources() 
@@ -566,7 +289,7 @@ void GameManager::UpdateScene(float dt)
 	// Update the game
 		// None
 
-	// Active mesh list
+	// Set active mesh list
 	std::vector<GameObject*> *meshObjects = 0;
 	if (gameState == GAME || gameState == DEBUG)
 	{
@@ -598,26 +321,26 @@ void GameManager::UpdateScene(float dt)
 	//shadowCam->Update(dt);
 
 	// [UPDATE] Update constant buffer data
-	dataToSendToVSConstantBuffer.view = camera->viewMatrix;
-	dataToSendToVSConstantBuffer.projection = projectionMatrix;
-	dataToSendToVSConstantBuffer.lightView = shadowView;
-	dataToSendToVSConstantBuffer.lightProjection = shadowProjection;
-	dataToSendToVSConstantBuffer.lightDirection = XMFLOAT4(2.0f, -3.0f, 1.0f, 0.95f);
-	dataToSendToVSConstantBuffer.color = XMFLOAT4(1, 1, 1, 1);
+	Shaders::dataToSendToVSConstantBuffer.view = camera->viewMatrix;
+	Shaders::dataToSendToVSConstantBuffer.projection = projectionMatrix;
+	Shaders::dataToSendToVSConstantBuffer.lightView = shadowView;
+	Shaders::dataToSendToVSConstantBuffer.lightProjection = shadowProjection;
+	Shaders::dataToSendToVSConstantBuffer.lightDirection = XMFLOAT4(2.0f, -3.0f, 1.0f, 0.95f);
+	Shaders::dataToSendToVSConstantBuffer.color = XMFLOAT4(1, 1, 1, 1);
 
-	dataToSendToGSConstantBuffer.view = camera->viewMatrix;
-	dataToSendToGSConstantBuffer.projection = projectionMatrix;
+	Shaders::dataToSendToGSConstantBuffer.view = camera->viewMatrix;
+	Shaders::dataToSendToGSConstantBuffer.projection = projectionMatrix;
 
 	// Shadow map
 	deviceContext->OMSetRenderTargets(0, 0, shadowDSV);
 	deviceContext->ClearDepthStencilView(shadowDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	deviceContext->VSSetShader(shadowVS, 0, 0);
+	deviceContext->VSSetShader(Shaders::shadowVS, 0, 0);
 	deviceContext->PSSetShader(0, 0, 0);
 
 	// Draw mesh objects that can cast shadows
 	if (meshObjects) {
 		for (UINT i = 0; i < meshObjects->size(); i++) {
-			(*meshObjects)[i]->Draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
+			(*meshObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
 		}
 	}
 
@@ -637,27 +360,43 @@ void GameManager::UpdateScene(float dt)
 
 	// Bind shadow map
 	deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
-	deviceContext->PSSetSamplers(1, 1, &pointSampler);
+	deviceContext->PSSetSamplers(1, 1, &(Samplers::pointSampler));
 
 	// Set the shaders
-	deviceContext->VSSetShader(vertexShader, 0, 0);
-	deviceContext->PSSetShader(pixelShaders[activeShader], 0, 0);
+	Shaders::Update();
 
 	// Bind shadow map texture
 	deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
-	deviceContext->PSSetSamplers(1, 1, &pointSampler);
+	deviceContext->PSSetSamplers(1, 1, &(Samplers::pointSampler));
 	
 	// Draw each mesh
 	if (meshObjects)
 	{
 		for (UINT i = 0; i < meshObjects->size(); i++)
 		{
-			(*meshObjects)[i]->Draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
+			(*meshObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
 		}
 	}
 
 	// Draw the particle system	
-		// None
+	if (gameState == GAME || gameState == DEBUG)
+	{
+		// [DRAW] Set up the input assembler for particle system
+		deviceContext->IASetInputLayout(InputLayouts::Particle);
+		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+		particleSystem->GetMaterial()->SetShaders();
+
+		if (gameState != DEBUG)
+			// [UPDATE] Update the particle system 
+			particleSystem->Update(&Shaders::dataToSendToGSConstantBuffer, dt);
+
+		// [DRAW] Draw the particle system
+		particleSystem->Draw(deviceContext, *camera, Shaders::gsConstantBuffer, &Shaders::dataToSendToGSConstantBuffer);
+
+		deviceContext->GSSetShader(NULL, 0, 0);
+	}
+
 	
 	// Draw UI Elements
 	if (uiObjects)
@@ -666,7 +405,7 @@ void GameManager::UpdateScene(float dt)
 		for (UINT i = 0; i < uiObjects->size(); i++)
 		{
 			// [DRAW] Draw the object
-			(*uiObjects)[i]->Draw(deviceContext, vsConstantBuffer, &dataToSendToVSConstantBuffer);
+			(*uiObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
 		}
 		spriteBatch->End();
 
@@ -706,6 +445,7 @@ void GameManager::CheckKeyBoard(float dt)
 		camera->MoveDepth(CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('S'))
 		camera->MoveDepth(-CAMERA_MOVE_FACTOR * dt);
+
 	// Change height of camera (QE)
 	if (GetAsyncKeyState('Q'))
 		camera->MoveVertical(CAMERA_MOVE_FACTOR * dt);
@@ -723,7 +463,7 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 		// Change the active shader
 		case VK_TAB:
-			activeShader = (activeShader + 1) % shaderCount;
+			Shaders::activeShader = (Shaders::activeShader + 1) % Shaders::shaderCount;
 			break;
 		}
 	}
@@ -744,6 +484,8 @@ void GameManager::OnMouseDown(WPARAM btnState, int x, int y)
 void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
+
+	particleSystem->Reset();
 
 	// Main menu buttons
 	if (gameState == MENU)

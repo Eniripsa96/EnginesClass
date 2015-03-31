@@ -1,6 +1,5 @@
 #include "InputLayouts.h"
 
-//bool CommandManager::started = true;
 ID3D11InputLayout* InputLayouts::Vertex = NULL;
 ID3D11InputLayout* InputLayouts::Particle = NULL;
 ID3D11InputLayout* InputLayouts::Shadow = NULL;
