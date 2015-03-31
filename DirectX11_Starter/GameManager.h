@@ -82,7 +82,6 @@ private:
 
 	Button* playButton;
 	Button* quitButton;
-	Button* mainMenuButton;
 
 	ParticleSystem* particleSystem;
 	Camera* camera;

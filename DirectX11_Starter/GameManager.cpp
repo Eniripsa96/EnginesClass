@@ -210,7 +210,7 @@ bool GameManager::Init()
 	// Create buttons for UI
 	playButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
 	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
-	mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
+	//mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
 	menuObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["title"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
 	menuObjects.emplace_back(playButton);
 	menuObjects.emplace_back(quitButton);
@@ -499,10 +499,6 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 			PostQuitMessage(0);
 		}
 	}
-	else if (gameState == GAME_OVER && mainMenuButton->IsOver(x, y)) 
-	{
-		gameState = MENU;
-	}
 }
 
 void GameManager::OnMouseMove(WPARAM btnState, int x, int y)
@@ -518,7 +514,6 @@ void GameManager::OnMouseMove(WPARAM btnState, int x, int y)
 
 	playButton->Update(x, y);
 	quitButton->Update(x, y);
-	mainMenuButton->Update(x, y);
 
 	prevMousePos.x = x;
 	prevMousePos.y = y;
