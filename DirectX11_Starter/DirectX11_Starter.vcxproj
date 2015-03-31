@@ -68,7 +68,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BlockManager.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -88,7 +87,6 @@
     <ClCompile Include="ObjLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BlockManager.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GameObject.h" />
