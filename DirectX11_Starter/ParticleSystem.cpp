@@ -16,6 +16,9 @@ ParticleSystem::ParticleSystem(Mesh* mesh, Material* mat)
 	};
 
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
+
+	// Need to make the vertex buffer a dynamic buffer 
+		// Necessary because the particles will be updated every frame if we want them to move 'realistically'
 }
 
 
