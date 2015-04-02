@@ -15,6 +15,7 @@ public:
 	NetworkManager();
 	~NetworkManager();
 	bool isValid();
+	void listen();
 private:
 	WSADATA wsaData;
 	SOCKET ConnectSocket = INVALID_SOCKET;
