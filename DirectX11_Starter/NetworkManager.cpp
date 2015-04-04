@@ -1,21 +1,45 @@
 #include "NetworkManager.h"
 
-
+// Sets up the network connections, attempting to connect
+// to the server.
 NetworkManager::NetworkManager()
 {
+	
+}
+
+// Cleans up connections when destroyed if not done so elsewhere
+NetworkManager::~NetworkManager()
+{
+	
+}
+
+// Checks whether or not the application is currently
+// connected to the server and ready for network communications.
+bool NetworkManager::isConnected() {
+	return connected;
+}
+
+// Tries to connect to the server. This can
+// be used to reconnect after an error causes
+// a disconnection or if it was disconnected
+// manually.
+bool NetworkManager::tryConnect() {
+
 	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		printf("WSAStartup failed: %d\n", iResult);
-		return;
+		return false;
 	}
 
+	// addrinfo structs to use
 	struct addrinfo *result = NULL,
 		*ptr = NULL,
 		hints;
-	
+
+	// Reset the data for the template
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
-	
+
 	// Protocol type TCP/UDP
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
@@ -28,7 +52,7 @@ NetworkManager::NetworkManager()
 	if (iResult != 0) {
 		printf("aetaddrinfo failed: %d\n", iResult);
 		WSACleanup();
-		return;
+		return false;
 	}
 
 	// Try to initialize the socket
@@ -38,8 +62,9 @@ NetworkManager::NetworkManager()
 		printf("Error at socket(): %ld\n", WSAGetLastError());
 		freeaddrinfo(result);
 		WSACleanup();
-		return;
+		return false;
 	}
+	freeaddrinfo(result);
 
 	// Try to connect to the server
 	iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
@@ -49,27 +74,27 @@ NetworkManager::NetworkManager()
 	}
 
 	// Validate the connection
-	freeaddrinfo(result);
 	if (ConnectSocket == INVALID_SOCKET) {
 		printf("Unable to connect to the server!\n");
 		WSACleanup();
-		return;
+		return false;
 	}
 
-	valid = true;
+	connected = true;
+	return true;
 }
 
-
-NetworkManager::~NetworkManager()
-{
-}
-
-// Checks whether or not the NetworkManager
-// has been successfully set up. If this is
-// false, no networking will be possible.
-bool NetworkManager::isValid()
-{
-	return valid;
+// Closes the network connection if it is
+// currently connected.
+void NetworkManager::disconnect() {
+	if (connected) {
+		int iResult = shutdown(ConnectSocket, SD_SEND);
+		if (iResult == SOCKET_ERROR) {
+			closesocket(ConnectSocket);
+			WSACleanup();
+			connected = false;
+		}
+	}
 }
 
 // Listens to the connection for incomming data. This
@@ -77,6 +102,8 @@ bool NetworkManager::isValid()
 // a separate thread.
 void NetworkManager::listen()
 {
+	if (!connected) return;
+
 	char recvbuf[DEFAULT_BUFLEN];
 
 	// Receive data until the server closes the connection
@@ -91,4 +118,31 @@ void NetworkManager::listen()
 			printf("recv failed: %d\n", WSAGetLastError());
 	} 
 	while (iResult > 0);
+
+	// Close the connection when finished if not already closed
+	if (connected) {
+		closesocket(ConnectSocket);
+		WSACleanup();
+		connected = false;
+	}
+}
+
+// Sends data over the network
+bool NetworkManager::emit(packetStruct* packet) {
+	if (!connected) return false;
+
+	// Attempt to send the data
+	int iResult = send(ConnectSocket, (char*)packet, sizeof(packet), 0);
+
+	// If there was an error, print the message
+	if (iResult == SOCKET_ERROR) {
+		printf("shutdown failed: %d\n", WSAGetLastError());
+		closesocket(ConnectSocket);
+		WSACleanup();
+		connected = false;
+		return false;
+	}
+
+	// Send succeeded
+	return true;
 }
