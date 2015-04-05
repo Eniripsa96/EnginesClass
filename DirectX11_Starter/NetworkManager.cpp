@@ -19,6 +19,66 @@ bool NetworkManager::isConnected() {
 	return connected;
 }
 
+// Attempts to set up a server to host other players
+bool NetworkManager::tryHost() {
+
+	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult != 0) {
+		printf("WSAStartup failed: %d\n", iResult);
+		return false;
+	}
+
+	// addrinfo structs to use
+	struct addrinfo *result = NULL,
+		*ptr = NULL,
+		hints;
+
+	// Assemble the host info
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_flags = AI_PASSIVE;
+
+	// Try to create the info representation
+	iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
+	if (iResult != 0) {
+		printf("getaddrinfo failed: %d\n", iResult);
+		WSACleanup();
+		return false;
+	}
+
+	// Try to set up the socket
+	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+	if (ListenSocket == INVALID_SOCKET) {
+		printf("Error at socket(): %ld\n", WSAGetLastError());
+		freeaddrinfo(result);
+		WSACleanup();
+		return false;
+	}
+
+	// Bind the socket
+	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+	if (iResult == SOCKET_ERROR) {
+		printf("bind failed with error: %d\n", WSAGetLastError());
+		freeaddrinfo(result);
+		closesocket(ListenSocket);
+		WSACleanup();
+		return false;
+	}
+	freeaddrinfo(result);
+
+	// Mark the socket as listening for new clients
+	if (listen(ListenSocket, SOMAXCONN) == SOCKET_ERROR) {
+		printf("Listn failed with error: %ld\n", WSAGetLastError());
+		closesocket(ListenSocket);
+		WSACleanup();
+		return false;
+	}
+
+	connected = true;
+}
+
 // Tries to connect to the server. This can
 // be used to reconnect after an error causes
 // a disconnection or if it was disconnected
@@ -100,7 +160,7 @@ void NetworkManager::disconnect() {
 // Listens to the connection for incomming data. This
 // repeats indefinitely so it should be started on
 // a separate thread.
-void NetworkManager::listen()
+void NetworkManager::startListening()
 {
 	if (!connected) return;
 
@@ -127,7 +187,13 @@ void NetworkManager::listen()
 	}
 }
 
-// Sends data over the network
+// Starts the server, listening for new clients and receiving data
+void NetworkManager::startServer() 
+{
+	if (!connected) return;
+}
+
+// Sends data over the network if currently connected
 bool NetworkManager::emit(packetStruct* packet) {
 	if (!connected) return false;
 

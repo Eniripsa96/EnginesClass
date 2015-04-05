@@ -63,6 +63,12 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 
 	gameState = MENU;
 
+#pragma region network test code
+
+	network.tryHost();
+	network.startServer();
+
+#pragma endregion
 
 #pragma region SSE test code
 	float c1 = cos(1.0f);

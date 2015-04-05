@@ -1,4 +1,4 @@
-#include <windows.h>
+
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <IPHlpApi.h>
@@ -20,12 +20,15 @@ public:
 	NetworkManager();
 	~NetworkManager();
 	bool isConnected();
-	void listen();
+	void startListening();
+	void startServer();
+	bool tryHost();
 	bool tryConnect();
 	void disconnect();
 	bool emit(packetStruct* packet);
 private:
 	WSADATA wsaData;
 	SOCKET ConnectSocket = INVALID_SOCKET;
+	SOCKET ListenSocket = INVALID_SOCKET;
 	bool connected = false;
 };
