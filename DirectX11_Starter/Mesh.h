@@ -87,10 +87,11 @@ public:
 
 	const XMFLOAT3 NORMALS_2D = XMFLOAT3(0.0f, 0.0f, 1.0f);
 
+	ID3D11Device* device;
 	ID3D11DeviceContext* deviceContext;
 
 private:
-	ID3D11Device* device;
+
 	UINT iBufferSize;
 
 	const float PARTICLE_SIZE = 0.1875f;
