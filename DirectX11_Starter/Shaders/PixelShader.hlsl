@@ -9,10 +9,10 @@ SamplerState shadowSampler : register(s1);
 struct VertexToPixel
 {
 	float4 position		: SV_POSITION;
-	float3 normal		: NORMAL;
+	float3 normal		: TEXCOORD2;
 	float2 uv			: TEXCOORD0;
 	float4 lightPos     : TEXCOORD1;
-	float4 lightDir     : LIGHT;
+	float4 lightDir     : TEXCOORD3;
 	float4 color        : COLOR;
 };
 
