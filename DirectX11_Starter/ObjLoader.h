@@ -1,9 +1,9 @@
 #pragma once
+#include "GameManager.h"
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include "Mesh.h"
-#include "GameManager.h"
 
 using namespace DirectX;
 using namespace std;

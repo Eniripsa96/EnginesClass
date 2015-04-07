@@ -2,7 +2,6 @@
 #define GAMEMANAGER_H
 
 #include "NetworkManager.h"
-
 #include <DirectXMath.h>
 #include <vector>
 #include <SpriteFont.h>

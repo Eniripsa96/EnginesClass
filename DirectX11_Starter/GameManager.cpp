@@ -21,9 +21,9 @@
 //
 // ----------------------------------------------------------------------------
 
+#include "GameManager.h"
 #include <Windows.h>
 #include <d3dcompiler.h>
-#include "GameManager.h"
 #include <vector>
 #include "Math.h"
 
@@ -65,12 +65,16 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 
 #pragma region network test code
 
-	network.tryHost();
+	bool worked = network.tryHost();
 	network.startServer();
+
+	//bool worked = network.tryConnect();
+	//network.startListening();
 
 #pragma endregion
 
 #pragma region SSE test code
+	/*
 	float c1 = cos(1.0f);
 	float s1 = sin(1.0f);
 	float c2 = cos(2.0f);
@@ -125,6 +129,7 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 	double duration6 = std::clock() - start;
 
 	int i = 0;
+	*/
 #pragma endregion
 }
 

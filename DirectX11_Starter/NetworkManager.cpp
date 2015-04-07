@@ -77,6 +77,7 @@ bool NetworkManager::tryHost() {
 	}
 
 	connected = true;
+	return true;
 }
 
 // Tries to connect to the server. This can
@@ -108,7 +109,7 @@ bool NetworkManager::tryConnect() {
 	//hints.ai_protocol = IPPROTO_UDP;
 
 	// Try to grab the server information
-	iResult = getaddrinfo("address", DEFAULT_PORT, &hints, &result);
+	iResult = getaddrinfo("127.0.0.1", DEFAULT_PORT, &hints, &result);
 	if (iResult != 0) {
 		printf("aetaddrinfo failed: %d\n", iResult);
 		WSACleanup();
