@@ -192,6 +192,44 @@ void NetworkManager::startListening()
 void NetworkManager::startServer() 
 {
 	if (!connected) return;
+
+	// Grab a client
+	SOCKET client = accept(ListenSocket, NULL, NULL);
+	if (client == INVALID_SOCKET) {
+		printf("accept failed 5d\n", WSAGetLastError());
+		closesocket(ListenSocket);
+		WSACleanup();
+		connected = false;
+		return;
+	}
+
+	// Listen to the client
+	char buffer[DEFAULT_BUFLEN];
+	int iResult;
+	do {
+		iResult = recv(client, buffer, DEFAULT_BUFLEN, 0);
+		if (iResult > 0) {
+			printf("Bytes received: %d\n", iResult);
+			
+			iResult = send(client, buffer, iResult, 0);
+			if (iResult == SOCKET_ERROR) {
+				printf("Send failed: %d\n", WSAGetLastError());
+				closesocket(client);
+				WSACleanup();
+				return;
+			}
+			printf("Bytes sent: %d\n", iResult);
+		}
+		else if (iResult == 0) {
+			printf("Connection closing...\n");
+		}
+		else {
+			printf("Receive failed: %d\n", WSAGetLastError());
+			closesocket(client);
+			WSACleanup();
+			return;
+		}
+	} while (iResult > 0);
 }
 
 // Sends data over the network if currently connected
