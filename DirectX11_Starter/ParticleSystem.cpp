@@ -52,7 +52,7 @@ void ParticleSystem::Update(GeometryShaderConstantBufferLayout* cBufferData, flo
 
 	velocity += GRAVITY * dt;
 
-	XMMATRIX tempWorld = XMMatrixTranslation(0.0f, velocity * dt, 0.0f );
+	XMMATRIX tempWorld = XMMatrixTranslation(0.0f, 0.0f * dt, 0.0f );
 	XMStoreFloat4x4(&world, XMLoadFloat4x4(&world) * tempWorld);
 	cBufferData->world = world;
 }
