@@ -137,7 +137,6 @@ bool NetworkManager::tryConnect() {
 
 	// Validate the connection
 	if (ConnectSocket == INVALID_SOCKET) {
-		int error = WSAGetLastError();
 		printf("Unable to connect to the server!\n");
 		WSACleanup();
 		return false;
