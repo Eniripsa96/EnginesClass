@@ -65,11 +65,11 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 
 #pragma region network test code
 
-	bool worked = network.tryHost();
-	network.startServer();
+	//bool worked = network.tryHost();
+	//network.startServer();
 
-	//bool worked = network.tryConnect();
-	//network.startListening();
+	bool worked = network.tryConnect();
+	network.startListening();
 
 #pragma endregion
 

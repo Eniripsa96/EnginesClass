@@ -125,7 +125,6 @@ bool NetworkManager::tryConnect() {
 		WSACleanup();
 		return false;
 	}
-	freeaddrinfo(result);
 
 	// Try to connect to the server
 	iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
@@ -134,8 +133,11 @@ bool NetworkManager::tryConnect() {
 		ConnectSocket = INVALID_SOCKET;
 	}
 
+	freeaddrinfo(result);
+
 	// Validate the connection
 	if (ConnectSocket == INVALID_SOCKET) {
+		int error = WSAGetLastError();
 		printf("Unable to connect to the server!\n");
 		WSACleanup();
 		return false;
