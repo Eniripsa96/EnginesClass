@@ -2,7 +2,6 @@
 #define GAMEMANAGER_H
 
 #include <DirectXMath.h>
-#include <vector>
 #include <SpriteFont.h>
 #include <SpriteBatch.h>
 
@@ -11,16 +10,15 @@
 #include <ctime>
 
 #include "DirectXGame.h"
-#include "GameObject.h"
 #include "Button.h"
 #include "Camera.h"
 #include "ObjLoader.h"
 #include "InputLayouts.h"
 #include "ParticleSystem.h"
 #include "Math.h"
-#include "Shaders.h"
 #include "MeshesMaterials.h"
 #include "Samplers.h"
+#include "Scene.h"
 
 // Include run-time memory checking in debug builds
 #if defined(DEBUG) || defined(_DEBUG)
@@ -30,7 +28,6 @@
 
 // For DirectX Math
 using namespace DirectX;
-using namespace std;
 
 enum GAME_STATE
 {
@@ -70,10 +67,9 @@ public:
 	GAME_STATE gameState;
 
 private:
-	std::vector<GameObject*> gameObjects;
-	std::vector<UIObject*> gameUIObjects;
-	std::vector<UIObject*> menuObjects;
-	std::vector<UIObject*> gameOverObjects;
+	Scene* menuScene;
+	Scene* gameScene;
+	Scene* currentScene;
 
 	SpriteBatch* spriteBatch;
 	SpriteFont* spriteFont24;

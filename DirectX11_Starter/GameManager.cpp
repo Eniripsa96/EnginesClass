@@ -126,26 +126,8 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 GameManager::~GameManager()
 {
 	// Clean up objects
-	for (UINT i = 0; i < gameObjects.size(); i++)
-	{
-		delete gameObjects[i];
-	}
-	for (UINT i = 0; i < menuObjects.size(); i++)
-	{
-		delete menuObjects[i];
-	}
-	for (UINT i = 0; i < gameUIObjects.size(); i++)
-	{
-		delete gameUIObjects[i];
-	}
-	for (UINT i = 0; i < gameOverObjects.size(); i++)
-	{
-		delete gameOverObjects[i];
-	}
-	gameObjects.clear();
-	menuObjects.clear();
-	gameOverObjects.clear();
-	gameUIObjects.clear();
+	delete menuScene;
+	delete gameScene;
 
 	// Clean up engine components
 	MeshesMaterials::Destructor();
@@ -186,6 +168,8 @@ bool GameManager::Init()
 	if (!DirectXGame::Init())
 		return false;
 
+	vector<GameObject*> gameObjects;
+
 	// Initialize and load core engine components
 	Samplers::CreateSamplers(device, deviceContext);
 	Shaders::LoadShadersAndInputLayout(device, deviceContext);
@@ -202,18 +186,23 @@ bool GameManager::Init()
 	spriteFont32 = new SpriteFont(device, L"jing32.spritefont");
 	spriteFont72 = new SpriteFont(device, L"jing72.spritefont");
 
+	// Create buttons for UI
+	playButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
+	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
+	gameObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["title"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
+	gameObjects.emplace_back(playButton);
+	gameObjects.emplace_back(quitButton);
+	
+	menuScene = new Scene(&gameObjects);
+	gameObjects.clear();
+
 	// Load the frame
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::materials["tile"], &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 
-	// Create buttons for UI
-	playButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
-	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
-	//mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
-	menuObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["title"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
-	menuObjects.emplace_back(playButton);
-	menuObjects.emplace_back(quitButton);
+	gameScene = new Scene(&gameObjects);
+	gameObjects.clear();
 
 	// Blend state - enabling alpha blending
 	BLEND_DESC blendDesc;
@@ -232,6 +221,8 @@ bool GameManager::Init()
 	XMMATRIX W = XMMatrixIdentity();
 	for (UINT i = 0; i < gameObjects.size(); i++)
 		XMStoreFloat4x4(&(gameObjects[i]->worldMatrix), XMMatrixTranspose(W));
+
+	currentScene = gameScene;
 
 	return true;
 }
@@ -289,31 +280,14 @@ void GameManager::UpdateScene(float dt)
 	// Update the game
 		// None
 
-	// Set active mesh list
-	std::vector<GameObject*> *meshObjects = 0;
-	if (gameState == GAME || gameState == DEBUG)
-	{
-		gameObjects[gameObjects.size() - 1]->Rotate(&XMFLOAT3(0.0f * dt, 1.0f * dt, 0.0f * dt));
-
-		meshObjects = &gameObjects;
-	}
+	// TODO move into scene if want object to rotate
+	//gameObjects[gameObjects.size() - 1]->Rotate(&XMFLOAT3(0.0f * dt, 1.0f * dt, 0.0f * dt));
 	
-	// Active UI list
-	std::vector<UIObject*> *uiObjects = 0;
-	if (gameState == MENU) uiObjects = &menuObjects;
-	if (gameState == GAME || gameState == DEBUG) uiObjects = &gameUIObjects;
-	if (gameState == GAME_OVER) uiObjects = &gameOverObjects;
-
 	// [DRAW] Set up the input assembler for objects
 	deviceContext->IASetInputLayout(InputLayouts::Vertex);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// Update each mesh
-	if (meshObjects) {
-		for (UINT i = 0; i < meshObjects->size(); i++) {
-			if (gameState != DEBUG) (*meshObjects)[i]->Update(dt);
-		}
-	}
+	currentScene->Update(dt);
 
 	// --------- Shadow Map Generation ------------------------------------------------------------------
 	
@@ -337,12 +311,13 @@ void GameManager::UpdateScene(float dt)
 	deviceContext->VSSetShader(Shaders::shadowVS, 0, 0);
 	deviceContext->PSSetShader(0, 0, 0);
 
-	// Draw mesh objects that can cast shadows
-	if (meshObjects) {
-		for (UINT i = 0; i < meshObjects->size(); i++) {
-			(*meshObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
-		}
-	}
+	//// Draw mesh objects that can cast shadows
+	//if (meshObjects) {
+	//	for (UINT i = 0; i < meshObjects->size(); i++) {
+	//		(*meshObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
+	//	}
+	//}
+	currentScene->Draw();
 
 	// ----------- Normal Rendering --------------------------------------------------------
 
@@ -368,15 +343,8 @@ void GameManager::UpdateScene(float dt)
 	// Bind shadow map texture
 	deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
 	deviceContext->PSSetSamplers(1, 1, &(Samplers::pointSampler));
-	
-	// Draw each mesh
-	if (meshObjects)
-	{
-		for (UINT i = 0; i < meshObjects->size(); i++)
-		{
-			(*meshObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
-		}
-	}
+
+	currentScene->Draw();
 
 	// Draw the particle system	
 	if (gameState == GAME || gameState == DEBUG)
@@ -399,14 +367,13 @@ void GameManager::UpdateScene(float dt)
 
 	
 	// Draw UI Elements
-	if (uiObjects)
+	if (menuScene)
 	{
 		spriteBatch->Begin();
-		for (UINT i = 0; i < uiObjects->size(); i++)
-		{
-			// [DRAW] Draw the object
-			(*uiObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
-		}
+		
+		// draw MENU SCENE here
+		//menuScene->Draw();
+
 		spriteBatch->End();
 
 		deviceContext->OMSetBlendState(blendState, NULL, 0xffffffff);
@@ -493,6 +460,7 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 		if (playButton->IsOver(x, y))
 		{
 			gameState = GAME;
+			//currentScene = gameScene;
 		}
 		if (quitButton->IsOver(x, y))
 		{

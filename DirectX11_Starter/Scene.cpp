@@ -5,7 +5,31 @@ Scene::Scene()
 {
 }
 
+// TODO MAKE THIS MORE EFFICIENT
+Scene::Scene(vector<GameObject*>* objs)
+{
+	gameObjects = *objs;
+}
 
 Scene::~Scene()
 {
+	for (int i = 0; i < gameObjects.size(); i++)
+	{
+		delete gameObjects[i];
+	}
+
+	gameObjects.clear();
+}
+
+void Scene::Update(float dt)
+{
+	for (UINT i = 0; i < gameObjects.size(); i++)
+		gameObjects[i]->Update(dt);
+}
+
+void Scene::Draw()
+{
+	// TODO reduce params by pulling into GameObject class
+	for (UINT i = 0; i < gameObjects.size(); i++)
+		gameObjects[i]->Draw(Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
 }
