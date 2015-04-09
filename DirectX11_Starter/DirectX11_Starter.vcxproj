@@ -76,6 +76,7 @@
     <ClCompile Include="MeshesMaterials.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="Samplers.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shaders.cpp" />
     <ClCompile Include="UIObject.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -95,6 +96,7 @@
     <ClInclude Include="MeshesMaterials.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Samplers.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Shaders.h" />
     <ClInclude Include="UIObject.h" />
     <ClInclude Include="Material.h" />
