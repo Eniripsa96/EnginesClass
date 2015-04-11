@@ -49,8 +49,8 @@ bool NetworkManager::tryHost() {
 	}
 
 	// Try to set up the socket
-	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-	if (ListenSocket == INVALID_SOCKET) {
+	Socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+	if (Socket == INVALID_SOCKET) {
 		printf("Error at socket(): %ld\n", WSAGetLastError());
 		freeaddrinfo(result);
 		WSACleanup();
@@ -58,20 +58,20 @@ bool NetworkManager::tryHost() {
 	}
 
 	// Bind the socket
-	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+	iResult = bind(Socket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
 		printf("bind failed with error: %d\n", WSAGetLastError());
 		freeaddrinfo(result);
-		closesocket(ListenSocket);
+		closesocket(Socket);
 		WSACleanup();
 		return false;
 	}
 	freeaddrinfo(result);
 
 	// Mark the socket as listening for new clients
-	if (listen(ListenSocket, SOMAXCONN) == SOCKET_ERROR) {
+	if (listen(Socket, SOMAXCONN) == SOCKET_ERROR) {
 		printf("Listn failed with error: %ld\n", WSAGetLastError());
-		closesocket(ListenSocket);
+		closesocket(Socket);
 		WSACleanup();
 		return false;
 	}
@@ -118,8 +118,8 @@ bool NetworkManager::tryConnect() {
 
 	// Try to initialize the socket
 	ptr = result;
-	ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-	if (ConnectSocket == INVALID_SOCKET) {
+	Socket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+	if (Socket == INVALID_SOCKET) {
 		printf("Error at socket(): %ld\n", WSAGetLastError());
 		freeaddrinfo(result);
 		WSACleanup();
@@ -127,16 +127,16 @@ bool NetworkManager::tryConnect() {
 	}
 
 	// Try to connect to the server
-	iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
+	iResult = connect(Socket, ptr->ai_addr, (int)ptr->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
-		closesocket(ConnectSocket);
-		ConnectSocket = INVALID_SOCKET;
+		closesocket(Socket);
+		Socket = INVALID_SOCKET;
 	}
 
 	freeaddrinfo(result);
 
 	// Validate the connection
-	if (ConnectSocket == INVALID_SOCKET) {
+	if (Socket == INVALID_SOCKET) {
 		printf("Unable to connect to the server!\n");
 		WSACleanup();
 		return false;
@@ -150,9 +150,9 @@ bool NetworkManager::tryConnect() {
 // currently connected.
 void NetworkManager::disconnect() {
 	if (connected) {
-		int iResult = shutdown(ConnectSocket, SD_SEND);
+		int iResult = shutdown(Socket, SD_SEND);
 		if (iResult == SOCKET_ERROR) {
-			closesocket(ConnectSocket);
+			closesocket(Socket);
 			WSACleanup();
 			connected = false;
 		}
@@ -166,41 +166,59 @@ void NetworkManager::startListening()
 {
 	if (!connected) return;
 
+	listenThread = std::thread(threadClientListen, this);
+}
+
+void threadClientListen(NetworkManager* manager)
+{
 	char recvbuf[DEFAULT_BUFLEN];
 
 	// Receive data until the server closes the connection
 	int iResult;
 	do {
-		iResult = recv(ConnectSocket, recvbuf, DEFAULT_BUFLEN, 0);
-		if (iResult > 0)
+		iResult = recv(manager->Socket, recvbuf, DEFAULT_BUFLEN, 0);
+		if (iResult > 0) {
 			printf("Bytes received: %d\n", iResult);
+
+			packet data = *new packet();
+			data.buffer = new char[iResult];
+			memcpy(data.buffer, recvbuf, iResult);
+			data.length = iResult;
+
+			manager->received.push(data);
+		}
 		else if (iResult == 0)
 			printf("Connection closed\n");
 		else
 			printf("recv failed: %d\n", WSAGetLastError());
-	} 
-	while (iResult > 0);
+	} while (iResult > 0);
 
 	// Close the connection when finished if not already closed
-	if (connected) {
-		closesocket(ConnectSocket);
+	if (manager->connected) {
+		closesocket(manager->Socket);
 		WSACleanup();
-		connected = false;
+		manager->connected = false;
 	}
 }
 
 // Starts the server, listening for new clients and receiving data
-void NetworkManager::startServer() 
+void NetworkManager::startServer()
 {
 	if (!connected) return;
 
+	listenThread = std::thread(threadServerHost, this);
+}
+
+// Handles receiving clients and listening to each on a new thread
+void threadServerHost(NetworkManager* manager)
+{
 	// Grab a client
-	SOCKET client = accept(ListenSocket, NULL, NULL);
+	SOCKET client = accept(manager->Socket, NULL, NULL);
 	if (client == INVALID_SOCKET) {
+		manager->connected = false;
 		printf("accept failed 5d\n", WSAGetLastError());
-		closesocket(ListenSocket);
+		closesocket(manager->Socket);
 		WSACleanup();
-		connected = false;
 		return;
 	}
 
@@ -211,15 +229,13 @@ void NetworkManager::startServer()
 		iResult = recv(client, buffer, DEFAULT_BUFLEN, 0);
 		if (iResult > 0) {
 			printf("Bytes received: %d\n", iResult);
+
+			packet data = *new packet();
+			data.buffer = new char[iResult];
+			memcpy(data.buffer, buffer, iResult);
+			data.length = iResult;
 			
-			iResult = send(client, buffer, iResult, 0);
-			if (iResult == SOCKET_ERROR) {
-				printf("Send failed: %d\n", WSAGetLastError());
-				closesocket(client);
-				WSACleanup();
-				return;
-			}
-			printf("Bytes sent: %d\n", iResult);
+			manager->received.push(data);
 		}
 		else if (iResult == 0) {
 			printf("Connection closing...\n");
@@ -238,12 +254,12 @@ bool NetworkManager::emit(packetStruct* packet) {
 	if (!connected) return false;
 
 	// Attempt to send the data
-	int iResult = send(ConnectSocket, (char*)packet, sizeof(packet), 0);
+	int iResult = send(Socket, (char*)packet, sizeof(packet), 0);
 
 	// If there was an error, print the message
 	if (iResult == SOCKET_ERROR) {
 		printf("shutdown failed: %d\n", WSAGetLastError());
-		closesocket(ConnectSocket);
+		closesocket(Socket);
 		WSACleanup();
 		connected = false;
 		return false;

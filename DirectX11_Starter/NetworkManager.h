@@ -3,6 +3,7 @@
 #include <IPHlpApi.h>
 #include <stdio.h>
 #include <queue>
+#include <thread>
 
 #pragma once
 
@@ -11,6 +12,11 @@
 
 // Basic struct to extend when creating structs for data to send
 struct packetStruct {};
+
+struct packet {
+	char* buffer;
+	int length;
+};
 
 // Main class for managing the network connections
 class NetworkManager
@@ -25,9 +31,13 @@ public:
 	bool tryConnect();
 	void disconnect();
 	bool emit(packetStruct* packet);
+
+	SOCKET Socket = INVALID_SOCKET;
+	bool connected = false;
+	std::queue<packet> received;
 private:
 	WSADATA wsaData;
-	SOCKET ConnectSocket = INVALID_SOCKET;
-	SOCKET ListenSocket = INVALID_SOCKET;
-	bool connected = false;
+	
+	std::thread listenThread;
+	std::thread hostThread;
 };
