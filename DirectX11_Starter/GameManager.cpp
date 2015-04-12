@@ -492,6 +492,13 @@ void GameManager::OnMouseDown(WPARAM btnState, int x, int y)
 	SetCapture(hMainWnd);
 }
 
+struct test : packetStruct {
+	int num1 : 4;
+	int num2 : 4;
+	int num3 : 8;
+	int num4 : 16;
+};
+
 void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
@@ -503,11 +510,34 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 	{
 		if (playButton->IsOver(x, y))
 		{
-			gameState = GAME;
+			if (network.connected) {
+				test data;
+				data.num1 = 1;
+				data.num2 = 2;
+				data.num3 = 3;
+				data.num4 = 4;
+				network.emit(&data);
+			}
+			else {
+				bool worked = network.tryHost();
+				network.startServer();
+			}
+			//gameState = GAME;
 		}
 		if (quitButton->IsOver(x, y))
 		{
-			PostQuitMessage(0);
+			if (network.connected) {
+				packet data = network.received.front();
+				network.received.pop();
+
+				test result = *((test*)data.buffer);
+				int i;
+			}
+			else {
+				bool worked = network.tryConnect();
+				network.startListening();
+			}
+			//PostQuitMessage(0);
 		}
 	}
 }

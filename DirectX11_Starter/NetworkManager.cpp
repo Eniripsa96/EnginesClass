@@ -159,16 +159,6 @@ void NetworkManager::disconnect() {
 	}
 }
 
-// Listens to the connection for incomming data. This
-// repeats indefinitely so it should be started on
-// a separate thread.
-void NetworkManager::startListening()
-{
-	if (!connected) return;
-
-	listenThread = std::thread(threadClientListen, this);
-}
-
 void threadClientListen(NetworkManager* manager)
 {
 	char recvbuf[DEFAULT_BUFLEN];
@@ -201,12 +191,14 @@ void threadClientListen(NetworkManager* manager)
 	}
 }
 
-// Starts the server, listening for new clients and receiving data
-void NetworkManager::startServer()
+// Listens to the connection for incomming data. This
+// repeats indefinitely so it should be started on
+// a separate thread.
+void NetworkManager::startListening()
 {
 	if (!connected) return;
 
-	listenThread = std::thread(threadServerHost, this);
+	std::thread(threadClientListen, this);
 }
 
 // Handles receiving clients and listening to each on a new thread
@@ -234,7 +226,7 @@ void threadServerHost(NetworkManager* manager)
 			data.buffer = new char[iResult];
 			memcpy(data.buffer, buffer, iResult);
 			data.length = iResult;
-			
+
 			manager->received.push(data);
 		}
 		else if (iResult == 0) {
@@ -247,6 +239,14 @@ void threadServerHost(NetworkManager* manager)
 			return;
 		}
 	} while (iResult > 0);
+}
+
+// Starts the server, listening for new clients and receiving data
+void NetworkManager::startServer()
+{
+	if (!connected) return;
+
+	std::thread(threadServerHost, this);
 }
 
 // Sends data over the network if currently connected
