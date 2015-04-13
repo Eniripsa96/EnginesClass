@@ -27,6 +27,7 @@ public:
 	static ID3D11VertexShader* vertexShader;
 	static ID3D11VertexShader* particleVertexShader;
 	static ID3D11GeometryShader* particleGeometryShader;
+	static ID3D11GeometryShader* streamOutGeometryShader;
 	static ID3D11PixelShader* particlePixelShader;
 	static UINT activeShader;
 	static const UINT shaderCount = 4;
