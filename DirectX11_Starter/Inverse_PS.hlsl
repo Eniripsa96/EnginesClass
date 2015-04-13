@@ -9,10 +9,10 @@ SamplerState shadowSampler : register(s1);
 struct VertexToPixel
 {
 	float4 position		: SV_POSITION;
-	float3 normal		: NORMAL;
+	float3 normal		: TEXCOORD2;
 	float2 uv			: TEXCOORD0;
 	float4 lightPos     : TEXCOORD1;
-	float4 lightDir     : LIGHT;
+	float4 lightDir     : TEXCOORD3;
 	float4 color        : COLOR;
 };
 
@@ -33,6 +33,11 @@ float4 main(VertexToPixel input) : SV_TARGET
 	// Return color sampled from texture
 	float nDotL = dot(normalize(input.normal), -normalize((float3)input.lightDir));
 	float3 result = myTexture.Sample(mySampler, input.uv).rgb * (1 - input.lightDir.w + shade * input.lightDir.w * nDotL) * input.color.rgb;
-	float gray = result.r * 0.21 + result.g * 0.72 + result.b * 0.07;
-	return float4(gray, gray, gray, input.color.a);
+	result = saturate(result);
+	return float4(
+		1 - result.r,
+		1 - result.g,
+		1 - result.b,
+		input.color.a
+	);
 }
