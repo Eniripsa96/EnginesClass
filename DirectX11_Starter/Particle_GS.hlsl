@@ -68,11 +68,6 @@ void main(point VertexOutput input[1] /*: SV_POSITION*/, inout TriangleStream<GS
 	[unroll]
 	if (age.x >= 0.0f)
 	{
-		matrix trans = { 1.0f, 0.0f, 0.0f, 0.0f,
-			0.0f, 1.0f, 0.0f, -0.3f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f };
-
 		// Finalize the GS output by appending 4 verts worth of data
 		GSOutput vert; // Holds a single vertex (just Position and UV)
 		[unroll]
@@ -81,9 +76,11 @@ void main(point VertexOutput input[1] /*: SV_POSITION*/, inout TriangleStream<GS
 			// Already have the world position, need to multiple
 			// by the view and projection matrices
 			vert.position = mul(v[i], mul(view, projection));
-			matrix tempWorld = mul(world, trans);
-			vert.position = mul(tempWorld, vert.position);
+			vert.position = mul(world, vert.position);
 			vert.uv = quadUVs[i]; // Copy uv from array
+
+			// Increment height for testing
+			//vert.position.y += 1.0f;
 
 			output.Append(vert); // Append this vertex!
 		}
