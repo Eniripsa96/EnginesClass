@@ -4,7 +4,6 @@
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 
-#include "DirectXGame.h"
 #include "InputLayouts.h"
 #include "Mesh.h"
 

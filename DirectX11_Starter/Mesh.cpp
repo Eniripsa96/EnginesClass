@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Shaders.h"
 #include <d3dcompiler.h>
 
 Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* context, SHAPE type)
@@ -142,10 +143,38 @@ void Mesh::Draw()
 				0,
 				0);
 		else
+		{
+			// Set our VB as the SO target
+			deviceContext->SOSetTargets(1, &vertexBuffer, &offset);
+
+			// Hook up the proper shaders for this step
+			deviceContext->GSSetShader(Shaders::streamOutGeometryShader, NULL, 0);
+			deviceContext->PSSetShader(NULL, NULL, 0);
+
+			// // Draw the current vertex list using stream-out only to update them.
+			// The updated vertices are streamed-out to the target VB
 			deviceContext->DrawIndexed(
 				(int)PARTICLE,	// The number of indices we're using in this draw
 				0,
 				0);
+
+			// Done streaming-out --> unbind the vertex buffer
+			ID3D11Buffer* bufferArray[1] = { 0 };
+			deviceContext->SOSetTargets(1, bufferArray, &offset);
+
+			// Hook up the proper shaders for this step
+			deviceContext->GSSetShader(Shaders::particleGeometryShader, NULL, 0);
+			deviceContext->PSSetShader(Shaders::particlePixelShader, NULL, 0);
+
+			// Bind our VB to the IA for drawing
+			deviceContext->IASetVertexBuffers(0, 1, &(vertexBuffer), &stride, &offset);
+
+			// Draw the updated mesh
+			deviceContext->DrawIndexed(
+				(int)PARTICLE,	// The number of indices we're using in this draw
+				0,
+				0);
+		}
 	}
 	else
 	{
