@@ -22,7 +22,7 @@ Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* context, ID3D11Buffer* pVe
 {
 	this->device = device;
 	deviceContext = context;
-	vertexBuffer = pVertexBuffer;
+	drawVB = pVertexBuffer;
 	indexBuffer = pIndexBuffer;
 	this->iBufferSize = iBufferSize;
 }
@@ -30,7 +30,7 @@ Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* context, ID3D11Buffer* pVe
 Mesh::~Mesh()
 {
 	// Release all of the D3D stuff that's still hanging out
-	ReleaseMacro(vertexBuffer);
+	ReleaseMacro(drawVB);
 	ReleaseMacro(indexBuffer);
 }
 
@@ -123,9 +123,9 @@ void Mesh::CreateGeometryBuffers(Vertex vertices[], Particle particles[])
 
 
 
-	HR(device->CreateBuffer(&vbd, &initialVertexData, &vertexBuffer));
+	HR(device->CreateBuffer(&vbd, &initialVertexData, &drawVB));
 
-	// Create stream out vertex buffer
+	// Create stream out vertex buffer (without any data)
 	if (particles)
 	{
 		HR(device->CreateBuffer(&vbd, NULL, &streamOutVB));
@@ -139,7 +139,7 @@ void Mesh::Draw()
 	// Set buffers in the input assembler
 	UINT stride = (shapeType != PARTICLE) ? sizeof(Vertex) : sizeof(Particle);
 	UINT offset = 0;
-	deviceContext->IASetVertexBuffers(0, 1, &(vertexBuffer), &stride, &offset);
+	deviceContext->IASetVertexBuffers(0, 1, &(drawVB), &stride, &offset);
 	deviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	if (shapeType != NONE)
@@ -170,14 +170,15 @@ void Mesh::Draw()
 			ID3D11Buffer* bufferArray[1] = { 0 };
 			deviceContext->SOSetTargets(1, bufferArray, &offset);
 
-			std::swap(vertexBuffer, streamOutVB);
+			// Copy new data into the VB we are drawing with
+			std::swap(drawVB, streamOutVB);
 
 			// Hook up the proper shaders for this step
 			deviceContext->GSSetShader(Shaders::particleGeometryShader, NULL, 0);
 			deviceContext->PSSetShader(Shaders::particlePixelShader, NULL, 0);
 
 			// Bind our VB to the IA for drawing
-			deviceContext->IASetVertexBuffers(0, 1, &(vertexBuffer), &stride, &offset);
+			deviceContext->IASetVertexBuffers(0, 1, &(drawVB), &stride, &offset);
 
 			// Draw the updated mesh
 			deviceContext->DrawIndexed(
