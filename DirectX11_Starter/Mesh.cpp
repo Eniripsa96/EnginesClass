@@ -81,10 +81,10 @@ void Mesh::CreateGeometryBuffers(Vertex vertices[], Particle particles[])
 {
 	// Create a dynamic vertex buffer
 	D3D11_BUFFER_DESC vbd;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.BindFlags = D3D11_BIND_STREAM_OUTPUT | D3D11_BIND_VERTEX_BUFFER;
 	vbd.MiscFlags = 0;
 	vbd.StructureByteStride = 0;
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.Usage = D3D11_USAGE_DEFAULT;
 	vbd.CPUAccessFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA initialVertexData;
@@ -128,8 +128,6 @@ void Mesh::CreateGeometryBuffers(Vertex vertices[], Particle particles[])
 	// Create stream out vertex buffer
 	if (particles)
 	{
-		vbd.Usage = D3D11_USAGE_DEFAULT;
-		vbd.BindFlags = D3D11_BIND_STREAM_OUTPUT;
 		HR(device->CreateBuffer(&vbd, NULL, &streamOutVB));
 	}
 
