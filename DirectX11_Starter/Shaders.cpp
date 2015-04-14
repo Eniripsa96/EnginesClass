@@ -69,7 +69,7 @@ void Shaders::LoadShadersAndInputLayout(ID3D11Device* device, ID3D11DeviceContex
 
 	// Load Geometry Shader -------------------------------------
 	LoadGeometryShader(L"Particle_GS.cso", &particleGeometryShader);
-	LoadGeometryShader(L"StreamOut_GS.cso", &streamOutGeometryShader);
+	LoadGeometryShader(L"StreamOut_GS.cso", &streamOutGeometryShader, true);
 
 	// Load Pixel Shaders ---------------------------------------
 	LoadPixelShader(L"PixelShader.cso", &pixelShader);
@@ -153,17 +153,40 @@ void Shaders::LoadVertexShader(wchar_t* file, LAYOUT inputLayoutType, ID3D11Vert
 	ReleaseMacro(vsBlob);
 }
 
-void Shaders::LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader)
+void Shaders::LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader, bool streamOut)
 {
 	ID3DBlob* gsBlob;
 	HR(D3DReadFileToBlob(file, &gsBlob));
 
-	// Create the shader on the device
-	HR(device->CreateGeometryShader(
-		gsBlob->GetBufferPointer(),
-		gsBlob->GetBufferSize(),
-		NULL,
-		&particleGeometryShader));
+	if (!streamOut)
+	{
+		// Create the shader on the device
+		HR(device->CreateGeometryShader(
+			gsBlob->GetBufferPointer(),
+			gsBlob->GetBufferSize(),
+			NULL,
+			&particleGeometryShader));
+	}
+	else
+	{
+		D3D11_SO_DECLARATION_ENTRY pDec1[] =
+		{
+			{ 0, "SV_POSITION", 0, 0, 4, 0 },
+			{ 0, "SIZE", 0, 0, 2, 0 },
+		};
+
+		// Create the shader on the device
+		HR(device->CreateGeometryShaderWithStreamOutput(
+			gsBlob->GetBufferPointer(),
+			gsBlob->GetBufferSize(),
+			pDec1,
+			2,
+			NULL,
+			0,
+			0,
+			NULL,
+			&streamOutGeometryShader));
+	}
 
 	// Clean up
 	ReleaseMacro(gsBlob);

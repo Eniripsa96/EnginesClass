@@ -42,7 +42,7 @@ public:
 private:
 	static void LoadPixelShader(wchar_t* file, ID3D11PixelShader** shader);
 	static void LoadVertexShader(wchar_t* file, LAYOUT inputLayoutType, ID3D11VertexShader** shader);
-	static void LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader);
+	static void LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader, bool streamOut = false);
 
 	static ID3D11Device* device;
 	static ID3D11DeviceContext* deviceContext;

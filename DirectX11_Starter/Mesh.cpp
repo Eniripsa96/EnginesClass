@@ -121,7 +121,17 @@ void Mesh::CreateGeometryBuffers(Vertex vertices[], Particle particles[])
 		ibd.ByteWidth = sizeof(UINT) * (int)PARTICLE; // Number of indices in the "model" you want to draw
 	}
 
+
+
 	HR(device->CreateBuffer(&vbd, &initialVertexData, &vertexBuffer));
+
+	// Create stream out vertex buffer
+	if (particles)
+	{
+		vbd.Usage = D3D11_USAGE_DEFAULT;
+		vbd.BindFlags = D3D11_BIND_STREAM_OUTPUT;
+		HR(device->CreateBuffer(&vbd, NULL, &streamOutVB));
+	}
 
 	HR(device->CreateBuffer(&ibd, &initialIndexData, &indexBuffer));
 }
@@ -145,7 +155,7 @@ void Mesh::Draw()
 		else
 		{
 			// Set our VB as the SO target
-			deviceContext->SOSetTargets(1, &vertexBuffer, &offset);
+			deviceContext->SOSetTargets(1, &streamOutVB, &offset);
 
 			// Hook up the proper shaders for this step
 			deviceContext->GSSetShader(Shaders::streamOutGeometryShader, NULL, 0);
@@ -161,6 +171,8 @@ void Mesh::Draw()
 			// Done streaming-out --> unbind the vertex buffer
 			ID3D11Buffer* bufferArray[1] = { 0 };
 			deviceContext->SOSetTargets(1, bufferArray, &offset);
+
+			std::swap(vertexBuffer, streamOutVB);
 
 			// Hook up the proper shaders for this step
 			deviceContext->GSSetShader(Shaders::particleGeometryShader, NULL, 0);
