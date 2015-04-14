@@ -77,7 +77,7 @@ public:
 	void Draw();
 
 	// Buffers to hold actual geometry
-	ID3D11Buffer* vertexBuffer;
+	ID3D11Buffer* drawVB;
 	ID3D11Buffer* streamOutVB;
 	ID3D11Buffer* initVB;
 	ID3D11Buffer* indexBuffer;
