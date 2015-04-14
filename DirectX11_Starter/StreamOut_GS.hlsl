@@ -8,7 +8,7 @@ struct VertexOutput
 };
 
 [maxvertexcount(4)]
-void main(point VertexOutput input[1] /*: SV_POSITION*/, inout TriangleStream<VertexOutput> output)
+void main(point VertexOutput input[1] /*: SV_POSITION*/, inout PointStream<VertexOutput> output)
 {
 	// Initialize vertex to all the same values
 	VertexOutput vert;
@@ -16,7 +16,7 @@ void main(point VertexOutput input[1] /*: SV_POSITION*/, inout TriangleStream<Ve
 	vert.size = input[0].size;
 	
 	// Increment height each time
-	vert.initialPos.y += 1.0f;
+	vert.initialPos.y += 0.0001f;
 
 	// Append :)
 	output.Append(vert);

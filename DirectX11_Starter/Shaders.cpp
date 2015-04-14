@@ -171,7 +171,7 @@ void Shaders::LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader, b
 	{
 		D3D11_SO_DECLARATION_ENTRY pDec1[] =
 		{
-			{ 0, "SV_POSITION", 0, 0, 4, 0 },
+			{ 0, "SV_POSITION", 0, 0, 3, 0 },
 			{ 0, "SIZE", 0, 0, 2, 0 },
 		};
 
