@@ -101,9 +101,10 @@ void Mesh::Draw()
 	// Set buffers in the input assembler
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	deviceContext->IASetVertexBuffers(0, 1, &(drawVB), &stride, &offset);
+	deviceContext->IASetVertexBuffers(0, 1, &drawVB, &stride, &offset);
 	deviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
+	// Draw one of our pre-defined shape types
 	if (shapeType != NONE)
 	{
 		// Finally do the actual drawing
@@ -113,6 +114,7 @@ void Mesh::Draw()
 				0,
 				0);
 	}
+	// Draw mesh built from .obj
 	else
 	{
 		deviceContext->DrawIndexed(

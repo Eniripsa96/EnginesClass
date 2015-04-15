@@ -33,8 +33,6 @@ private:
 	ParticleSystem& operator=(const ParticleSystem& rhs);
 
 private:
-	XMFLOAT3 particles[3];
-
 	ParticleMesh* mesh;
 	Material* material;
 
