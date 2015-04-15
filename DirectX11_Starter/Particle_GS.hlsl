@@ -65,7 +65,7 @@ void main(point VertexOutput input[1] /*: SV_POSITION*/, inout TriangleStream<GS
 		float2(0, 0)
 	};
 
-	[unroll]
+	[branch]
 	if (age.x >= 0.0f)
 	{
 		// Finalize the GS output by appending 4 verts worth of data

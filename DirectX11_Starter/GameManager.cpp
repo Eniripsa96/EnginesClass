@@ -191,7 +191,7 @@ bool GameManager::Init()
 	Shaders::LoadShadersAndInputLayout(device, deviceContext);
 	MeshesMaterials::LoadMeshesAndMaterials(device, deviceContext);
 	camera = new Camera();
-	particleSystem = new ParticleSystem(MeshesMaterials::meshes["particle"], MeshesMaterials::materials["particle"]);
+	particleSystem = new ParticleSystem((ParticleMesh*)MeshesMaterials::meshes["particle"], MeshesMaterials::materials["particle"]);
 
 	// Initialize the shadow camera
 		// None

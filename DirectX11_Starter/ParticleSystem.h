@@ -7,7 +7,7 @@
 
 #include "Camera.h"
 #include "InputLayouts.h"
-#include "Mesh.h"
+#include "ParticleMesh.h"
 #include "Material.h"
 
 using namespace DirectX;
@@ -15,7 +15,7 @@ using namespace DirectX;
 class ParticleSystem
 {
 public:
-	ParticleSystem(Mesh*, Material*);
+	ParticleSystem(ParticleMesh*, Material*);
 	~ParticleSystem();
 
 	// Time elapsed since the systm was reset
@@ -35,7 +35,7 @@ private:
 private:
 	XMFLOAT3 particles[3];
 
-	Mesh* mesh;
+	ParticleMesh* mesh;
 	Material* material;
 
 	XMFLOAT4X4 world;

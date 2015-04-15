@@ -6,7 +6,6 @@
 #include <time.h>
 
 #include "Material.h"
-//#include "Shaders.h"
 
 using namespace std;
 using namespace DirectX;
@@ -71,15 +70,12 @@ public:
 	~Mesh();
 
 	void CreateTrianglePoints();
-	void CreateParticlePoints();
 	void CreateQuadPoints();
-	void CreateGeometryBuffers(Vertex[], Particle[]);
-	void Draw();
+	virtual void CreateGeometryBuffers(Vertex[]);
+	virtual void Draw();
 
 	// Buffers to hold actual geometry
 	ID3D11Buffer* drawVB;
-	ID3D11Buffer* streamOutVB;
-	ID3D11Buffer* initVB;
 	ID3D11Buffer* indexBuffer;
 
 	SHAPE shapeType;
@@ -94,10 +90,7 @@ public:
 	ID3D11DeviceContext* deviceContext;
 
 private:
-
 	UINT iBufferSize;
-
-	const float PARTICLE_SIZE = 0.1875f;
 };
 
 #endif

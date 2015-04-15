@@ -1,7 +1,7 @@
 #include "ParticleSystem.h"
 
 
-ParticleSystem::ParticleSystem(Mesh* mesh, Material* mat)
+ParticleSystem::ParticleSystem(ParticleMesh* mesh, Material* mat)
 {
 	this->mesh = mesh;
 	this->material = mat;
@@ -30,7 +30,7 @@ void ParticleSystem::Reset()
 	ID3D11Device* dev = mesh->device;
 	ID3D11DeviceContext* devC = mesh->deviceContext;
 	delete mesh;
-	mesh = new Mesh(dev, devC, PARTICLE);
+	mesh = new ParticleMesh(dev, devC);
 
 	age = INITIAL_AGE;
 	velocity = INITIAL_VEL;

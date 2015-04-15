@@ -74,6 +74,7 @@
     <ClCompile Include="InputLayouts.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="MeshesMaterials.cpp" />
+    <ClCompile Include="ParticleMesh.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="Samplers.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -94,6 +95,7 @@
     <ClInclude Include="InputLayouts.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MeshesMaterials.h" />
+    <ClInclude Include="ParticleMesh.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Samplers.h" />
     <ClInclude Include="Scene.h" />
