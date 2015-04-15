@@ -42,7 +42,7 @@ private:
 	float velocity;
 	float age;
 
-	const float INITIAL_VEL = 0.5f;
+	const float INITIAL_VEL = 0.0f;
 	const float GRAVITY = -2.0f;
 	const float INITIAL_AGE = 10.0f;
 };

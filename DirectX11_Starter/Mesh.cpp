@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Shaders.h"
 #include <d3dcompiler.h>
 
 Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* context, SHAPE type)
@@ -21,7 +22,7 @@ Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* context, ID3D11Buffer* pVe
 {
 	this->device = device;
 	deviceContext = context;
-	vertexBuffer = pVertexBuffer;
+	drawVB = pVertexBuffer;
 	indexBuffer = pIndexBuffer;
 	this->iBufferSize = iBufferSize;
 }
@@ -29,7 +30,7 @@ Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* context, ID3D11Buffer* pVe
 Mesh::~Mesh()
 {
 	// Release all of the D3D stuff that's still hanging out
-	ReleaseMacro(vertexBuffer);
+	ReleaseMacro(drawVB);
 	ReleaseMacro(indexBuffer);
 }
 
@@ -80,10 +81,10 @@ void Mesh::CreateGeometryBuffers(Vertex vertices[], Particle particles[])
 {
 	// Create a dynamic vertex buffer
 	D3D11_BUFFER_DESC vbd;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.BindFlags = D3D11_BIND_STREAM_OUTPUT | D3D11_BIND_VERTEX_BUFFER;
 	vbd.MiscFlags = 0;
 	vbd.StructureByteStride = 0;
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.Usage = D3D11_USAGE_DEFAULT;
 	vbd.CPUAccessFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA initialVertexData;
@@ -120,7 +121,15 @@ void Mesh::CreateGeometryBuffers(Vertex vertices[], Particle particles[])
 		ibd.ByteWidth = sizeof(UINT) * (int)PARTICLE; // Number of indices in the "model" you want to draw
 	}
 
-	HR(device->CreateBuffer(&vbd, &initialVertexData, &vertexBuffer));
+
+
+	HR(device->CreateBuffer(&vbd, &initialVertexData, &drawVB));
+
+	// Create stream out vertex buffer (without any data)
+	if (particles)
+	{
+		HR(device->CreateBuffer(&vbd, NULL, &streamOutVB));
+	}
 
 	HR(device->CreateBuffer(&ibd, &initialIndexData, &indexBuffer));
 }
@@ -130,7 +139,7 @@ void Mesh::Draw()
 	// Set buffers in the input assembler
 	UINT stride = (shapeType != PARTICLE) ? sizeof(Vertex) : sizeof(Particle);
 	UINT offset = 0;
-	deviceContext->IASetVertexBuffers(0, 1, &(vertexBuffer), &stride, &offset);
+	deviceContext->IASetVertexBuffers(0, 1, &(drawVB), &stride, &offset);
 	deviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	if (shapeType != NONE)
@@ -142,10 +151,41 @@ void Mesh::Draw()
 				0,
 				0);
 		else
+		{
+			// Set our VB as the SO target
+			deviceContext->SOSetTargets(1, &streamOutVB, &offset);
+
+			// Hook up the proper shaders for this step
+			deviceContext->GSSetShader(Shaders::streamOutGeometryShader, NULL, 0);
+			deviceContext->PSSetShader(NULL, NULL, 0);
+
+			// // Draw the current vertex list using stream-out only to update them.
+			// The updated vertices are streamed-out to the target VB
 			deviceContext->DrawIndexed(
 				(int)PARTICLE,	// The number of indices we're using in this draw
 				0,
 				0);
+
+			// Done streaming-out --> unbind the vertex buffer
+			ID3D11Buffer* bufferArray[1] = { 0 };
+			deviceContext->SOSetTargets(1, bufferArray, &offset);
+
+			// Copy new data into the VB we are drawing with
+			std::swap(drawVB, streamOutVB);
+
+			// Hook up the proper shaders for this step
+			deviceContext->GSSetShader(Shaders::particleGeometryShader, NULL, 0);
+			deviceContext->PSSetShader(Shaders::particlePixelShader, NULL, 0);
+
+			// Bind our VB to the IA for drawing
+			deviceContext->IASetVertexBuffers(0, 1, &(drawVB), &stride, &offset);
+
+			// Draw the updated mesh
+			deviceContext->DrawIndexed(
+				(int)PARTICLE,	// The number of indices we're using in this draw
+				0,
+				0);
+		}
 	}
 	else
 	{

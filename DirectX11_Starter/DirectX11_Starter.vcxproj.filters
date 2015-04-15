@@ -154,28 +154,31 @@
     <FxCompile Include="Shaders\VertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="GrayscalePixelShader.hlsl">
+    <FxCompile Include="Grayscale_PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="SepiaPixelShader.hlsl">
+    <FxCompile Include="Inverse_PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="InversePixelShader.hlsl">
+    <FxCompile Include="Particle_GS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="ParticleVertexShader.hlsl">
+    <FxCompile Include="Particle_PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="ParticleGeometryShader.hlsl">
+    <FxCompile Include="Particle_VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="ShadowVertexShader.hlsl">
+    <FxCompile Include="Sepia_PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="ShadowPixelShader.hlsl">
+    <FxCompile Include="Shadow_PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="ParticlePixelShader.hlsl">
+    <FxCompile Include="Shadow_VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="StreamOut_GS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

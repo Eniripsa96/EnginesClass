@@ -10,11 +10,11 @@ ParticleSystem::ParticleSystem(Mesh* mesh, Material* mat)
 
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
 
-	// Need to make the vertex buffer a dynamic buffer 
-		// Necessary because the particles will be updated every frame if we want them to move 'realistically'
-	// Need to use StreamOut to update the particle system
-		// Physics calcs and logic to update particles will go in shader
-		// Right now physics is in this class using a cbuffer
+	// Need two Geometry buffers, an update one and a drawing one
+	// Bind SO stuff (bind vb to SO), then unbind PS so that GS goes straight to SO and no further
+	// Draw with VS, GS->SO
+	// Set VB regularly
+	// Draw with VS, PS, GS
 }
 
 
@@ -52,7 +52,7 @@ void ParticleSystem::Update(GeometryShaderConstantBufferLayout* cBufferData, flo
 
 	velocity += GRAVITY * dt;
 
-	XMMATRIX tempWorld = XMMatrixTranslation(0.0f, velocity * dt, 0.0f );
+	XMMATRIX tempWorld = XMMatrixTranslation(0.0f, 0.0f * dt, 0.0f );
 	XMStoreFloat4x4(&world, XMLoadFloat4x4(&world) * tempWorld);
 	cBufferData->world = world;
 }

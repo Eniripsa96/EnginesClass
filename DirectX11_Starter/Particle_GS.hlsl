@@ -79,6 +79,9 @@ void main(point VertexOutput input[1] /*: SV_POSITION*/, inout TriangleStream<GS
 			vert.position = mul(world, vert.position);
 			vert.uv = quadUVs[i]; // Copy uv from array
 
+			// Increment height for testing
+			//vert.position.y += 1.0f;
+
 			output.Append(vert); // Append this vertex!
 		}
 	}
