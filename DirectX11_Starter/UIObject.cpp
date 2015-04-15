@@ -13,7 +13,7 @@ UIObject::~UIObject()
 {
 }
 
-void UIObject::Draw(ID3D11DeviceContext* deviceContext, ID3D11Buffer* cBuffer, VertexShaderConstantBufferLayout* cBufferData) {
+void UIObject::Draw(ID3D11Buffer* cBuffer, VertexShaderConstantBufferLayout* cBufferData) {
 	batch->Draw(material->resourceView, XMFLOAT2(position.x, position.y));
 	font->DrawString(batch, text, XMLoadFloat2(&textPos));
 }

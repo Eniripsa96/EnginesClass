@@ -317,7 +317,9 @@ void GameManager::UpdateScene(float dt)
 	//		(*meshObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
 	//	}
 	//}
-	currentScene->Draw();
+
+	if (currentScene != menuScene)
+		currentScene->Draw();
 
 	// ----------- Normal Rendering --------------------------------------------------------
 
@@ -344,7 +346,8 @@ void GameManager::UpdateScene(float dt)
 	deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
 	deviceContext->PSSetSamplers(1, 1, &(Samplers::pointSampler));
 
-	currentScene->Draw();
+	if (currentScene != menuScene)
+		currentScene->Draw();
 
 	// Draw the particle system	
 	if (gameState == GAME || gameState == DEBUG)
@@ -367,12 +370,12 @@ void GameManager::UpdateScene(float dt)
 
 	
 	// Draw UI Elements
-	if (menuScene)
+	if (currentScene == menuScene)
 	{
 		spriteBatch->Begin();
 		
 		// draw MENU SCENE here
-		//menuScene->Draw();
+		menuScene->Draw();
 
 		spriteBatch->End();
 

@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "GameObject.h"
+#include "UIObject.h"
 #include "Shaders.h"
 
 using namespace std;
@@ -13,6 +13,7 @@ class Scene
 public:
 	Scene();
 	Scene(vector<GameObject*>*);
+	Scene(vector<UIObject*>*);
 	~Scene();
 
 	void Update(float);
@@ -20,6 +21,7 @@ public:
 
 //private:
 	vector<GameObject*> gameObjects;
+	vector<UIObject*> uiObjects;
 };
 
 #endif

@@ -29,7 +29,6 @@ void Scene::Update(float dt)
 
 void Scene::Draw()
 {
-	// TODO reduce params by pulling into GameObject class
 	for (UINT i = 0; i < gameObjects.size(); i++)
 		gameObjects[i]->Draw(Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
 }

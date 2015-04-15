@@ -10,7 +10,7 @@ public:
 	UIObject(Mesh* mesh, Material* mat, XMFLOAT3* pos, SpriteBatch* batch, SpriteFont* font, wchar_t* text);
 	~UIObject();
 
-	void Draw(ID3D11DeviceContext* deviceContext, ID3D11Buffer* cBuffer, VertexShaderConstantBufferLayout* cBufferData);
+	void Draw(ID3D11Buffer* cBuffer, VertexShaderConstantBufferLayout* cBufferData);
 	void Update(int x, int y);
 	void Move(float x, float y);
 	bool IsOver(int x, int y);
