@@ -5,9 +5,10 @@ Scene::Scene()
 {
 }
 
-Scene::Scene(vector<GameObject*>* objs)
+Scene::Scene(vector<GameObject*>* objs, SCENE_TYPE type)
 {
 	gameObjects = *objs;
+	this->type = type;
 }
 
 Scene::~Scene()

@@ -8,19 +8,26 @@
 
 using namespace std;
 
+enum SCENE_TYPE
+{
+	MENU_SCENE,
+	GAME_SCENE
+};
+
 class Scene
 {
 public:
 	Scene();
-	Scene(vector<GameObject*>*);
+	Scene(vector<GameObject*>*, SCENE_TYPE);
 	~Scene();
 
 	void Update(float);
 	void Draw(void);
 
-//private:
+	SCENE_TYPE type;
+
+private:
 	vector<GameObject*> gameObjects;
-	vector<UIObject*> uiObjects;
 };
 
 #endif

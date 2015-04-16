@@ -189,19 +189,19 @@ bool GameManager::Init()
 	// Create buttons for UI
 	playButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
 	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
+	
+	// Load the menu scene
 	gameObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["title"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
 	gameObjects.emplace_back(playButton);
 	gameObjects.emplace_back(quitButton);
-	
-	menuScene = new Scene(&gameObjects);
+	menuScene = new Scene(&gameObjects, MENU_SCENE);
 	gameObjects.clear();
 
-	// Load the frame
+	// Load the game scene
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::materials["tile"], &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
-
-	gameScene = new Scene(&gameObjects);
+	gameScene = new Scene(&gameObjects, GAME_SCENE);
 	gameObjects.clear();
 
 	// Blend state - enabling alpha blending
@@ -346,7 +346,7 @@ void GameManager::UpdateScene(float dt)
 	deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
 	deviceContext->PSSetSamplers(1, 1, &(Samplers::pointSampler));
 
-	if (currentScene != menuScene)
+	if (currentScene->type == GAME_SCENE)
 		currentScene->Draw();
 
 	// Draw the particle system	
@@ -370,12 +370,11 @@ void GameManager::UpdateScene(float dt)
 
 	
 	// Draw UI Elements
-	if (currentScene == menuScene)
+	if (currentScene->type == MENU_SCENE)
 	{
 		spriteBatch->Begin();
 		
-		// draw MENU SCENE here
-		menuScene->Draw();
+		currentScene->Draw();
 
 		spriteBatch->End();
 
