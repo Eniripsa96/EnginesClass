@@ -279,9 +279,6 @@ void GameManager::UpdateScene(float dt)
 
 	// Update the game
 		// None
-
-	// TODO move into scene if want object to rotate
-	//gameObjects[gameObjects.size() - 1]->Rotate(&XMFLOAT3(0.0f * dt, 1.0f * dt, 0.0f * dt));
 	
 	// [DRAW] Set up the input assembler for objects
 	deviceContext->IASetInputLayout(InputLayouts::Vertex);
@@ -311,13 +308,7 @@ void GameManager::UpdateScene(float dt)
 	deviceContext->VSSetShader(Shaders::shadowVS, 0, 0);
 	deviceContext->PSSetShader(0, 0, 0);
 
-	//// Draw mesh objects that can cast shadows
-	//if (meshObjects) {
-	//	for (UINT i = 0; i < meshObjects->size(); i++) {
-	//		(*meshObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
-	//	}
-	//}
-
+	// Draw objects with shadows
 	if (currentScene != menuScene)
 		currentScene->Draw();
 
@@ -350,7 +341,7 @@ void GameManager::UpdateScene(float dt)
 		currentScene->Draw();
 
 	// Draw the particle system	
-	if (gameState == GAME || gameState == DEBUG)
+	if (currentScene->type == GAME_SCENE)
 	{
 		// [DRAW] Set up the input assembler for particle system
 		deviceContext->IASetInputLayout(InputLayouts::Particle);
@@ -365,10 +356,10 @@ void GameManager::UpdateScene(float dt)
 		// [DRAW] Draw the particle system
 		particleSystem->Draw(deviceContext, *camera, Shaders::gsConstantBuffer, &Shaders::dataToSendToGSConstantBuffer);
 
+		// We are done with Geometry Shaders, unlink
 		deviceContext->GSSetShader(NULL, 0, 0);
 	}
 
-	
 	// Draw UI Elements
 	if (currentScene->type == MENU_SCENE)
 	{
