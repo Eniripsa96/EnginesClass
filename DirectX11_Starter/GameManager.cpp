@@ -222,7 +222,7 @@ bool GameManager::Init()
 	for (UINT i = 0; i < gameObjects.size(); i++)
 		XMStoreFloat4x4(&(gameObjects[i]->worldMatrix), XMMatrixTranspose(W));
 
-	currentScene = gameScene;
+	currentScene = menuScene;
 
 	return true;
 }
@@ -463,7 +463,7 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 		if (playButton->IsOver(x, y))
 		{
 			gameState = GAME;
-			//currentScene = gameScene;
+			currentScene = gameScene;
 		}
 		if (quitButton->IsOver(x, y))
 		{

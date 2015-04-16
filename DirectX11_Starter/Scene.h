@@ -13,7 +13,6 @@ class Scene
 public:
 	Scene();
 	Scene(vector<GameObject*>*);
-	Scene(vector<UIObject*>*);
 	~Scene();
 
 	void Update(float);

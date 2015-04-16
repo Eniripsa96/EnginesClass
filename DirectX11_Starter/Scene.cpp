@@ -5,7 +5,6 @@ Scene::Scene()
 {
 }
 
-// TODO MAKE THIS MORE EFFICIENT
 Scene::Scene(vector<GameObject*>* objs)
 {
 	gameObjects = *objs;
@@ -17,7 +16,6 @@ Scene::~Scene()
 	{
 		delete gameObjects[i];
 	}
-
 	gameObjects.clear();
 }
 
