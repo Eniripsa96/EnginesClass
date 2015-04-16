@@ -59,27 +59,30 @@ void ParticleSystem::Update(GeometryShaderConstantBufferLayout* cBufferData, flo
 
 void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera& cam, ID3D11Buffer* cBuffer, GeometryShaderConstantBufferLayout* cBufferData)
 {
-	// Update constant buffer with camera info
-	cBufferData->camPos = cam.GetPos();
+	if (age > 0.0f)
+	{
+		// Update constant buffer with camera info
+		cBufferData->camPos = cam.GetPos();
 
-	// [UPDATE] Update the constant buffer itself
-	dc->UpdateSubresource(
-		cBuffer,
-		0,
-		NULL,
-		cBufferData,
-		0,
-		0
-		);
+		// [UPDATE] Update the constant buffer itself
+		dc->UpdateSubresource(
+			cBuffer,
+			0,
+			NULL,
+			cBufferData,
+			0,
+			0
+			);
 
-	// [DRAW] Set the constant buffer in the device
-	dc->GSSetConstantBuffers(
-		0,
-		1,
-		&(cBuffer)
-		);
+		// [DRAW] Set the constant buffer in the device
+		dc->GSSetConstantBuffers(
+			0,
+			1,
+			&(cBuffer)
+			);
 
-	// Draw mesh and material
-	material->Draw();
-	mesh->Draw();
+		// Draw mesh and material
+		material->Draw();
+		mesh->Draw();
+	}
 }
