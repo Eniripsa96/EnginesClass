@@ -37,6 +37,7 @@ void ParticleSystem::Reset()
 
 	// TODO Need a way to actually reset
 	// TODO Figure out an emitter(particle that acts as an emitter) system
+	// Need to modify movement on GPU by 'dt'
 }
 
 Material* ParticleSystem::GetMaterial() const
