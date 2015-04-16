@@ -31,10 +31,12 @@ void ParticleSystem::Reset()
 	ID3D11DeviceContext* devC = mesh->deviceContext;
 	delete mesh;
 	mesh = new ParticleMesh(dev, devC);
-
 	age = INITIAL_AGE;
 	velocity = INITIAL_VEL;
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
+
+	// TODO Need a way to actually reset
+	// TODO Figure out an emitter(particle that acts as an emitter) system
 }
 
 Material* ParticleSystem::GetMaterial() const
