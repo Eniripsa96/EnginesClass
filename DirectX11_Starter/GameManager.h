@@ -11,7 +11,6 @@
 
 #include "DirectXGame.h"
 #include "Button.h"
-#include "Camera.h"
 #include "ObjLoader.h"
 #include "InputLayouts.h"
 #include "ParticleSystem.h"
@@ -80,7 +79,6 @@ private:
 	Button* quitButton;
 
 	ParticleSystem* particleSystem;
-	Camera* camera;
 	XMFLOAT4X4 projectionMatrix;
 
 	// Keeps track of the old mouse position.  Useful for 

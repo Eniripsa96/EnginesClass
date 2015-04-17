@@ -5,6 +5,7 @@
 
 #include "UIObject.h"
 #include "Shaders.h"
+#include "Camera.h"
 
 using namespace std;
 
@@ -24,10 +25,15 @@ public:
 	void Update(float);
 	void Draw(void);
 
+	void UpdateCameraOnResize(XMFLOAT4X4*);
+	Camera* GetCamera(void) const;
+
 	SCENE_TYPE type;
 
 private:
 	vector<GameObject*> gameObjects;
+
+	Camera* camera;
 };
 
 #endif

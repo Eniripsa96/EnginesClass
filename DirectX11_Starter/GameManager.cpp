@@ -132,7 +132,6 @@ GameManager::~GameManager()
 	// Clean up engine components
 	MeshesMaterials::Destructor();
 	Shaders::Destructor();
-	delete camera;
 	delete particleSystem;
 	
 	delete spriteBatch;
@@ -174,7 +173,6 @@ bool GameManager::Init()
 	Samplers::CreateSamplers(device, deviceContext);
 	Shaders::LoadShadersAndInputLayout(device, deviceContext);
 	MeshesMaterials::LoadMeshesAndMaterials(device, deviceContext);
-	camera = new Camera();
 	particleSystem = new ParticleSystem(MeshesMaterials::meshes["particle"], MeshesMaterials::materials["particle"]);
 
 	// Initialize the shadow camera
@@ -222,6 +220,7 @@ bool GameManager::Init()
 	for (UINT i = 0; i < gameObjects.size(); i++)
 		XMStoreFloat4x4(&(gameObjects[i]->worldMatrix), XMMatrixTranspose(W));
 
+	// The first scene should be the menu
 	currentScene = menuScene;
 
 	return true;
@@ -291,15 +290,16 @@ void GameManager::UpdateScene(float dt)
 	// Update shadow camera
 	//shadowCam->Update(dt);
 
-	// [UPDATE] Update constant buffer data
-	Shaders::dataToSendToVSConstantBuffer.view = camera->viewMatrix;
+	// [UPDATE] Update VS constant buffer data
+	Shaders::dataToSendToVSConstantBuffer.view = currentScene->GetCamera()->viewMatrix;
 	Shaders::dataToSendToVSConstantBuffer.projection = projectionMatrix;
-	Shaders::dataToSendToVSConstantBuffer.lightView = shadowView;
-	Shaders::dataToSendToVSConstantBuffer.lightProjection = shadowProjection;
+	//Shaders::dataToSendToVSConstantBuffer.lightView = shadowView;
+	//Shaders::dataToSendToVSConstantBuffer.lightProjection = shadowProjection;
 	Shaders::dataToSendToVSConstantBuffer.lightDirection = XMFLOAT4(2.0f, -3.0f, 1.0f, 0.95f);
 	Shaders::dataToSendToVSConstantBuffer.color = XMFLOAT4(1, 1, 1, 1);
 
-	Shaders::dataToSendToGSConstantBuffer.view = camera->viewMatrix;
+	// [UPDATE] Update GS constant buffer data
+	Shaders::dataToSendToGSConstantBuffer.view = currentScene->GetCamera()->viewMatrix;
 	Shaders::dataToSendToGSConstantBuffer.projection = projectionMatrix;
 
 	// Shadow map
@@ -315,7 +315,7 @@ void GameManager::UpdateScene(float dt)
 	// ----------- Normal Rendering --------------------------------------------------------
 
 	// Update the camera
-	camera->Update(dt);
+	currentScene->GetCamera()->Update(dt);
 
 	// Clear the buffer
 	deviceContext->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
@@ -354,7 +354,7 @@ void GameManager::UpdateScene(float dt)
 			particleSystem->Update(&Shaders::dataToSendToGSConstantBuffer, dt);
 
 		// [DRAW] Draw the particle system
-		particleSystem->Draw(deviceContext, *camera, Shaders::gsConstantBuffer, &Shaders::dataToSendToGSConstantBuffer);
+		particleSystem->Draw(deviceContext, (*currentScene->GetCamera()), Shaders::gsConstantBuffer, &Shaders::dataToSendToGSConstantBuffer);
 
 		// We are done with Geometry Shaders, unlink
 		deviceContext->GSSetShader(NULL, 0, 0);
@@ -398,19 +398,19 @@ void GameManager::CheckKeyBoard(float dt)
 
 	// Move camera (WASD)
 	if (GetAsyncKeyState('A'))
-		camera->MoveHorizontal(-CAMERA_MOVE_FACTOR * dt);
+		currentScene->GetCamera()->MoveHorizontal(-CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('D'))
-		camera->MoveHorizontal(CAMERA_MOVE_FACTOR * dt);
+		currentScene->GetCamera()->MoveHorizontal(CAMERA_MOVE_FACTOR * dt);
 	if (GetAsyncKeyState('W'))
-		camera->MoveDepth(CAMERA_MOVE_FACTOR * dt);
+		currentScene->GetCamera()->MoveDepth(CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('S'))
-		camera->MoveDepth(-CAMERA_MOVE_FACTOR * dt);
+		currentScene->GetCamera()->MoveDepth(-CAMERA_MOVE_FACTOR * dt);
 
 	// Change height of camera (QE)
 	if (GetAsyncKeyState('Q'))
-		camera->MoveVertical(CAMERA_MOVE_FACTOR * dt);
+		currentScene->GetCamera()->MoveVertical(CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('E'))
-		camera->MoveVertical(-CAMERA_MOVE_FACTOR * dt);
+		currentScene->GetCamera()->MoveVertical(-CAMERA_MOVE_FACTOR * dt);
 }
 
 // Once per key press
@@ -469,8 +469,8 @@ void GameManager::OnMouseMove(WPARAM btnState, int x, int y)
 		float dx = XMConvertToRadians(0.25f * static_cast<float>(x - prevMousePos.x));
 		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - prevMousePos.y));
 
-		camera->RotateY(-dx);
-		camera->Pitch(-dy);
+		currentScene->GetCamera()->RotateY(-dx);
+		currentScene->GetCamera()->Pitch(-dy);
 	}
 
 	playButton->Update(x, y);
@@ -507,9 +507,13 @@ void GameManager::OnResize()
 		0.1f,
 		100.0f);
 
-	// TODO fix the fact that there is an if statement needed here
-	//if (camera)
 	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P));
+	// TODO	fix the fact that there is an if statement needed here and figure
+	//		out why using the camera's proj stops things from drawing
+	/*if (currentScene)
+	{
+		currentScene->UpdateCameraOnResize(&projectionMatrix);
+	}*/
 
 	CreateShadowMapResources();
 }
