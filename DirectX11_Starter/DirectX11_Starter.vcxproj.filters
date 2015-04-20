@@ -100,7 +100,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleMesh.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -159,7 +159,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleMesh.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
