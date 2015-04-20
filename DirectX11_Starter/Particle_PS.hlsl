@@ -7,6 +7,7 @@ SamplerState mySampler: register(s0);
 struct PSInput
 {
 	float4 position		: SV_POSITION;
+	//float4 initialPos	: VELOCITY;
 	float2 uv			: TEXCOORD0;
 };
 

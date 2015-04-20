@@ -10,7 +10,7 @@ cbuffer perModel : register(b0)
 struct VertexOutput
 {
 	float4 initialPos	: SV_POSITION;
-	//float3 initialVel	: VELOCITY;
+	float4 initialVel	: VELOCITY;
 	float2 size			: SIZE;	// Storing age in y
 	//float age : AGE;
 	//unsigned int type : TYPE;
