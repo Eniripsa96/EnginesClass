@@ -1,26 +1,24 @@
 #include "GameObject.h"
 
 // Constructor gives us device, device context, a material, shaders, and a shape type
-GameObject::GameObject(Mesh* mesh, Material* mat, XMFLOAT3* pos, XMFLOAT3* vel)
+GameObject::GameObject(Mesh* mesh, Material* mat, XMFLOAT3* pos, XMFLOAT3* scale)
 {
 	// Set mesh and material
 	this->mesh = mesh;
 	material = mat;
-	velocity = *vel;
 	position = *pos;
-	scale = XMFLOAT3(1, 1, 1);
+	this->scale = *scale;
 	pivot = XMFLOAT3(0, 0, 0);
 }
 
 // Constructor gives us device, device context, a material, shaders, and a shape type
-GameObject::GameObject(Mesh* mesh, Material* mat, XMFLOAT3* pos, XMFLOAT3* vel, XMFLOAT3* pPivot)
+GameObject::GameObject(Mesh* mesh, Material* mat, XMFLOAT3* pos, XMFLOAT3* scale, XMFLOAT3* pPivot)
 {
 	// Set mesh and material
 	this->mesh = mesh;
 	material = mat;
-	velocity = *vel;
 	position = *pos;
-	scale = XMFLOAT3(1, 1, 1);
+	this->scale = *scale;
 	pivot = *pPivot;
 }
 
