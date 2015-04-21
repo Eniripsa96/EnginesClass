@@ -1,6 +1,6 @@
 struct VertexInput
 {
-	float3 initialPos	: POSITION;
+	float3 position		: POSITION;
 	float3 initialVel	: VELOCITY;
 	float2 size			: SIZE;
 	//float age			: AGE;
@@ -9,7 +9,7 @@ struct VertexInput
 
 struct VertexOutput
 {
-	float4 initialPos	: SV_POSITION;
+	float4 position	: SV_POSITION;
 	float4 initialVel	: VELOCITY;
 	float2 size			: SIZE;
 	//float age : AGE;
@@ -19,7 +19,7 @@ struct VertexOutput
 VertexOutput main(VertexInput input)
 {
 	VertexOutput output;
-	output.initialPos = float4(input.initialPos, 1.0f);
+	output.position = float4(input.position, 1.0f);
 	output.initialVel = float4(input.initialVel, 1.0f);
 	output.size = input.size;
 	//output.age = input.age;
