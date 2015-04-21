@@ -12,7 +12,7 @@ void main(point VertexOutput input[1] /*: SV_POSITION*/, inout PointStream<Verte
 {
 	// Initialize vertex to all the same values
 	VertexOutput vert;
-	vert.initialPos = input[0].initialPos - (input[0].initialVel * 0.0001f);
+	vert.initialPos = input[0].initialPos - (input[0].initialVel * 0.001f);
 	vert.initialVel = input[0].initialVel;
 	vert.size = input[0].size;
 	
