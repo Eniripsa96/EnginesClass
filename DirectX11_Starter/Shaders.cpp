@@ -36,13 +36,17 @@ void Shaders::Destructor()
 
 	ReleaseMacro(vertexShader);
 	ReleaseMacro(shadowVS);
-	ReleaseMacro(shadowPS);
 	ReleaseMacro(particleVertexShader);
-	ReleaseMacro(particleGeometryShader);
+
 	ReleaseMacro(pixelShader);
+	ReleaseMacro(particlePixelShader);
 	ReleaseMacro(grayscaleShader);
 	ReleaseMacro(sepiaShader);
 	ReleaseMacro(inverseShader);
+	ReleaseMacro(shadowPS);
+
+	ReleaseMacro(particleGeometryShader);
+	ReleaseMacro(streamOutGeometryShader);
 
 	ReleaseMacro(vsConstantBuffer);
 	ReleaseMacro(gsConstantBuffer);
