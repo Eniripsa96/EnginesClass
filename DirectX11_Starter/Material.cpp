@@ -35,6 +35,11 @@ Material::~Material()
 
 void Material::Draw()
 {
+	// Only update the device if changing materials
+	static Material* last = NULL;
+	if (last == this) return;
+	last = this;
+
 	// Set the current vertex and pixel shaders and geometry shader (if it exists)
 	//deviceContext->VSSetShader(vertexShader, NULL, 0);
 
