@@ -203,9 +203,18 @@ bool GameManager::Init()
 	spriteFont72 = new SpriteFont(device, L"jing72.spritefont");
 
 	// Load the frame
+	/*
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::materials["tile"], &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
+	*/
+	float m = 10.0f / RAND_MAX;
+	for (int i = 0; i < 500; i++) {
+		float x = rand() * m;
+		float y = rand() * m;
+		float z = rand() * m;
+		gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(x, y, z), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
+	}
 
 	// Create buttons for UI
 	playButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
@@ -315,22 +324,20 @@ void GameManager::UpdateScene(float dt)
 		}
 	}
 
-	// --------- Shadow Map Generation ------------------------------------------------------------------
-	
-	// Update shadow camera
-	//shadowCam->Update(dt);
-
 	// [UPDATE] Update constant buffer data
 	Shaders::dataToSendToVSConstantBuffer.view = camera->viewMatrix;
 	Shaders::dataToSendToVSConstantBuffer.projection = projectionMatrix;
 	Shaders::dataToSendToVSConstantBuffer.lightView = shadowView;
 	Shaders::dataToSendToVSConstantBuffer.lightProjection = shadowProjection;
-	Shaders::dataToSendToVSConstantBuffer.lightDirection = XMFLOAT4(2.0f, -3.0f, 1.0f, 0.95f);
+	Shaders::dataToSendToVSConstantBuffer.lightDirection = XMFLOAT4(2.0f, -3.0f, 1.0f, 0.7f);
 	Shaders::dataToSendToVSConstantBuffer.color = XMFLOAT4(1, 1, 1, 1);
 
-	Shaders::dataToSendToGSConstantBuffer.view = camera->viewMatrix;
-	Shaders::dataToSendToGSConstantBuffer.projection = projectionMatrix;
-
+	// --------- Shadow Map Generation ------------------------------------------------------------------
+	
+	// Update shadow camera
+	//shadowCam->Update(dt);
+	
+	/*
 	// Shadow map
 	deviceContext->OMSetRenderTargets(0, 0, shadowDSV);
 	deviceContext->ClearDepthStencilView(shadowDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -343,6 +350,7 @@ void GameManager::UpdateScene(float dt)
 			(*meshObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
 		}
 	}
+	*/
 
 	// ----------- Normal Rendering --------------------------------------------------------
 
@@ -358,16 +366,12 @@ void GameManager::UpdateScene(float dt)
 		1.0f,
 		0);
 
-	// Bind shadow map
-	deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
-	deviceContext->PSSetSamplers(1, 1, &(Samplers::pointSampler));
-
 	// Set the shaders
 	Shaders::Update();
 
 	// Bind shadow map texture
-	deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
-	deviceContext->PSSetSamplers(1, 1, &(Samplers::pointSampler));
+	//deviceContext->PSSetShaderResources(1, 1, &shadowSRV);
+	//deviceContext->PSSetSamplers(1, 1, &(Samplers::pointSampler));
 	
 	// Draw each mesh
 	if (meshObjects)
