@@ -169,7 +169,7 @@ void Shaders::LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader, b
 			gsBlob->GetBufferPointer(),
 			gsBlob->GetBufferSize(),
 			NULL,
-			&particleGeometryShader));
+			shader));
 	}
 	else
 	{
@@ -190,7 +190,7 @@ void Shaders::LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader, b
 			0,
 			0,
 			NULL,
-			&streamOutGeometryShader));
+			shader));
 	}
 
 	// Clean up
