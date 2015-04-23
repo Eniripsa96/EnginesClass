@@ -357,26 +357,26 @@ __m128 SSEQuaternion::mulQuat(__m128 q1, __m128 q2)
 	return _mm_shuffle_ps(XZWY, XZWY, SHUFFLE_PARAM(2, 1, 3, 0));
 }
 
-float* SSEQuaternion::getData()
-{
-	_declspec(align(16))float array[4];
-	_mm_store_ps(array, data);
-
-	float x = array[0];
-	float y = array[1];
-	float z = array[2];
-	float w = array[3];
-
-	float l = 1 / sqrt(x * x + y * y + z * z + w * w);
-	x *= l;
-	y *= l;
-	z *= l;
-	w *= l;
-
-	array[0] = x;
-	array[1] = y;
-	array[2] = z;
-	array[3] = w;
-
-	return array;
-}
+//float* SSEQuaternion::getData()
+//{
+//	_declspec(align(16))float array[4];
+//	_mm_store_ps(array, data);
+//
+//	float x = array[0];
+//	float y = array[1];
+//	float z = array[2];
+//	float w = array[3];
+//
+//	float l = 1 / sqrt(x * x + y * y + z * z + w * w);
+//	x *= l;
+//	y *= l;
+//	z *= l;
+//	w *= l;
+//
+//	array[0] = x;
+//	array[1] = y;
+//	array[2] = z;
+//	array[3] = w;
+//
+//	return array;
+//}
