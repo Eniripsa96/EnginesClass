@@ -72,7 +72,7 @@ public:
 	inline __m128 acos2(__m128 dot);
 	inline __m128 sincos(float theta);
 
-	float* getData(void);
+	//float* getData(void);
 
 private:
 	__m128 data;
