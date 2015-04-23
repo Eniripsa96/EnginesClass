@@ -67,7 +67,7 @@ class Mesh
 public:
 	Mesh(ID3D11Device*, ID3D11DeviceContext*, SHAPE);
 	Mesh(ID3D11Device*, ID3D11DeviceContext*, ID3D11Buffer*, ID3D11Buffer*, UINT);
-	~Mesh();
+	virtual ~Mesh();
 
 	void CreateTrianglePoints();
 	void CreateQuadPoints();
