@@ -18,10 +18,7 @@ ParticleSystem::ParticleSystem(ParticleMesh* mesh, Material* mat)
 }
 
 
-ParticleSystem::~ParticleSystem()
-{
-	
-}
+ParticleSystem::~ParticleSystem() { }
 
 // Restart the particle system
 void ParticleSystem::Reset()
