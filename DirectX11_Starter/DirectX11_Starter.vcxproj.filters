@@ -196,5 +196,8 @@
     <FxCompile Include="StreamOut_GS.hlsl">
       <Filter>Shaders\Geometry</Filter>
     </FxCompile>
+    <FxCompile Include="Emitter_GS.hlsl">
+      <Filter>Shaders\Geometry</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
