@@ -16,6 +16,8 @@ public:
 
 	ID3D11Buffer* streamOutVB;
 
+	bool firstTime;
+
 private:
 	const float PARTICLE_SIZE = 0.1875f;
 };

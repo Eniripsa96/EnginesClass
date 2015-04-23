@@ -9,6 +9,7 @@ ID3D11VertexShader* Shaders::vertexShader = NULL;
 ID3D11VertexShader* Shaders::particleVertexShader = NULL;
 ID3D11GeometryShader* Shaders::particleGeometryShader = NULL;
 ID3D11GeometryShader* Shaders::streamOutGeometryShader = NULL;
+ID3D11GeometryShader* Shaders::emitterGS = NULL;
 ID3D11PixelShader* Shaders::particlePixelShader = NULL;
 UINT Shaders::activeShader = NULL;
 ID3D11VertexShader* Shaders::shadowVS = NULL;
@@ -47,6 +48,7 @@ void Shaders::Destructor()
 
 	ReleaseMacro(particleGeometryShader);
 	ReleaseMacro(streamOutGeometryShader);
+	ReleaseMacro(emitterGS);
 
 	ReleaseMacro(vsConstantBuffer);
 	ReleaseMacro(gsConstantBuffer);
@@ -74,6 +76,7 @@ void Shaders::LoadShadersAndInputLayout(ID3D11Device* device, ID3D11DeviceContex
 	// Load Geometry Shader -------------------------------------
 	LoadGeometryShader(L"Particle_GS.cso", &particleGeometryShader);
 	LoadGeometryShader(L"StreamOut_GS.cso", &streamOutGeometryShader, true);
+	LoadGeometryShader(L"Emitter_GS.cso", &emitterGS, true);
 
 	// Load Pixel Shaders ---------------------------------------
 	LoadPixelShader(L"PixelShader.cso", &pixelShader);

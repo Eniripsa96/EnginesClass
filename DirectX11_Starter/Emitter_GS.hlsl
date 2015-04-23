@@ -10,10 +10,11 @@ struct VertexOutput
 [maxvertexcount(4)]
 void main(point VertexOutput input[1] /*: SV_POSITION*/, inout PointStream<VertexOutput> output)
 {
+	VertexOutput vert;
+
 	[unroll]
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		VertexOutput vert;
 		vert.position = float4(0.0f, 0.0f, 0.0f, 1.0f);
 		vert.initialVel = input[0].initialVel;
 		vert.size = input[0].size;

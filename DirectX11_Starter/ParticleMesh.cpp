@@ -3,6 +3,8 @@
 
 ParticleMesh::ParticleMesh(ID3D11Device* device, ID3D11DeviceContext* context) : Mesh(device, context, PARTICLE)
 {
+	firstTime = true;
+
 	CreateParticlePoints();
 }
 
@@ -23,7 +25,8 @@ void ParticleMesh::CreateParticlePoints()
 
 	XMFLOAT3 pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	
-	for (int i = 0; i < (int)PARTICLE; i++)
+	// Just make one particle here, the emitter
+	for (int i = 0; i < 1; i++)
 	{
 		//XMFLOAT3 pos = XMFLOAT3((rand() % 100) / 10.0f - 5.0f, ((rand() % 50) / 10.0f - 2.5f) - 4.0f, -1.0f);
 		XMFLOAT3 vel = XMFLOAT3((rand() % 200) / 100.0f - 0.5f, (rand() % 200) / 100.0f - 0.5f, 0.0f);
@@ -83,8 +86,16 @@ void ParticleMesh::Draw()
 	// Set our stream VB as the SO target
 	deviceContext->SOSetTargets(1, &streamOutVB, &offset);
 
-	// Hook up the proper shaders for this step
-	deviceContext->GSSetShader(Shaders::streamOutGeometryShader, NULL, 0);
+	if (firstTime)
+	{
+		deviceContext->GSSetShader(Shaders::emitterGS, NULL, 0);
+		firstTime = false;
+	}
+	else
+	{
+		// Hook up the proper shaders for this step
+		deviceContext->GSSetShader(Shaders::streamOutGeometryShader, NULL, 0);
+	}
 	deviceContext->PSSetShader(NULL, NULL, 0);
 
 	// Draw the current vertex list using stream-out only to update them.

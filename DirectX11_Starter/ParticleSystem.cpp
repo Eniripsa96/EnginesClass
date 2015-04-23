@@ -24,10 +24,13 @@ ParticleSystem::~ParticleSystem() { }
 void ParticleSystem::Reset()
 {
 	// Temporary
-	ID3D11Device* dev = mesh->device;
+	/*ID3D11Device* dev = mesh->device;
 	ID3D11DeviceContext* devC = mesh->deviceContext;
 	delete mesh;
-	mesh = new ParticleMesh(dev, devC);
+	mesh = new ParticleMesh(dev, devC);*/
+
+	mesh->firstTime = true;
+
 	age = INITIAL_AGE;
 	velocity = INITIAL_VEL;
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
