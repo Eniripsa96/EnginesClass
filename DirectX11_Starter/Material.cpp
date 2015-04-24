@@ -3,6 +3,7 @@
 Material::Material(ID3D11Device* device, ID3D11DeviceContext* context, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11SamplerState* pSampler, const wchar_t* texPath, ID3D11GeometryShader* gShader )
 {
 	// Set dx11 variables
+	this->device = device;
 	deviceContext = context;
 	vertexShader = vShader;
 	pixelShader = pShader;
@@ -41,7 +42,7 @@ void Material::Draw()
 	deviceContext->GSSetShader(geometryShader, NULL, 0);
 
 	//deviceContext->PSSetShader(pixelShader, NULL, 0);
-
+	
 	deviceContext->PSSetShaderResources(0, 1, &resourceView); // Pass in the entity’s material’s shader resource view (the texture)
 	
 	deviceContext->PSSetSamplers(0, 1, &samplerState);	// Pass in the entity’s material’s sampler state

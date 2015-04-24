@@ -9,6 +9,7 @@
 #include "InputLayouts.h"
 #include "ParticleMesh.h"
 #include "Material.h"
+#include "Samplers.h"
 
 using namespace DirectX;
 
@@ -35,6 +36,8 @@ private:
 private:
 	ParticleMesh* mesh;
 	Material* material;
+
+	ID3D11ShaderResourceView* oneD_SRV;
 
 	XMFLOAT4X4 world;
 	float velocity;

@@ -10,13 +10,14 @@ ParticleSystem::ParticleSystem(ParticleMesh* mesh, Material* mat)
 
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
 
+	oneD_SRV = Material::CreateRandomTex(mesh->device);
+
 	// Need two Geometry buffers, an update one and a drawing one
 	// Bind SO stuff (bind vb to SO), then unbind PS so that GS goes straight to SO and no further
 	// Draw with VS, GS->SO
 	// Set VB regularly
 	// Draw with VS, PS, GS
 }
-
 
 ParticleSystem::~ParticleSystem() { }
 
@@ -83,6 +84,9 @@ void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera& cam, ID3D11Buff
 			1,
 			&(cBuffer)
 			);
+
+		mesh->deviceContext->GSSetShaderResources(0, 1, &oneD_SRV);
+		mesh->deviceContext->GSGetSamplers(0, 1, &Samplers::linearSampler);
 
 		// Draw mesh and material
 		material->Draw();
