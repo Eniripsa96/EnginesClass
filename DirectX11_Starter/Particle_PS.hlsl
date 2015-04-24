@@ -15,5 +15,6 @@ struct PSInput
 float4 main(PSInput input) : SV_TARGET
 {
 	// Return color sampled from texture
-	return myTexture.Sample(mySampler, input.uv);
+	//return myTexture.Sample(mySampler, input.uv);
+	return float4(255, 0, 10, 1);
 }
