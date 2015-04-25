@@ -476,12 +476,10 @@ void GameManager::CheckKeyBoard(float dt)
 	if (!holding) {
 		if (first) {
 			if (GetAsyncKeyState('Z')) {
-				bool worked = network.tryHost();
 				network.startServer();
 				holding = true;
 			}
 			else if (GetAsyncKeyState('X')) {
-				bool worked = network.tryConnect();
 				network.startListening();
 				holding = true;
 			}
@@ -497,10 +495,14 @@ void GameManager::CheckKeyBoard(float dt)
 				holding = true;
 			}
 			else if (GetAsyncKeyState('V')) {
-				packet data = network.received.front();
-				network.received.pop();
+				if (network.received.size())
+				{
+					packet data = network.received.front();
+					network.received.pop();
 
-				test result = *((test*)data.buffer);
+					test result = *((test*)data.buffer);
+					int i = 1;
+				}
 				holding = true;
 			}
 		}

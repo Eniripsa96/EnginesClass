@@ -25,15 +25,17 @@ public:
 	NetworkManager();
 	~NetworkManager();
 	bool isConnected();
-	void startListening();
-	void startServer();
+	bool isSetUp();
+	bool startListening();
+	bool startServer();
 	bool tryHost();
 	bool tryConnect();
 	void disconnect();
 	bool emit(packetStruct* packet);
 
-	SOCKET Socket = INVALID_SOCKET;
-	bool connected = false;
+	SOCKET Socket;
+	bool connected;
+	bool setUp;
 	std::queue<packet> received;
 private:
 	WSADATA wsaData;

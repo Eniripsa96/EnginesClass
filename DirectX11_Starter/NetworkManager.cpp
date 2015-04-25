@@ -4,19 +4,34 @@
 // to the server.
 NetworkManager::NetworkManager()
 {
-	
+	setUp = false;
+	connected = false;
+	Socket = INVALID_SOCKET;
 }
 
 // Cleans up connections when destroyed if not done so elsewhere
 NetworkManager::~NetworkManager()
 {
-	
+	if (setUp)
+	{
+		closesocket(Socket);
+		WSACleanup();
+		if (listenThread) {
+			listenThread->join();
+		}
+	}
 }
 
 // Checks whether or not the application is currently
-// connected to the server and ready for network communications.
+// connected to another user and ready to play
 bool NetworkManager::isConnected() {
 	return connected;
+}
+
+// Checks whether or not the network communications
+// are set up and ready to connect to another user
+bool NetworkManager::isSetUp() {
+	return setUp;
 }
 
 // Attempts to set up a server to host other players
@@ -76,7 +91,7 @@ bool NetworkManager::tryHost() {
 		return false;
 	}
 
-	connected = true;
+	setUp = true;
 	return true;
 }
 
@@ -142,19 +157,19 @@ bool NetworkManager::tryConnect() {
 		return false;
 	}
 
-	connected = true;
+	setUp = true;
 	return true;
 }
 
 // Closes the network connection if it is
 // currently connected.
 void NetworkManager::disconnect() {
-	if (connected) {
+	if (setUp) {
 		int iResult = shutdown(Socket, SD_SEND);
 		if (iResult == SOCKET_ERROR) {
 			closesocket(Socket);
 			WSACleanup();
-			connected = false;
+			setUp = false;
 		}
 	}
 }
@@ -165,6 +180,7 @@ void threadClientListen(NetworkManager* manager)
 
 	// Receive data until the server closes the connection
 	int iResult;
+	manager->connected = true;
 	do {
 		iResult = recv(manager->Socket, recvbuf, DEFAULT_BUFLEN, 0);
 		if (iResult > 0) {
@@ -182,23 +198,30 @@ void threadClientListen(NetworkManager* manager)
 		else
 			printf("recv failed: %d\n", WSAGetLastError());
 	} while (iResult > 0);
+	manager->connected = false;
 
 	// Close the connection when finished if not already closed
-	if (manager->connected) {
+	if (manager->setUp) {
 		closesocket(manager->Socket);
 		WSACleanup();
-		manager->connected = false;
+		manager->setUp = false;
 	}
 }
 
 // Listens to the connection for incomming data. This
 // repeats indefinitely so it should be started on
 // a separate thread.
-void NetworkManager::startListening()
+bool NetworkManager::startListening()
 {
-	if (!connected) return;
+	if (!setUp) {
+		bool worked = tryConnect();
+		if (!worked) {
+			return false;
+		}
+	}
 
 	listenThread = new std::thread(threadClientListen, this);
+	return true;
 }
 
 // Handles receiving clients and listening to each on a new thread
@@ -207,7 +230,7 @@ void threadServerHost(NetworkManager* manager)
 	// Grab a client
 	SOCKET client = accept(manager->Socket, NULL, NULL);
 	if (client == INVALID_SOCKET) {
-		manager->connected = false;
+		manager->setUp = false;
 		printf("accept failed 5d\n", WSAGetLastError());
 		closesocket(manager->Socket);
 		WSACleanup();
@@ -217,6 +240,7 @@ void threadServerHost(NetworkManager* manager)
 	// Listen to the client
 	char buffer[DEFAULT_BUFLEN];
 	int iResult;
+	manager->connected = true;
 	do {
 		iResult = recv(client, buffer, DEFAULT_BUFLEN, 0);
 		if (iResult > 0) {
@@ -236,17 +260,26 @@ void threadServerHost(NetworkManager* manager)
 			printf("Receive failed: %d\n", WSAGetLastError());
 			closesocket(client);
 			WSACleanup();
+			manager->setUp = false;
+			manager->connected = false;
 			return;
 		}
 	} while (iResult > 0);
+	manager->connected = false;
 }
 
 // Starts the server, listening for new clients and receiving data
-void NetworkManager::startServer()
+bool NetworkManager::startServer()
 {
-	if (!connected) return;
+	if (!setUp) {
+		bool worked = tryHost();
+		if (!worked) {
+			return false;
+		}
+	}
 
 	listenThread = new std::thread(threadServerHost, this);
+	return true;
 }
 
 // Sends data over the network if currently connected
@@ -261,6 +294,7 @@ bool NetworkManager::emit(packetStruct* packet) {
 		printf("shutdown failed: %d\n", WSAGetLastError());
 		closesocket(Socket);
 		WSACleanup();
+		setUp = false;
 		connected = false;
 		return false;
 	}
