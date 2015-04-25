@@ -296,7 +296,6 @@ void GameManager::CreateShadowMapResources()
 void GameManager::UpdateScene(float dt)
 {
 	CheckKeyBoard(dt);
-	return;
 
 	// Update the game
 		// None
