@@ -4,7 +4,6 @@
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 
-#include "DirectXGame.h"
 #include "InputLayouts.h"
 #include "Mesh.h"
 
@@ -27,6 +26,7 @@ public:
 	static ID3D11VertexShader* vertexShader;
 	static ID3D11VertexShader* particleVertexShader;
 	static ID3D11GeometryShader* particleGeometryShader;
+	static ID3D11GeometryShader* streamOutGeometryShader;
 	static ID3D11PixelShader* particlePixelShader;
 	static UINT activeShader;
 	static const UINT shaderCount = 4;
@@ -42,7 +42,7 @@ public:
 private:
 	static void LoadPixelShader(wchar_t* file, ID3D11PixelShader** shader);
 	static void LoadVertexShader(wchar_t* file, LAYOUT inputLayoutType, ID3D11VertexShader** shader);
-	static void LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader);
+	static void LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader, bool streamOut = false);
 
 	static ID3D11Device* device;
 	static ID3D11DeviceContext* deviceContext;

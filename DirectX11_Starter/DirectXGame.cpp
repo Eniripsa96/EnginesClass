@@ -10,6 +10,9 @@
 #include "DirectXGame.h"
 #include <WindowsX.h>
 #include <sstream>
+#include "easylogging++.h"
+
+INITIALIZE_EASYLOGGINGPP
 
 #pragma region Global Window Callback
 namespace
@@ -75,8 +78,18 @@ DirectXGame::~DirectXGame(void)
 	if( deviceContext )
 		deviceContext->ClearState();
 
-	// Release the context and finally the device
+	// Release the context
 	ReleaseMacro(deviceContext);
+
+#ifdef DEBUG_REPORT
+	// Display the detailed D3D11 memory leak output
+	ID3D11Debug* debugDevice = nullptr;
+	HR(device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debugDevice)));
+	HR(debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL));
+	ReleaseMacro(debugDevice);
+#endif
+
+	// Finally release the device
 	ReleaseMacro(device);
 }
 #pragma endregion
@@ -295,6 +308,9 @@ void DirectXGame::OnResize()
 // and calls our Update & Draw methods
 int DirectXGame::Run()
 {
+	//test logger
+	LOG(INFO) << "test logger";
+
 	MSG msg = {0};
 	timer.Reset();
 

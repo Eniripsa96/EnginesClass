@@ -32,5 +32,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	// Return color sampled from texture
 	float nDotL = dot(normalize(input.normal), -normalize((float3)input.lightDir));
-	return float4(myTexture.Sample(mySampler, input.uv).xyz * (1 - input.lightDir.w + shade * input.lightDir.w * nDotL) * input.color.xyz, input.color.w);
+	float3 result = myTexture.Sample(mySampler, input.uv).rgb * (1 - input.lightDir.w + shade * input.lightDir.w * nDotL) * input.color.rgb;
+	float gray = result.r * 0.21 + result.g * 0.72 + result.b * 0.07;
+	return float4(gray, gray, gray, input.color.a);
 }

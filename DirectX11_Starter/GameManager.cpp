@@ -202,7 +202,7 @@ bool GameManager::Init()
 	Shaders::LoadShadersAndInputLayout(device, deviceContext);
 	MeshesMaterials::LoadMeshesAndMaterials(device, deviceContext);
 	camera = new Camera();
-	particleSystem = new ParticleSystem(MeshesMaterials::meshes["particle"], MeshesMaterials::materials["particle"]);
+	particleSystem = new ParticleSystem((ParticleMesh*)MeshesMaterials::meshes["particle"], MeshesMaterials::materials["particle"]);
 
 	// Initialize the shadow camera
 		// None
@@ -466,6 +466,10 @@ void GameManager::CheckKeyBoard(float dt)
 	else if (GetAsyncKeyState('S'))
 		camera->MoveDepth(-CAMERA_MOVE_FACTOR * dt);
 
+	// Space bar to activate particle effect
+	if (GetAsyncKeyState(' '))
+		particleSystem->Reset();
+
 	// Change height of camera (QE)
 	if (GetAsyncKeyState('Q'))
 		camera->MoveVertical(CAMERA_MOVE_FACTOR * dt);
@@ -544,8 +548,6 @@ void GameManager::OnMouseDown(WPARAM btnState, int x, int y)
 void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
-
-	particleSystem->Reset();
 
 	// Main menu buttons
 	if (gameState == MENU)
