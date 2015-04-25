@@ -495,13 +495,14 @@ void GameManager::CheckKeyBoard(float dt)
 				data.num3 = 3;
 				data.num4 = 4;
 				network.emit(&data);
+				holding = true;
 			}
 			else if (GetAsyncKeyState('V')) {
 				packet data = network.received.front();
 				network.received.pop();
 
 				test result = *((test*)data.buffer);
-				int i;
+				holding = true;
 			}
 		}
 	}
