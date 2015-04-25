@@ -37,4 +37,5 @@ public:
 	std::queue<packet> received;
 private:
 	WSADATA wsaData;
+	std::thread* listenThread;
 };

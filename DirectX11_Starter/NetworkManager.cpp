@@ -198,7 +198,7 @@ void NetworkManager::startListening()
 {
 	if (!connected) return;
 
-	std::thread(threadClientListen, this);
+	listenThread = new std::thread(threadClientListen, this);
 }
 
 // Handles receiving clients and listening to each on a new thread
@@ -246,7 +246,7 @@ void NetworkManager::startServer()
 {
 	if (!connected) return;
 
-	std::thread(threadServerHost, this);
+	listenThread = new std::thread(threadServerHost, this);
 }
 
 // Sends data over the network if currently connected
