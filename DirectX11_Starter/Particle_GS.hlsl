@@ -11,15 +11,15 @@ struct VertexOutput
 {
 	float4 initialPos	: SV_POSITION;
 	float4 initialVel	: VELOCITY;
-	float2 size			: SIZE;	// Storing age in y
-	//float age : AGE;
-	//unsigned int type : TYPE;
+	float2 size			: SIZE;
+	float3 color		: COLOR;
 };
 
 struct GSOutput
 {
 	float4 position		: SV_POSITION;
 	float2 uv			: TEXCOORD0;
+	float3 color		: COLOR;
 };
 
 [maxvertexcount(4)]
@@ -78,6 +78,7 @@ void main(point VertexOutput input[1] /*: SV_POSITION*/, inout TriangleStream<GS
 			vert.position = mul(v[i], mul(view, projection));
 			vert.position = mul(world, vert.position);
 			vert.uv = quadUVs[i]; // Copy uv from array
+			vert.color = input[0].color;
 
 			// Increment height for testing
 			//vert.position.y += 1.0f;

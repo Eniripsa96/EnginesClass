@@ -24,13 +24,14 @@ void ParticleMesh::CreateParticlePoints()
 	vector<Particle> particles;
 
 	XMFLOAT3 pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3 col = XMFLOAT3(100.0f, 13.0f, 0.0f);
 	
 	// Just make one particle here, the emitter
 	for (int i = 0; i < 1; i++)
 	{
 		//XMFLOAT3 pos = XMFLOAT3((rand() % 100) / 10.0f - 5.0f, ((rand() % 50) / 10.0f - 2.5f) - 4.0f, -1.0f);
 		XMFLOAT3 vel = XMFLOAT3((rand() % 200) / 100.0f - 0.5f, (rand() % 200) / 100.0f - 0.5f, 0.0f);
-		particles.push_back(Particle{ pos, vel, XMFLOAT2(PARTICLE_SIZE, PARTICLE_SIZE) });
+		particles.push_back(Particle{ pos, vel, XMFLOAT2(PARTICLE_SIZE, PARTICLE_SIZE), col});
 	}
 
 	CreateGeometryBuffers(&particles[0]);

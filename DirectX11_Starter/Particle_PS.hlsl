@@ -9,6 +9,7 @@ struct PSInput
 	float4 position		: SV_POSITION;
 	//float4 initialPos	: VELOCITY;
 	float2 uv			: TEXCOORD0;
+	float3 color		: COLOR;
 };
 
 // Entry point for this pixel shader
@@ -16,5 +17,5 @@ float4 main(PSInput input) : SV_TARGET
 {
 	// Return color sampled from texture
 	//return myTexture.Sample(mySampler, input.uv);
-	return float4(255, 0, 10, 1);
+	return float4(input.color, 1.0f);
 }

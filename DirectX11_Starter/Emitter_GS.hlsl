@@ -5,9 +5,8 @@ struct VertexOutput
 {
 	float4 position		: SV_POSITION;
 	float4 initialVel	: VELOCITY;
-	float2 size			: SIZE;	// Storing age in y
-	//float age : AGE;
-	//unsigned int type : TYPE;
+	float2 size			: SIZE;
+	float3 color		: COLOR;
 };
 
 [maxvertexcount(4)]
@@ -24,6 +23,7 @@ void main(point VertexOutput input[1] /*: SV_POSITION*/, inout PointStream<Verte
 		vert.initialVel = input[0].initialVel;
 		//vert.initialVel = float4(v.x, v.y, v.z, 1.0f);
 		vert.size = input[0].size;
+		vert.color = input[0].color;
 
 		output.Append(vert);
 	}

@@ -181,6 +181,7 @@ void Shaders::LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader, b
 			{ 0, "SV_POSITION", 0, 0, 3, 0 },
 			{ 0, "VELOCITY", 0, 0, 3, 0 },
 			{ 0, "SIZE", 0, 0, 2, 0 },
+			{ 0, "COLOR", 0, 0, 3, 0 },
 		};
 
 		// Create the shader on the device
@@ -188,7 +189,7 @@ void Shaders::LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader, b
 			gsBlob->GetBufferPointer(),
 			gsBlob->GetBufferSize(),
 			pDec1,
-			3,
+			4,
 			NULL,
 			0,
 			0,
