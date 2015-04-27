@@ -19,7 +19,10 @@ ParticleSystem::ParticleSystem(ParticleMesh* mesh, Material* mat)
 	// Draw with VS, PS, GS
 }
 
-ParticleSystem::~ParticleSystem() { }
+ParticleSystem::~ParticleSystem()
+{
+	ReleaseMacro(oneD_SRV);
+}
 
 // Restart the particle system
 void ParticleSystem::Reset()
