@@ -27,20 +27,13 @@ ParticleSystem::~ParticleSystem()
 // Restart the particle system
 void ParticleSystem::Reset()
 {
-	// Temporary
-	/*ID3D11Device* dev = mesh->device;
-	ID3D11DeviceContext* devC = mesh->deviceContext;
-	delete mesh;
-	mesh = new ParticleMesh(dev, devC);*/
-
 	mesh->firstTime = true;
 
 	age = INITIAL_AGE;
 	velocity = INITIAL_VEL;
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
 
-	// TODO Need a way to actually reset
-	// TODO Figure out an emitter(particle that acts as an emitter) system
+	// TODO Need to figure out random
 	// Need to modify movement on GPU by 'dt'
 }
 
@@ -56,8 +49,6 @@ void ParticleSystem::Update(GeometryShaderConstantBufferLayout* cBufferData, flo
 
 	age -= 1.0f * dt;
 	cBufferData->age = XMFLOAT4(age, 0, 0, 0);
-
-	velocity += GRAVITY * dt;
 
 	XMMATRIX tempWorld = XMMatrixTranslation(0.0f, 0.0f * dt, 0.0f );
 	XMStoreFloat4x4(&world, XMLoadFloat4x4(&world) * tempWorld);
