@@ -89,7 +89,7 @@ void ParticleMesh::Draw()
 	if (firstTime)
 	{
 		deviceContext->GSSetShader(Shaders::emitterGS, NULL, 0);
-		deviceContext->GSGetSamplers(0, 1, &Samplers::linearSampler);
+		deviceContext->GSSetSamplers(0, 1, &Samplers::linearSampler);
 		firstTime = false;
 	}
 	else
