@@ -2,6 +2,8 @@
 #define PARTICLEMESH_H
 
 #include "Mesh.h"
+#include "Samplers.h"
+
 class ParticleMesh :
 	public Mesh
 {

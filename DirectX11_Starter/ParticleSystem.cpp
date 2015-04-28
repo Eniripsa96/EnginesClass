@@ -33,6 +33,8 @@ void ParticleSystem::Reset()
 	velocity = INITIAL_VEL;
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
 
+	//oneD_SRV = Material::CreateRandomTex(mesh->device);
+
 	// TODO Need to figure out random
 	// Need to modify movement on GPU by 'dt'
 }
@@ -80,7 +82,6 @@ void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera& cam, ID3D11Buff
 			);
 
 		mesh->deviceContext->GSSetShaderResources(0, 1, &oneD_SRV);
-		mesh->deviceContext->GSGetSamplers(0, 1, &Samplers::linearSampler);
 
 		// Draw mesh and material
 		material->Draw();
