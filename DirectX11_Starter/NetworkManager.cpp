@@ -302,3 +302,25 @@ bool NetworkManager::emit(packetStruct* packet) {
 	// Send succeeded
 	return true;
 }
+
+// Checks whether or not the network has pending data received
+bool NetworkManager::hasData()
+{
+	return received.size() > 0;
+}
+
+// Gets the oldest pending data received from the network connection
+packet NetworkManager::getData()
+{
+	packet data;
+	data.buffer = 0;
+	data.length = 0;
+
+	if (hasData())
+	{
+		data = received.front();
+		received.pop();
+	}
+	
+	return data;
+}

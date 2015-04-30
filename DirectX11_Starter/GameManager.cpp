@@ -499,10 +499,9 @@ void GameManager::CheckKeyBoard(float dt)
 				holding = true;
 			}
 			else if (GetAsyncKeyState('V')) {
-				if (network.received.size())
+				if (network.hasData())
 				{
-					packet data = network.received.front();
-					network.received.pop();
+					packet data = network.getData();
 
 					test result = *((test*)data.buffer);
 					int i = 1;

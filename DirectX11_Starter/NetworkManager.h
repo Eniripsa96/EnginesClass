@@ -32,6 +32,8 @@ public:
 	bool tryConnect();
 	void disconnect();
 	bool emit(packetStruct* packet);
+	bool hasData();
+	packet getData();
 
 	SOCKET Socket;
 	bool connected;
