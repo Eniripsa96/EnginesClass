@@ -6,7 +6,7 @@ struct VertexOutput
 	float3 color		: COLOR;
 };
 
-[maxvertexcount(4)]
+[maxvertexcount(1)]
 void main(point VertexOutput input[1] /*: SV_POSITION*/, inout PointStream<VertexOutput> output)
 {
 	// Initialize vertex to all the same values
