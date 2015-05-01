@@ -169,6 +169,8 @@ GameManager::~GameManager()
 	delete spriteFont32;
 	delete spriteFont72;
 
+	delete network;
+
 	// Release DirectX variables
 	ReleaseMacro(blendState);
 
@@ -480,11 +482,11 @@ void GameManager::CheckKeyBoard(float dt)
 	if (!holding) {
 		if (first) {
 			if (GetAsyncKeyState('Z')) {
-				network.startServer();
+				network->startServer();
 				holding = true;
 			}
 			else if (GetAsyncKeyState('X')) {
-				network.startListening();
+				network->startListening();
 				holding = true;
 			}
 		}
@@ -495,13 +497,13 @@ void GameManager::CheckKeyBoard(float dt)
 				data.num2 = 2;
 				data.num3 = 3;
 				data.num4 = 4;
-				network.emit(&data);
+				network->emit(&data);
 				holding = true;
 			}
 			else if (GetAsyncKeyState('V')) {
-				if (network.hasData())
+				if (network->hasData())
 				{
-					packet data = network.getData();
+					packet data = network->getData();
 
 					test result = *((test*)data.buffer);
 					int i = 1;

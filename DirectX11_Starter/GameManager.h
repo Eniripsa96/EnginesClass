@@ -76,7 +76,7 @@ private:
 	std::vector<UIObject*> menuObjects;
 	std::vector<UIObject*> gameOverObjects;
 
-	NetworkManager network = *new NetworkManager();
+	NetworkManager* network = new NetworkManager();
 
 	SpriteBatch* spriteBatch;
 	SpriteFont* spriteFont24;
