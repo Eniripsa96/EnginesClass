@@ -1,8 +1,8 @@
 #ifndef MESHESMATERIALS_H
 #define MESHESMATERIALS_H
 
-#include "Mesh.h"
 #include "ObjLoader.h"
+#include "Mesh.h"
 #include "Material.h"
 
 #include <map>

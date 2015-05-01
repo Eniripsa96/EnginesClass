@@ -1,6 +1,7 @@
 #ifndef GAMEMANAGER_H
 #define GAMEMANAGER_H
 
+#include "NetworkManager.h"
 #include <DirectXMath.h>
 #include <vector>
 #include <SpriteFont.h>
@@ -74,6 +75,8 @@ private:
 	std::vector<UIObject*> gameUIObjects;
 	std::vector<UIObject*> menuObjects;
 	std::vector<UIObject*> gameOverObjects;
+
+	NetworkManager network = *new NetworkManager();
 
 	SpriteBatch* spriteBatch;
 	SpriteFont* spriteFont24;
