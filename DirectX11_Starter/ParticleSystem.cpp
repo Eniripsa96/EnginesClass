@@ -33,6 +33,7 @@ void ParticleSystem::Reset()
 	velocity = INITIAL_VEL;
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
 
+	//ReleaseMacro(oneD_SRV);
 	//oneD_SRV = Material::CreateRandomTex(mesh->device);
 
 	// TODO Need to figure out random
@@ -50,7 +51,7 @@ void ParticleSystem::Update(GeometryShaderConstantBufferLayout* cBufferData, flo
 	//XMMATRIX VP = XMMatrixMultiply(XMLoadFloat4x4(&cam.viewMatrix), XMLoadFloat4x4(&cam.projectionMatrix));
 
 	age -= 1.0f * dt;
-	cBufferData->age = XMFLOAT4(age, 0, 0, 0);
+	cBufferData->age = XMFLOAT4(age, dt, 0.0f, 0.0f);
 
 	XMMATRIX tempWorld = XMMatrixTranslation(0.0f, 0.0f * dt, 0.0f );
 	XMStoreFloat4x4(&world, XMLoadFloat4x4(&world) * tempWorld);
