@@ -84,13 +84,6 @@ void GameObject::Draw(ID3D11DeviceContext* deviceContext, ID3D11Buffer* cBuffer,
 		0
 		);
 
-	// [DRAW] Set the constant buffer in the device
-	deviceContext->VSSetConstantBuffers(
-		0,
-		1,
-		&(cBuffer)
-		);
-
 	material->Draw();
 	mesh->Draw();
 }

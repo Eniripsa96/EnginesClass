@@ -376,6 +376,11 @@ void GameManager::UpdateScene(float dt)
 	// Draw each mesh
 	if (meshObjects)
 	{
+		deviceContext->VSSetConstantBuffers(
+			0,
+			1,
+			&Shaders::vsConstantBuffer
+		);
 		for (UINT i = 0; i < meshObjects->size(); i++)
 		{
 			(*meshObjects)[i]->Draw(deviceContext, Shaders::vsConstantBuffer, &Shaders::dataToSendToVSConstantBuffer);
