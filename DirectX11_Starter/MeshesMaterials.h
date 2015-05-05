@@ -3,6 +3,9 @@
 
 #include "ObjLoader.h"
 #include "Mesh.h"
+#include "ParticleMesh.h"
+#include "Samplers.h"
+#include "Shaders.h"
 #include "Material.h"
 
 #include <map>

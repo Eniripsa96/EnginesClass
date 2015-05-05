@@ -6,17 +6,14 @@
 #include <utility>
 
 #include "Camera.h"
-#include "InputLayouts.h"
-#include "ParticleMesh.h"
-#include "Material.h"
-#include "Samplers.h"
+#include "MeshesMaterials.h"
 
 using namespace DirectX;
 
 class ParticleSystem
 {
 public:
-	ParticleSystem(ParticleMesh*, Material*);
+	ParticleSystem();
 	~ParticleSystem();
 
 	// Time elapsed since the systm was reset

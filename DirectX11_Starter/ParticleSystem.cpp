@@ -1,10 +1,9 @@
 #include "ParticleSystem.h"
 
-
-ParticleSystem::ParticleSystem(ParticleMesh* mesh, Material* mat)
+ParticleSystem::ParticleSystem()
 {
-	this->mesh = mesh;
-	this->material = mat;
+	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
+	material = MeshesMaterials::materials["particle"];
 
 	age = 0.0f;
 
