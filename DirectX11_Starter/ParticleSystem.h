@@ -1,8 +1,6 @@
 #ifndef PARTICLESYSTEM_H
 #define PARTICLESYSTEM_H
 
-#include <d3d11.h>
-#include <DirectXMath.h>
 #include <utility>
 
 #include "Camera.h"

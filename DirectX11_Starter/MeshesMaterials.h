@@ -1,14 +1,13 @@
 #ifndef MESHESMATERIALS_H
 #define MESHESMATERIALS_H
 
+#include <map>
+
 #include "ObjLoader.h"
 #include "Mesh.h"
 #include "ParticleMesh.h"
-#include "Samplers.h"
-#include "Shaders.h"
 #include "Material.h"
-
-#include <map>
+#include "Shaders.h"
 
 class MeshesMaterials
 {

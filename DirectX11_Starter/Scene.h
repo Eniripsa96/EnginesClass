@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SCENE_H
+
 class Scene
 {
 public:
@@ -6,3 +7,4 @@ public:
 	~Scene();
 };
 
+#endif

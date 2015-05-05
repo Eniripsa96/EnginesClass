@@ -2,7 +2,7 @@
 #define CAMERA_H
 
 #include <DirectXMath.h>
-#include <Windows.h>
+
 using namespace DirectX;
 
 class Camera

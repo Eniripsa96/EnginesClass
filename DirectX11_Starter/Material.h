@@ -1,11 +1,8 @@
-//#pragma once
-
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
 #include "DirectXGame.h"
-//#include "MyDemoGame.h"
-//#include <DirectXMath.h>
+
 #include <DirectXMath.h>
 #include "WICTextureLoader.h"
 

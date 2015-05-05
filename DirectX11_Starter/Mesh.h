@@ -1,10 +1,7 @@
-//#pragma once
-
 #ifndef MESH_H
 #define MESH_H
 
 #include <vector>
-#include <stdlib.h>
 #include <time.h>
 
 #include "Material.h"

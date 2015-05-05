@@ -1,7 +1,6 @@
 #ifndef SHADERS
 #define SHADERS
 
-#include <DirectXMath.h>
 #include <d3dcompiler.h>
 
 #include "InputLayouts.h"
