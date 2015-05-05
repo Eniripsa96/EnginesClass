@@ -1,29 +1,26 @@
 struct VertexInput
 {
-	float3 initialPos	: POSITION;
-	//float3 initialVel	: VELOCITY;
+	float3 position		: POSITION;
+	float3 initialVel	: VELOCITY;
 	float2 size			: SIZE;
-	//float age			: AGE;
-	//unsigned int type	: TYPE;
+	float3 color		: COLOR;
 };
 
 struct VertexOutput
 {
-	float4 initialPos	: SV_POSITION;
-	//float3 initialVel	: VELOCITY;
+	float4 position		: SV_POSITION;
+	float4 initialVel	: VELOCITY;
 	float2 size			: SIZE;
-	//float age : AGE;
-	//unsigned int type : TYPE;
+	float3 color		: COLOR;
 };
 
 VertexOutput main(VertexInput input)
 {
 	VertexOutput output;
-	output.initialPos = float4(input.initialPos, 1.0f);
-	//output.initialVel = input.initialVel;
+	output.position = float4(input.position, 1.0f);
+	output.initialVel = float4(input.initialVel, 1.0f);
 	output.size = input.size;
-	//output.age = input.age;
-	//output.type = input.type;
+	output.color = input.color;
 
 	return output;
 }

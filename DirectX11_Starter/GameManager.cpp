@@ -21,9 +21,9 @@
 //
 // ----------------------------------------------------------------------------
 
+#include "GameManager.h"
 #include <Windows.h>
 #include <d3dcompiler.h>
-#include "GameManager.h"
 #include <vector>
 #include "Math.h"
 
@@ -63,8 +63,18 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 
 	gameState = MENU;
 
+#pragma region network test code
+
+	//bool worked = network.tryHost();
+	//network.startServer();
+
+	/*bool worked = network.tryConnect();
+	network.startListening();*/
+
+#pragma endregion
 
 #pragma region SSE test code
+	/*
 	float c1 = cos(1.0f);
 	float s1 = sin(1.0f);
 	float c2 = cos(2.0f);
@@ -119,6 +129,7 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 	double duration6 = std::clock() - start;
 
 	int i = 0;
+	*/
 #pragma endregion
 }
 
@@ -157,6 +168,8 @@ GameManager::~GameManager()
 	delete spriteFont24;
 	delete spriteFont32;
 	delete spriteFont72;
+
+	delete network;
 
 	// Release DirectX variables
 	ReleaseMacro(blendState);
@@ -437,7 +450,16 @@ void GameManager::DrawScene() { }
 
 #pragma region User Input
 
+struct test : packetStruct {
+	int num1 : 4;
+	int num2 : 4;
+	int num3 : 8;
+	int num4 : 16;
+};
+
 // Continuous while key pressed
+bool first = true;
+bool holding = false;
 void GameManager::CheckKeyBoard(float dt)
 {
 	// Game controls
@@ -455,11 +477,54 @@ void GameManager::CheckKeyBoard(float dt)
 	else if (GetAsyncKeyState('S'))
 		camera->MoveDepth(-CAMERA_MOVE_FACTOR * dt);
 
+	// Space bar to activate particle effect
+	if (GetAsyncKeyState(' '))
+		particleSystem->Reset();
+
 	// Change height of camera (QE)
 	if (GetAsyncKeyState('Q'))
 		camera->MoveVertical(CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('E'))
 		camera->MoveVertical(-CAMERA_MOVE_FACTOR * dt);
+
+	// Network testing
+	if (!holding) {
+		if (first) {
+			if (GetAsyncKeyState('Z')) {
+				network->startServer();
+				holding = true;
+			}
+			else if (GetAsyncKeyState('X')) {
+				network->startListening();
+				holding = true;
+			}
+		}
+		else {
+			if (GetAsyncKeyState('C')) {
+				test data;
+				data.num1 = 1;
+				data.num2 = 2;
+				data.num3 = 3;
+				data.num4 = 4;
+				network->emit(&data);
+				holding = true;
+			}
+			else if (GetAsyncKeyState('V')) {
+				if (network->hasData())
+				{
+					packet data = network->getData();
+
+					test result = *((test*)data.buffer);
+					int i = 1;
+				}
+				holding = true;
+			}
+		}
+	}
+	else if (!GetAsyncKeyState('Z') && !GetAsyncKeyState('X') && !GetAsyncKeyState('C') && !GetAsyncKeyState('V')) {
+		holding = false;
+		first = false;
+	}
 }
 
 // Once per key press
@@ -493,8 +558,6 @@ void GameManager::OnMouseDown(WPARAM btnState, int x, int y)
 void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
-
-	particleSystem->Reset();
 
 	// Main menu buttons
 	if (gameState == MENU)

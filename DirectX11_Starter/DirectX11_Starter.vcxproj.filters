@@ -34,6 +34,15 @@
     <Filter Include="Source Files\Helpers">
       <UniqueIdentifier>{222dbd91-7f87-4092-8db1-2542996c353a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Geometry">
+      <UniqueIdentifier>{661cd872-f40e-4bbc-b5d3-1420abbd4850}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Pixel">
+      <UniqueIdentifier>{98dc9e22-eed7-4881-8f70-d1058e0f65e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Vertex">
+      <UniqueIdentifier>{f9874c73-3a0f-4b47-80f1-f9afcffcd2bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectXGame.cpp">
@@ -91,6 +100,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleMesh.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -150,42 +162,48 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleMesh.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\PixelShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\VertexShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Grayscale_PS.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Pixel</Filter>
     </FxCompile>
     <FxCompile Include="Inverse_PS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Particle_GS.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Pixel</Filter>
     </FxCompile>
     <FxCompile Include="Particle_PS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Particle_VS.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Pixel</Filter>
     </FxCompile>
     <FxCompile Include="Sepia_PS.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Pixel</Filter>
     </FxCompile>
     <FxCompile Include="Shadow_PS.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\PixelShader.hlsl">
+      <Filter>Shaders\Pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\VertexShader.hlsl">
+      <Filter>Shaders\Vertex</Filter>
     </FxCompile>
     <FxCompile Include="Shadow_VS.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="Particle_VS.hlsl">
+      <Filter>Shaders\Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="Particle_GS.hlsl">
+      <Filter>Shaders\Geometry</Filter>
     </FxCompile>
     <FxCompile Include="StreamOut_GS.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Geometry</Filter>
+    </FxCompile>
+    <FxCompile Include="Emitter_GS.hlsl">
+      <Filter>Shaders\Geometry</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -3,6 +3,8 @@
 
 ParticleMesh::ParticleMesh(ID3D11Device* device, ID3D11DeviceContext* context) : Mesh(device, context, PARTICLE)
 {
+	firstTime = true;
+
 	CreateParticlePoints();
 }
 
@@ -21,9 +23,15 @@ void ParticleMesh::CreateParticlePoints()
 
 	vector<Particle> particles;
 
-	for (int i = 0; i < (int)PARTICLE; i++)
+	XMFLOAT3 pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3 col = XMFLOAT3(100.0f, 13.0f, 0.0f);
+	
+	// Just make one particle here, the emitter
+	for (int i = 0; i < 1; i++)
 	{
-		particles.push_back(Particle{ XMFLOAT3((rand() % 100) / 10.0f - 5.0f, ((rand() % 50) / 10.0f - 2.5f) - 4.0f, -1.0f), XMFLOAT2(PARTICLE_SIZE, PARTICLE_SIZE) });
+		//XMFLOAT3 pos = XMFLOAT3((rand() % 100) / 10.0f - 5.0f, ((rand() % 50) / 10.0f - 2.5f) - 4.0f, -1.0f);
+		XMFLOAT3 vel = XMFLOAT3((rand() % 200) / 100.0f - 0.5f, (rand() % 200) / 100.0f - 0.5f, 0.0f);
+		particles.push_back(Particle{ pos, vel, XMFLOAT2(PARTICLE_SIZE, PARTICLE_SIZE), col});
 	}
 
 	CreateGeometryBuffers(&particles[0]);
@@ -58,7 +66,6 @@ void ParticleMesh::CreateGeometryBuffers(Particle particles[])
 	D3D11_SUBRESOURCE_DATA initialIndexData;
 
 	// Set up the indices and create index buffer
-	//UINT particleIndices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49 };
 	vector<UINT> particleIndices;
 	for (UINT i = 0; i < (UINT)PARTICLE; i++)
 		particleIndices.push_back(i);
@@ -79,8 +86,17 @@ void ParticleMesh::Draw()
 	// Set our stream VB as the SO target
 	deviceContext->SOSetTargets(1, &streamOutVB, &offset);
 
-	// Hook up the proper shaders for this step
-	deviceContext->GSSetShader(Shaders::streamOutGeometryShader, NULL, 0);
+	if (firstTime)
+	{
+		deviceContext->GSSetShader(Shaders::emitterGS, NULL, 0);
+		deviceContext->GSSetSamplers(0, 1, &Samplers::linearSampler);
+		firstTime = false;
+	}
+	else
+	{
+		// Hook up the proper shaders for this step
+		deviceContext->GSSetShader(Shaders::streamOutGeometryShader, NULL, 0);
+	}
 	deviceContext->PSSetShader(NULL, NULL, 0);
 
 	// Draw the current vertex list using stream-out only to update them.

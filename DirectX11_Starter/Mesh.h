@@ -32,10 +32,9 @@ struct Vertex
 struct Particle
 {
 	XMFLOAT3 initialPos;
-	//XMFLOAT3 initialVel;
+	XMFLOAT3 initialVel;
 	XMFLOAT2 size;
-	//float age;
-	//unsigned int type;
+	XMFLOAT3 color;
 };
 
 // Struct to match vertex shader's constant buffer
@@ -69,7 +68,7 @@ class Mesh
 public:
 	Mesh(ID3D11Device*, ID3D11DeviceContext*, SHAPE);
 	Mesh(ID3D11Device*, ID3D11DeviceContext*, ID3D11Buffer*, ID3D11Buffer*, UINT);
-	~Mesh();
+	virtual ~Mesh();
 
 	void CreateTrianglePoints();
 	void CreateQuadPoints();

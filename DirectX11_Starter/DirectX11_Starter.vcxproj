@@ -49,7 +49,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -74,6 +74,7 @@
     <ClCompile Include="InputLayouts.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="MeshesMaterials.cpp" />
+    <ClCompile Include="NetworkManager.cpp" />
     <ClCompile Include="ParticleMesh.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="Samplers.cpp" />
@@ -95,6 +96,7 @@
     <ClInclude Include="InputLayouts.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MeshesMaterials.h" />
+    <ClInclude Include="NetworkManager.h" />
     <ClInclude Include="ParticleMesh.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Samplers.h" />
@@ -110,6 +112,12 @@
     <ClInclude Include="ObjLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Emitter_GS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="StreamOut_GS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>

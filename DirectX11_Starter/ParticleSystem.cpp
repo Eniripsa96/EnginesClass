@@ -10,6 +10,8 @@ ParticleSystem::ParticleSystem(ParticleMesh* mesh, Material* mat)
 
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
 
+	oneD_SRV = Material::CreateRandomTex(mesh->device);
+
 	// Need two Geometry buffers, an update one and a drawing one
 	// Bind SO stuff (bind vb to SO), then unbind PS so that GS goes straight to SO and no further
 	// Draw with VS, GS->SO
@@ -17,26 +19,24 @@ ParticleSystem::ParticleSystem(ParticleMesh* mesh, Material* mat)
 	// Draw with VS, PS, GS
 }
 
-
 ParticleSystem::~ParticleSystem()
 {
-	
+	ReleaseMacro(oneD_SRV);
 }
 
 // Restart the particle system
 void ParticleSystem::Reset()
 {
-	// Temporary
-	ID3D11Device* dev = mesh->device;
-	ID3D11DeviceContext* devC = mesh->deviceContext;
-	delete mesh;
-	mesh = new ParticleMesh(dev, devC);
+	mesh->firstTime = true;
+
 	age = INITIAL_AGE;
 	velocity = INITIAL_VEL;
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
 
-	// TODO Need a way to actually reset
-	// TODO Figure out an emitter(particle that acts as an emitter) system
+	//oneD_SRV = Material::CreateRandomTex(mesh->device);
+
+	// TODO Need to figure out random
+	// Need to modify movement on GPU by 'dt'
 }
 
 Material* ParticleSystem::GetMaterial() const
@@ -51,8 +51,6 @@ void ParticleSystem::Update(GeometryShaderConstantBufferLayout* cBufferData, flo
 
 	age -= 1.0f * dt;
 	cBufferData->age = XMFLOAT4(age, 0, 0, 0);
-
-	velocity += GRAVITY * dt;
 
 	XMMATRIX tempWorld = XMMatrixTranslation(0.0f, 0.0f * dt, 0.0f );
 	XMStoreFloat4x4(&world, XMLoadFloat4x4(&world) * tempWorld);
@@ -82,6 +80,8 @@ void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera& cam, ID3D11Buff
 			1,
 			&(cBuffer)
 			);
+
+		mesh->deviceContext->GSSetShaderResources(0, 1, &oneD_SRV);
 
 		// Draw mesh and material
 		material->Draw();

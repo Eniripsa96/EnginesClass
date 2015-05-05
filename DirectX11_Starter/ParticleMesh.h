@@ -2,6 +2,8 @@
 #define PARTICLEMESH_H
 
 #include "Mesh.h"
+#include "Samplers.h"
+
 class ParticleMesh :
 	public Mesh
 {
@@ -15,6 +17,8 @@ public:
 	void Draw();
 
 	ID3D11Buffer* streamOutVB;
+
+	bool firstTime;
 
 private:
 	const float PARTICLE_SIZE = 0.1875f;

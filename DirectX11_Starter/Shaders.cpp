@@ -9,6 +9,7 @@ ID3D11VertexShader* Shaders::vertexShader = NULL;
 ID3D11VertexShader* Shaders::particleVertexShader = NULL;
 ID3D11GeometryShader* Shaders::particleGeometryShader = NULL;
 ID3D11GeometryShader* Shaders::streamOutGeometryShader = NULL;
+ID3D11GeometryShader* Shaders::emitterGS = NULL;
 ID3D11PixelShader* Shaders::particlePixelShader = NULL;
 UINT Shaders::activeShader = NULL;
 ID3D11VertexShader* Shaders::shadowVS = NULL;
@@ -36,13 +37,18 @@ void Shaders::Destructor()
 
 	ReleaseMacro(vertexShader);
 	ReleaseMacro(shadowVS);
-	ReleaseMacro(shadowPS);
 	ReleaseMacro(particleVertexShader);
-	ReleaseMacro(particleGeometryShader);
+
 	ReleaseMacro(pixelShader);
+	ReleaseMacro(particlePixelShader);
 	ReleaseMacro(grayscaleShader);
 	ReleaseMacro(sepiaShader);
 	ReleaseMacro(inverseShader);
+	ReleaseMacro(shadowPS);
+
+	ReleaseMacro(particleGeometryShader);
+	ReleaseMacro(streamOutGeometryShader);
+	ReleaseMacro(emitterGS);
 
 	ReleaseMacro(vsConstantBuffer);
 	ReleaseMacro(gsConstantBuffer);
@@ -70,6 +76,7 @@ void Shaders::LoadShadersAndInputLayout(ID3D11Device* device, ID3D11DeviceContex
 	// Load Geometry Shader -------------------------------------
 	LoadGeometryShader(L"Particle_GS.cso", &particleGeometryShader);
 	LoadGeometryShader(L"StreamOut_GS.cso", &streamOutGeometryShader, true);
+	LoadGeometryShader(L"Emitter_GS.cso", &emitterGS, true);
 
 	// Load Pixel Shaders ---------------------------------------
 	LoadPixelShader(L"PixelShader.cso", &pixelShader);
@@ -165,14 +172,16 @@ void Shaders::LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader, b
 			gsBlob->GetBufferPointer(),
 			gsBlob->GetBufferSize(),
 			NULL,
-			&particleGeometryShader));
+			shader));
 	}
 	else
 	{
 		D3D11_SO_DECLARATION_ENTRY pDec1[] =
 		{
 			{ 0, "SV_POSITION", 0, 0, 3, 0 },
+			{ 0, "VELOCITY", 0, 0, 3, 0 },
 			{ 0, "SIZE", 0, 0, 2, 0 },
+			{ 0, "COLOR", 0, 0, 3, 0 },
 		};
 
 		// Create the shader on the device
@@ -180,12 +189,12 @@ void Shaders::LoadGeometryShader(wchar_t* file, ID3D11GeometryShader** shader, b
 			gsBlob->GetBufferPointer(),
 			gsBlob->GetBufferSize(),
 			pDec1,
-			2,
+			4,
 			NULL,
 			0,
 			0,
 			NULL,
-			&streamOutGeometryShader));
+			shader));
 	}
 
 	// Clean up
