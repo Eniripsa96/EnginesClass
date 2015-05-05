@@ -7,6 +7,7 @@
 
 #pragma once
 
+#define DEFAULT_IP "127.0.0.1"
 #define DEFAULT_PORT "27015"
 #define DEFAULT_BUFLEN 512
 
@@ -26,10 +27,10 @@ public:
 	~NetworkManager();
 	bool isConnected();
 	bool isSetUp();
-	bool startListening();
+	bool startListening(PCSTR ip = DEFAULT_IP, PCSTR port = DEFAULT_PORT);
 	bool startServer();
 	bool tryHost();
-	bool tryConnect();
+	bool tryConnect(PCSTR ip = DEFAULT_IP, PCSTR port = DEFAULT_PORT);
 	void disconnect();
 	bool emit(packetStruct* packet);
 	bool hasData();

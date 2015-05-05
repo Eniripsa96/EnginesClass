@@ -99,7 +99,7 @@ bool NetworkManager::tryHost() {
 // be used to reconnect after an error causes
 // a disconnection or if it was disconnected
 // manually.
-bool NetworkManager::tryConnect() {
+bool NetworkManager::tryConnect(PCSTR ip, PCSTR port) {
 
 	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
@@ -124,7 +124,7 @@ bool NetworkManager::tryConnect() {
 	//hints.ai_protocol = IPPROTO_UDP;
 
 	// Try to grab the server information
-	iResult = getaddrinfo("127.0.0.1", DEFAULT_PORT, &hints, &result);
+	iResult = getaddrinfo(ip, port, &hints, &result);
 	if (iResult != 0) {
 		printf("aetaddrinfo failed: %d\n", iResult);
 		WSACleanup();
@@ -211,10 +211,10 @@ void threadClientListen(NetworkManager* manager)
 // Listens to the connection for incomming data. This
 // repeats indefinitely so it should be started on
 // a separate thread.
-bool NetworkManager::startListening()
+bool NetworkManager::startListening(PCSTR ip, PCSTR port)
 {
 	if (!setUp) {
-		bool worked = tryConnect();
+		bool worked = tryConnect(ip, port);
 		if (!worked) {
 			return false;
 		}
