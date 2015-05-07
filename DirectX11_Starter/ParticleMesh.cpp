@@ -1,12 +1,13 @@
 #include "ParticleMesh.h"
 #include "Shaders.h"
 
-ParticleMesh::ParticleMesh(ID3D11Device* device, ID3D11DeviceContext* context, XMFLOAT3* pos) : Mesh(device, context, PARTICLE)
+ParticleMesh::ParticleMesh(ID3D11Device* device, ID3D11DeviceContext* context, XMFLOAT3* pos, XMFLOAT3* col) : Mesh(device, context, PARTICLE)
 {
 	// Next time this draws will be the first time, so EMIT
 	firstTime = true;
 
 	position = *pos;
+	color = *col;
 
 	CreateParticlePoints();
 }
@@ -25,8 +26,6 @@ void ParticleMesh::CreateParticlePoints()
 	srand(time(NULL));
 
 	vector<Particle> particles;
-
-	XMFLOAT3 color = XMFLOAT3(100.0f, 13.0f, 0.0f);
 	
 	// Just make one particle here, the emitter
 	for (int i = 0; i < 1; i++)

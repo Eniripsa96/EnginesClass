@@ -12,7 +12,7 @@ ParticleSystem::ParticleSystem(GeometryShaderConstantBufferLayout* cBufferData, 
 
 	// Set the material and mesh (which we initialize here to give it 
 	material = MeshesMaterials::materials["particle"];
-	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
+	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos, color);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
 	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
 
 	// Initialize the world matrix
