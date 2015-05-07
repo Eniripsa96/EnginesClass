@@ -4,6 +4,7 @@ ParticleSystem::ParticleSystem(GeometryShaderConstantBufferLayout* cBufferData, 
 {
 	// Start out without activating the particle effect
 	age = 0.0f;
+	MAX_AGE = lifeTime;
 	
 	// Set data from params
 	this->cBufferData = cBufferData;
@@ -40,7 +41,7 @@ void ParticleSystem::Reset()
 	mesh->firstTime = true;
 
 	// Reset age and position (world matrix)
-	age = INITIAL_AGE;
+	age = MAX_AGE	;
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
 }
 

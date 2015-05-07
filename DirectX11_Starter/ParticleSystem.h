@@ -48,10 +48,9 @@ private:
 
 	XMFLOAT4X4 world;
 	XMFLOAT4 spawnPos;
+	
 	float age;
-
-	const float GRAVITY = -2.0f;
-	const float INITIAL_AGE = 10.0f;
+	float MAX_AGE;
 };
 
 #endif
