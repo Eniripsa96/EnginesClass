@@ -5,7 +5,7 @@ cbuffer perModel : register(b0)
 	matrix projection;
 	float4 camPos;
 	float4 spawnPos;
-	float4 age;
+	float4 misc;
 };
 
 struct VertexOutput

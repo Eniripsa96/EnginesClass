@@ -48,6 +48,7 @@ private:
 
 	XMFLOAT4X4 world;
 	XMFLOAT4 spawnPos;
+	int numParticles;
 	
 	float age;
 	float MAX_AGE;

@@ -58,7 +58,7 @@ struct GeometryShaderConstantBufferLayout
 	XMFLOAT4X4 projection;
 	XMFLOAT4 camPos;
 	XMFLOAT4 spawnPos;
-	XMFLOAT4 age;
+	XMFLOAT4 misc;
 };
 
 class Mesh
