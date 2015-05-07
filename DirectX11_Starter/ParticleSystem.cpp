@@ -1,11 +1,15 @@
 #include "ParticleSystem.h"
 
-ParticleSystem::ParticleSystem()
+ParticleSystem::ParticleSystem(XMFLOAT3* pos, XMFLOAT3* color, float lifeTime, int numP)
 {
-	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
+	//mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
 	material = MeshesMaterials::materials["particle"];
 
 	age = 0.0f;
+	//INITIAL_AGE
+
+	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos);
+	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
 
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
 

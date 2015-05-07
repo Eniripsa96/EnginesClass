@@ -8,10 +8,19 @@
 
 using namespace DirectX;
 
+struct PartParams
+{
+	XMFLOAT3 position;
+	XMFLOAT3 color;
+	float lifeTime;
+	int numParts;
+};
+
 class ParticleSystem
 {
 public:
-	ParticleSystem();
+	// pos, color, age/fadeout, spread, number, shapes?
+	ParticleSystem(XMFLOAT3*, XMFLOAT3*, float, int);
 	~ParticleSystem();
 
 	// Time elapsed since the systm was reset
@@ -19,18 +28,20 @@ public:
 	Material* GetMaterial() const;
 
 	void Reset();
-	void Draw(ID3D11DeviceContext* dc, const Camera& cam, ID3D11Buffer* cBuffer, GeometryShaderConstantBufferLayout* cBufferData);
-	void Update(GeometryShaderConstantBufferLayout* cBufferData, float dt);
+	void Draw(ID3D11DeviceContext*, const Camera&, ID3D11Buffer*, GeometryShaderConstantBufferLayout*);
+	void Update(GeometryShaderConstantBufferLayout*, float);
 
 private:
-	void BuildVB(ID3D11Device* device);
+	void BuildVB(ID3D11Device*);
 
-	ParticleSystem(const ParticleSystem& rhs);
-	ParticleSystem& operator=(const ParticleSystem& rhs);
+	ParticleSystem(const ParticleSystem&);
+	ParticleSystem& operator=(const ParticleSystem&);
 
 private:
 	ParticleMesh* mesh;
 	Material* material;
+
+	PartParams params;
 
 	ID3D11ShaderResourceView* oneD_SRV;
 
