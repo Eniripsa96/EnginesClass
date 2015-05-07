@@ -76,7 +76,7 @@ private:
 
 	// Attempts to connect to a hosting user at the given IP/Port combination.
 	// Returns whether or not the connection was successful.
-	bool tryConnect(PCSTR ip = DEFAULT_IP, PCSTR port = DEFAULT_PORT);
+	bool tryConnect(PCSTR ip, PCSTR port);
 
 	WSADATA wsaData;
 	std::thread* listenThread;
