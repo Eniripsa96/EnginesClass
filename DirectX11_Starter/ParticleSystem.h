@@ -46,6 +46,7 @@ private:
 	ID3D11ShaderResourceView* oneD_SRV;
 
 	XMFLOAT4X4 world;
+	XMFLOAT4 spawnPos;
 	float velocity;
 	float age;
 

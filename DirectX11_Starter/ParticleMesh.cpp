@@ -99,7 +99,7 @@ void ParticleMesh::Draw()
 		// Hook up the proper shaders for this step
 		deviceContext->GSSetShader(Shaders::streamOutGeometryShader, NULL, 0);
 	}
-	deviceContext->PSSetShader(NULL, NULL, 0);
+	deviceContext->PSSetShader(NULL, NULL, 0);	// Don't need a PS for either GS stage
 
 	// Draw the current vertex list using stream-out only to update them.
 	// The updated vertices are streamed-out to the target VB

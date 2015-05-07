@@ -7,6 +7,7 @@ ParticleSystem::ParticleSystem(XMFLOAT3* pos, XMFLOAT3* color, float lifeTime, i
 
 	age = 0.0f;
 	//INITIAL_AGE
+	spawnPos = XMFLOAT4(pos->x, pos->y, pos->z, 1.0f);
 
 	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos);
 	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
@@ -55,6 +56,9 @@ void ParticleSystem::Update(GeometryShaderConstantBufferLayout* cBufferData, flo
 
 	age -= 1.0f * dt;
 	cBufferData->age = XMFLOAT4(age, dt, 0.0f, 0.0f);
+
+	// TODO: Should only have to set this once, not every update
+	cBufferData->spawnPos = spawnPos;
 
 	XMMATRIX tempWorld = XMMatrixTranslation(0.0f, 0.0f * dt, 0.0f );
 	XMStoreFloat4x4(&world, XMLoadFloat4x4(&world) * tempWorld);
