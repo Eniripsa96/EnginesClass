@@ -1,3 +1,12 @@
+cbuffer perModel : register(b0)
+{
+	matrix world;
+	matrix view;
+	matrix projection;
+	float4 camPos;
+	float4 age;
+};
+
 struct VertexInput
 {
 	float3 position		: POSITION;
@@ -21,6 +30,8 @@ VertexOutput main(VertexInput input)
 	output.initialVel = float4(input.initialVel, 1.0f);
 	output.size = input.size;
 	output.color = input.color;
+
+	output.position = output.position - (output.initialVel * (age.z - age.x));
 
 	return output;
 }

@@ -54,7 +54,7 @@ void ParticleSystem::Update(GeometryShaderConstantBufferLayout* cBufferData, flo
 	//XMMATRIX VP = XMMatrixMultiply(XMLoadFloat4x4(&cam.viewMatrix), XMLoadFloat4x4(&cam.projectionMatrix));
 
 	age -= 1.0f * dt;
-	cBufferData->age = XMFLOAT4(age, dt, 0.0f, 0.0f);
+	cBufferData->age = XMFLOAT4(age, dt, INITIAL_AGE, 0.0f);
 
 	XMMATRIX tempWorld = XMMatrixTranslation(0.0f, 0.0f * dt, 0.0f );
 	XMStoreFloat4x4(&world, XMLoadFloat4x4(&world) * tempWorld);
@@ -80,6 +80,12 @@ void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera& cam, ID3D11Buff
 
 		// [DRAW] Set the constant buffer in the device
 		dc->GSSetConstantBuffers(
+			0,
+			1,
+			&(cBuffer)
+			);
+
+		dc->VSSetConstantBuffers(
 			0,
 			1,
 			&(cBuffer)

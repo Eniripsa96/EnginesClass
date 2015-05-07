@@ -93,20 +93,21 @@ void ParticleMesh::Draw()
 		deviceContext->GSSetShader(Shaders::emitterGS, NULL, 0);
 		deviceContext->GSSetSamplers(0, 1, &Samplers::linearSampler);
 		firstTime = false;
-	}
-	else
-	{
-		// Hook up the proper shaders for this step
-		deviceContext->GSSetShader(Shaders::streamOutGeometryShader, NULL, 0);
-	}
-	deviceContext->PSSetShader(NULL, NULL, 0);
 
-	// Draw the current vertex list using stream-out only to update them.
-	// The updated vertices are streamed-out to the target VB
-	deviceContext->DrawIndexed(
-		(int)PARTICLE,	// The number of indices we're using in this draw
-		0,
-		0);
+		deviceContext->PSSetShader(NULL, NULL, 0);
+
+		// Draw the current vertex list using stream-out only to update them.
+		// The updated vertices are streamed-out to the target VB
+		deviceContext->DrawIndexed(
+			(int)PARTICLE,	// The number of indices we're using in this draw
+			0,
+			0);
+	}
+	//else
+	//{
+	//	// Hook up the proper shaders for this step
+	//	deviceContext->GSSetShader(Shaders::streamOutGeometryShader, NULL, 0);
+	//}
 
 	// Done streaming-out --> unbind the vertex buffer
 	ID3D11Buffer* bufferArray[1] = { 0 };
