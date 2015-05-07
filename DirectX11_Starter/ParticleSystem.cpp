@@ -2,20 +2,23 @@
 
 ParticleSystem::ParticleSystem(XMFLOAT3* pos, XMFLOAT3* color, float lifeTime, int numP)
 {
-	//mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
-	material = MeshesMaterials::materials["particle"];
-
+	// Start out without activating the particle effect
 	age = 0.0f;
-	//INITIAL_AGE
+	
 	spawnPos = XMFLOAT4(pos->x, pos->y, pos->z, 1.0f);
 
-	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos);
+	// Set the material and mesh (which we initialize here to give it 
+	material = MeshesMaterials::materials["particle"];
+	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
 	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
 
+	// Initialize the world matrix
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
 
+	// Create the 1D randomized textures for GPU randomness
 	oneD_SRV = Material::CreateRandomTex(mesh->device);
 
+	// NOTE:
 	// Need two Geometry buffers, an update one and a drawing one
 	// Bind SO stuff (bind vb to SO), then unbind PS so that GS goes straight to SO and no further
 	// Draw with VS, GS->SO
@@ -33,15 +36,9 @@ void ParticleSystem::Reset()
 {
 	mesh->firstTime = true;
 
+	// Reset age and position (world matrix)
 	age = INITIAL_AGE;
-	velocity = INITIAL_VEL;
 	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
-
-	//ReleaseMacro(oneD_SRV);
-	//oneD_SRV = Material::CreateRandomTex(mesh->device);
-
-	// TODO Need to figure out random
-	// Need to modify movement on GPU by 'dt'
 }
 
 Material* ParticleSystem::GetMaterial() const
