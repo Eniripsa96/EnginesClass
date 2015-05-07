@@ -1,11 +1,14 @@
 #include "ParticleSystem.h"
 
-ParticleSystem::ParticleSystem(XMFLOAT3* pos, XMFLOAT3* color, float lifeTime, int numP)
+ParticleSystem::ParticleSystem(GeometryShaderConstantBufferLayout* cBufferData, XMFLOAT3* pos, XMFLOAT3* color, float lifeTime, int numP)
 {
 	// Start out without activating the particle effect
 	age = 0.0f;
 	
+	// Set data from params
+	this->cBufferData = cBufferData;
 	spawnPos = XMFLOAT4(pos->x, pos->y, pos->z, 1.0f);
+	cBufferData->spawnPos = spawnPos;
 
 	// Set the material and mesh (which we initialize here to give it 
 	material = MeshesMaterials::materials["particle"];
@@ -46,16 +49,13 @@ Material* ParticleSystem::GetMaterial() const
 	return this->material;
 }
 
-void ParticleSystem::Update(GeometryShaderConstantBufferLayout* cBufferData, float dt)
+void ParticleSystem::Update(float dt)
 {
 	// Grab the current view-projection
 	//XMMATRIX VP = XMMatrixMultiply(XMLoadFloat4x4(&cam.viewMatrix), XMLoadFloat4x4(&cam.projectionMatrix));
 
 	age -= 1.0f * dt;
 	cBufferData->age = XMFLOAT4(age, dt, 0.0f, 0.0f);
-
-	// TODO: Should only have to set this once, not every update
-	cBufferData->spawnPos = spawnPos;
 
 	XMMATRIX tempWorld = XMMatrixTranslation(0.0f, 0.0f * dt, 0.0f );
 	XMStoreFloat4x4(&world, XMLoadFloat4x4(&world) * tempWorld);

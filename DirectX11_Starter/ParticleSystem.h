@@ -20,7 +20,7 @@ class ParticleSystem
 {
 public:
 	// pos, color, age/fadeout, spread, number, shapes?
-	ParticleSystem(XMFLOAT3*, XMFLOAT3*, float, int);
+	ParticleSystem(GeometryShaderConstantBufferLayout*, XMFLOAT3*, XMFLOAT3*, float, int);
 	~ParticleSystem();
 
 	// Time elapsed since the systm was reset
@@ -29,7 +29,7 @@ public:
 
 	void Reset();
 	void Draw(ID3D11DeviceContext*, const Camera&, ID3D11Buffer*, GeometryShaderConstantBufferLayout*);
-	void Update(GeometryShaderConstantBufferLayout*, float);
+	void Update(float);
 
 private:
 	void BuildVB(ID3D11Device*);
@@ -44,6 +44,7 @@ private:
 	PartParams params;
 
 	ID3D11ShaderResourceView* oneD_SRV;
+	GeometryShaderConstantBufferLayout* cBufferData;
 
 	XMFLOAT4X4 world;
 	XMFLOAT4 spawnPos;
