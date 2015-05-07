@@ -251,6 +251,9 @@ void threadServerHost(NetworkManager* manager)
 			memcpy(data.buffer, buffer, iResult);
 			data.length = iResult;
 
+			packetType* info = (packetType*)data.buffer;
+			data.type = info->type;
+
 			manager->received.push(data);
 		}
 		else if (iResult == 0) {

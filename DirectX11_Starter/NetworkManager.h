@@ -11,12 +11,21 @@
 #define DEFAULT_PORT "27015"
 #define DEFAULT_BUFLEN 512
 
+#define PACKET_PARTICLE 0
+#define PACKET_JUDGES   1
+#define PACKET_RESULT   2
+
 // Basic struct to extend when creating structs for data to send
 struct packetStruct {};
 
 struct packet {
 	char* buffer;
 	int length;
+	int type;
+};
+
+struct packetType {
+	int type  : 2;
 };
 
 // Main class for managing the network connections
