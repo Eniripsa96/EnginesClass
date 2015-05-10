@@ -11,6 +11,7 @@
 #define DEFAULT_PORT "27015"
 #define DEFAULT_BUFLEN 512
 
+#define PACKET_NONE     -1
 #define PACKET_PARTICLE 0
 #define PACKET_JUDGES   1
 #define PACKET_RESULT   2
@@ -44,6 +45,7 @@ struct judgePacket {
 	UINT colorB : 8;
 	UINT shape  : 6;
 };
+
 struct resultPacket {
 	UINT type  : 2;
 	UINT other : 6;
@@ -82,7 +84,13 @@ public:
 	bool hasData();
 
 	// Retrieves the next packet received from the network in the queue to process.
+	// This removes it from the queue on retrieval.
 	packet getData();
+
+	// Retrieves the type of the next packet received from the network.
+	// If you use getData before this, it will not be the type of the same packet.
+	// This will return PACKET_NONE if there are no pending packets.
+	int getDataType();
 
 	SOCKET Socket;
 	bool connected;

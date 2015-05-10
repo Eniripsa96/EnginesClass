@@ -327,3 +327,15 @@ packet NetworkManager::getData()
 	
 	return data;
 }
+
+// Retrieves the type of packet of the next packet in the queue
+// This returns PACKET_NONE if there isn't any pending packets
+int NetworkManager::getDataType()
+{
+	if (hasData())
+	{
+		packet data = received.front();
+		return ((packetType*)data.buffer)->type;
+	}
+	else return PACKET_NONE;
+}
