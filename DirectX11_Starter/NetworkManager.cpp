@@ -334,8 +334,7 @@ int NetworkManager::getDataType()
 {
 	if (hasData())
 	{
-		packet data = received.front();
-		return ((packetType*)data.buffer)->type;
+		return received.front().type;
 	}
 	else return PACKET_NONE;
 }

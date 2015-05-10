@@ -19,17 +19,26 @@
 // Basic struct to extend when creating structs for data to send
 struct packetStruct {};
 
+// Packet info used to keep track of buffer size and packet type
 struct packet {
 	char* buffer;
 	int length;
 	int type;
 };
 
+// Struct used for reading the packet type of any kind of packet
 struct packetType {
 	int type  : 2;
 };
 
+// Packet for sharing a particle over the network
+// Likely additions:
+// - position
+// - emit shape
 struct particlePacket {
+
+	particlePacket() : type(PACKET_PARTICLE) {}
+
 	UINT type   : 2;
 	UINT colorR : 8;
 	UINT colorG : 8;
@@ -38,7 +47,11 @@ struct particlePacket {
 	UINT amount : 10;
 };
 
+// Packet for sending judge data over the network
 struct judgePacket {
+
+	judgePacket() : type(PACKET_JUDGES) {}
+
 	UINT type   : 2;
 	UINT colorR : 8;
 	UINT colorG : 8;
@@ -46,7 +59,11 @@ struct judgePacket {
 	UINT shape  : 6;
 };
 
+// Packet for sending a game result over the network
 struct resultPacket {
+
+	resultPacket() : type(PACKET_RESULT) {}
+
 	UINT type  : 2;
 	UINT other : 6;
 };
