@@ -28,6 +28,27 @@ struct packetType {
 	int type  : 2;
 };
 
+struct particlePacket {
+	UINT type   : 2;
+	UINT colorR : 8;
+	UINT colorG : 8;
+	UINT colorB : 8;
+	UINT life   : 4;
+	UINT amount : 10;
+};
+
+struct judgePacket {
+	UINT type   : 2;
+	UINT colorR : 8;
+	UINT colorG : 8;
+	UINT colorB : 8;
+	UINT shape  : 6;
+};
+struct resultPacket {
+	UINT type  : 2;
+	UINT other : 6;
+};
+
 // Main class for managing the network connections
 class NetworkManager
 {
