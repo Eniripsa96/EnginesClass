@@ -534,8 +534,6 @@ void GameManager::CheckKeyBoard(float dt)
 	}
 }
 
-std::wstring s;
-
 // Once per key press
 LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -553,7 +551,7 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				// Period on main keyboard or numpad
 		case VK_DECIMAL:
 		case VK_OEM_PERIOD:
-			s += '.';
+			userInputString += '.';
 			break;
 		}
 		// Numpad 0-9
@@ -567,7 +565,7 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case 0x67:
 		case 0x68:
 		case 0x69:
-			s += ((char)wParam - 48);
+			userInputString += ((char)wParam - 48);
 			break;
 		// Main keyboard 0-9
 		case 0x30:
@@ -580,10 +578,10 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case 0x37:
 		case 0x38:
 		case 0x39:
-			s += ((char)wParam);
+			userInputString += ((char)wParam);
 			break;
 		}
-		const wchar_t* w = s.c_str();
+		const wchar_t* w = userInputString.c_str();
 		menuObjects[0]->SetText(w);
 	}
 
@@ -610,6 +608,9 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 		if (playButton->IsOver(x, y))
 		{
 			gameState = GAME;
+
+			// Clear the user input string - we don't need the data any more
+			userInputString.clear();
 		}
 		if (quitButton->IsOver(x, y))
 		{

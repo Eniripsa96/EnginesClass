@@ -99,6 +99,8 @@ private:
 	ID3D11ShaderResourceView* shadowSRV;
 	ID3D11DepthStencilView* shadowDSV;
 	ID3D11InputLayout* shadowIL;
+
+	std::wstring userInputString;
 };
 
 #endif
