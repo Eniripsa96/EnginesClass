@@ -41,8 +41,28 @@ ParticleSystem::~ParticleSystem()
 	ReleaseMacro(oneD_SRV);
 }
 
+void ParticleSystem::Reset(XMFLOAT3* pos, XMFLOAT3* col, float lifeTime, int numP)
+{
+	age = 0.0f;
+	MAX_AGE = lifeTime;
+
+	// Cap the number of particles at 75 (GS max supported)
+	numP = (numP > 75) ? 75 : numP;
+
+	// Set data from params
+	spawnPos = XMFLOAT4(pos->x, pos->y, pos->z, 1.0f);
+	numParticles = numP;
+	
+	cBufferData->spawnPos = spawnPos;
+	cBufferData->misc.z = (float)numParticles;
+	cBufferData->world = world;
+
+	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos, col);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
+	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
+}
+
 // Restart the particle system
-void ParticleSystem::Reset()
+void ParticleSystem::Emit()
 {
 	mesh->firstTime = true;
 

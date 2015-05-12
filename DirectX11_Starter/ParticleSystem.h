@@ -27,7 +27,8 @@ public:
 	float GetAge() const;
 	Material* GetMaterial() const;
 
-	void Reset();
+	void Emit();
+	void Reset(XMFLOAT3*, XMFLOAT3*, float, int);
 	void Draw(ID3D11DeviceContext*, const Camera&, ID3D11Buffer*, GeometryShaderConstantBufferLayout*);
 	void Update(float);
 
