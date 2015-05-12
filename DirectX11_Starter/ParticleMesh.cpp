@@ -1,9 +1,13 @@
 #include "ParticleMesh.h"
 #include "Shaders.h"
 
-ParticleMesh::ParticleMesh(ID3D11Device* device, ID3D11DeviceContext* context) : Mesh(device, context, PARTICLE)
+ParticleMesh::ParticleMesh(ID3D11Device* device, ID3D11DeviceContext* context, XMFLOAT3* pos, XMFLOAT3* col) : Mesh(device, context, PARTICLE)
 {
+	// Next time this draws will be the first time, so EMIT
 	firstTime = true;
+
+	position = *pos;
+	color = *col;
 
 	CreateParticlePoints();
 }
@@ -22,16 +26,13 @@ void ParticleMesh::CreateParticlePoints()
 	srand(time(NULL));
 
 	vector<Particle> particles;
-
-	XMFLOAT3 pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3 col = XMFLOAT3(100.0f, 13.0f, 0.0f);
 	
 	// Just make one particle here, the emitter
 	for (int i = 0; i < 1; i++)
 	{
-		//XMFLOAT3 pos = XMFLOAT3((rand() % 100) / 10.0f - 5.0f, ((rand() % 50) / 10.0f - 2.5f) - 4.0f, -1.0f);
+		// NOTE: This gives the semi-even distribution of velocities directly outwards
 		XMFLOAT3 vel = XMFLOAT3((rand() % 200) / 100.0f - 0.5f, (rand() % 200) / 100.0f - 0.5f, 0.0f);
-		particles.push_back(Particle{ pos, vel, XMFLOAT2(PARTICLE_SIZE, PARTICLE_SIZE), col});
+		particles.push_back(Particle{ position, vel, XMFLOAT2(PARTICLE_SIZE, PARTICLE_SIZE), color });
 	}
 
 	CreateGeometryBuffers(&particles[0]);
@@ -97,7 +98,7 @@ void ParticleMesh::Draw()
 		// Hook up the proper shaders for this step
 		deviceContext->GSSetShader(Shaders::streamOutGeometryShader, NULL, 0);
 	}
-	deviceContext->PSSetShader(NULL, NULL, 0);
+	deviceContext->PSSetShader(NULL, NULL, 0);	// Don't need a PS for either GS stage
 
 	// Draw the current vertex list using stream-out only to update them.
 	// The updated vertices are streamed-out to the target VB

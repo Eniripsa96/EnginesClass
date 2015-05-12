@@ -57,5 +57,6 @@ void MeshesMaterials::LoadMeshesAndMaterials(ID3D11Device* device, ID3D11DeviceC
 	// Create 2D meshes
 	meshes.insert(pair<char*, Mesh*>("triangle", new Mesh(device, deviceContext, TRIANGLE)));
 	meshes.insert(pair<char*, Mesh*>("quad", new Mesh(device, deviceContext, QUAD)));
-	meshes.insert(pair<char*, Mesh*>("particle", new ParticleMesh(device, deviceContext)));
+	//meshes.insert(pair<char*, Mesh*>("particle", new ParticleMesh(device, deviceContext)));
+	meshes.insert(pair<char*, Mesh*>("particle", NULL));
 }

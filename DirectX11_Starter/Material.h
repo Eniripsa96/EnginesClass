@@ -22,12 +22,12 @@ public:
 
 	ID3D11ShaderResourceView* resourceView;
 
+	ID3D11DeviceContext* deviceContext;
+	ID3D11Device* device;
+
 private:
 	UINT texWidth;
 	UINT texHeight;
-
-	ID3D11DeviceContext* deviceContext;
-	ID3D11Device* device;
 
 	ID3D11SamplerState* samplerState;
 
@@ -35,8 +35,6 @@ private:
 	ID3D11PixelShader* pixelShader;
 	ID3D11GeometryShader* geometryShader;
 	ID3D11VertexShader* vertexShader;
-
-public:
 
 public:
 
