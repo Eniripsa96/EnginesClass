@@ -52,6 +52,8 @@ public:
 	void OnResize();
 	void UpdateScene(float dt);
 	void CheckKeyBoard(float dt);
+	XMFLOAT3 InputToColor();
+
 	void DrawScene();	// Deprecated
 
 	// For handing mouse input

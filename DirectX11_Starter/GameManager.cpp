@@ -453,6 +453,22 @@ void GameManager::DrawScene() { }
 
 #pragma region User Input
 
+XMFLOAT3 GameManager::InputToColor()
+{
+	// Get the wstring version of each 3-digit set
+	wstring sRed = userInputString.substr(0, 3);// = userInputString[0] + userInputString[1] + userInputString[2];
+	wstring sBlue = userInputString.substr(3, 3);
+	wstring sGreen = userInputString.substr(6, 3);
+
+	// Convert to float versions
+	float red = stof(sRed);
+	float green = stof(sGreen);
+	float blue = stof(sBlue);
+
+	// Return color vector3
+	return XMFLOAT3(red, green, blue);
+}
+
 struct test : packetStruct {
 	int type : 2;
 	int num1 : 4;
@@ -483,7 +499,7 @@ void GameManager::CheckKeyBoard(float dt)
 
 	// Space bar to activate particle effect
 	if (GetAsyncKeyState(' '))
-		particleSystem->Reset();
+		particleSystem->Emit();
 
 	// Change height of camera (QE)
 	if (GetAsyncKeyState('Q'))
@@ -580,6 +596,13 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case 0x38:
 		case 0x39:
 			userInputString += ((char)wParam);
+			break;
+		case VK_RETURN:
+			if (userInputString.length() == 9)
+			{
+				particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), 10, 50);
+				userInputString.clear();
+			}
 			break;
 		}
 		const wchar_t* w = userInputString.c_str();
