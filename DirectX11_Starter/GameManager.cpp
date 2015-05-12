@@ -490,8 +490,11 @@ void GameManager::CheckKeyBoard(float dt)
 	else if (GetAsyncKeyState('E'))
 		camera->MoveVertical(-CAMERA_MOVE_FACTOR * dt);
 
-	// Network testing
-	if (!holding) {
+	if (!holding)
+	{
+		// Text input
+
+		// Network testing
 		if (first) {
 			if (GetAsyncKeyState('Z')) {
 				network->startServer();
