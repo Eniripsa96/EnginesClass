@@ -534,6 +534,8 @@ void GameManager::CheckKeyBoard(float dt)
 	}
 }
 
+std::string s;
+
 // Once per key press
 LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -545,6 +547,37 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// Change the active shader
 		case VK_TAB:
 			Shaders::activeShader = (Shaders::activeShader + 1) % Shaders::shaderCount;
+			break;
+		// Period on main keyboard or numpad
+		case VK_DECIMAL:
+		case VK_OEM_PERIOD:
+			s += '.';
+			break;
+		// Numpad 0-9
+		case 0x60:
+		case 0x61:
+		case 0x62:
+		case 0x63:
+		case 0x64:
+		case 0x65:
+		case 0x66:
+		case 0x67:
+		case 0x68:
+		case 0x69:
+			s += ((char)wParam - 48);
+			break;
+		// Main keyboard 0-9
+		case 0x30:
+		case 0x31:
+		case 0x32:
+		case 0x33:
+		case 0x34:
+		case 0x35:
+		case 0x36:
+		case 0x37:
+		case 0x38:
+		case 0x39:
+			s += ((char)wParam);
 			break;
 		}
 	}
