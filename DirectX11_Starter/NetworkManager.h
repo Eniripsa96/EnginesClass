@@ -11,12 +11,61 @@
 #define DEFAULT_PORT "27015"
 #define DEFAULT_BUFLEN 512
 
+#define PACKET_NONE     -1
+#define PACKET_PARTICLE 0
+#define PACKET_JUDGES   1
+#define PACKET_RESULT   2
+
 // Basic struct to extend when creating structs for data to send
 struct packetStruct {};
 
+// Packet info used to keep track of buffer size and packet type
 struct packet {
 	char* buffer;
 	int length;
+	int type;
+};
+
+// Struct used for reading the packet type of any kind of packet
+struct packetType {
+	int type  : 2;
+};
+
+// Packet for sharing a particle over the network
+// Likely additions:
+// - position
+// - emit shape
+struct particlePacket {
+
+	particlePacket() : type(PACKET_PARTICLE) {}
+
+	UINT type   : 2;
+	UINT colorR : 8;
+	UINT colorG : 8;
+	UINT colorB : 8;
+	UINT life   : 4;
+	UINT amount : 10;
+};
+
+// Packet for sending judge data over the network
+struct judgePacket {
+
+	judgePacket() : type(PACKET_JUDGES) {}
+
+	UINT type   : 2;
+	UINT colorR : 8;
+	UINT colorG : 8;
+	UINT colorB : 8;
+	UINT shape  : 6;
+};
+
+// Packet for sending a game result over the network
+struct resultPacket {
+
+	resultPacket() : type(PACKET_RESULT) {}
+
+	UINT type  : 2;
+	UINT other : 6;
 };
 
 // Main class for managing the network connections
@@ -52,7 +101,13 @@ public:
 	bool hasData();
 
 	// Retrieves the next packet received from the network in the queue to process.
+	// This removes it from the queue on retrieval.
 	packet getData();
+
+	// Retrieves the type of the next packet received from the network.
+	// If you use getData before this, it will not be the type of the same packet.
+	// This will return PACKET_NONE if there are no pending packets.
+	int getDataType();
 
 	SOCKET Socket;
 	bool connected;
@@ -67,7 +122,7 @@ private:
 
 	// Attempts to connect to a hosting user at the given IP/Port combination.
 	// Returns whether or not the connection was successful.
-	bool tryConnect(PCSTR ip = DEFAULT_IP, PCSTR port = DEFAULT_PORT);
+	bool tryConnect(PCSTR ip, PCSTR port);
 
 	WSADATA wsaData;
 	std::thread* listenThread;

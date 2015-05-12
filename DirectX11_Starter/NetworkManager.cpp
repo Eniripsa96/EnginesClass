@@ -251,6 +251,9 @@ void threadServerHost(NetworkManager* manager)
 			memcpy(data.buffer, buffer, iResult);
 			data.length = iResult;
 
+			packetType* info = (packetType*)data.buffer;
+			data.type = info->type;
+
 			manager->received.push(data);
 		}
 		else if (iResult == 0) {
@@ -323,4 +326,15 @@ packet NetworkManager::getData()
 	}
 	
 	return data;
+}
+
+// Retrieves the type of packet of the next packet in the queue
+// This returns PACKET_NONE if there isn't any pending packets
+int NetworkManager::getDataType()
+{
+	if (hasData())
+	{
+		return received.front().type;
+	}
+	else return PACKET_NONE;
 }
