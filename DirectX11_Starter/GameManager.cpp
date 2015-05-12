@@ -228,12 +228,14 @@ bool GameManager::Init()
 	}*/
 
 	// Create buttons for UI
+	ipAddressBox = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 100, 0), spriteBatch, spriteFont32, L"");
 	playButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
 	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
 	//mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
 	menuObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["title"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
 	menuObjects.emplace_back(playButton);
 	menuObjects.emplace_back(quitButton);
+	menuObjects.emplace_back(ipAddressBox);
 
 	// Blend state - enabling alpha blending
 	BLEND_DESC blendDesc;
@@ -588,6 +590,7 @@ void GameManager::OnMouseMove(WPARAM btnState, int x, int y)
 		camera->Pitch(-dy);
 	}
 
+	ipAddressBox->Update(x, y);
 	playButton->Update(x, y);
 	quitButton->Update(x, y);
 
