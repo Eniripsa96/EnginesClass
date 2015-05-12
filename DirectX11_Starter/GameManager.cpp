@@ -534,7 +534,7 @@ void GameManager::CheckKeyBoard(float dt)
 	}
 }
 
-std::string s;
+std::wstring s;
 
 // Once per key press
 LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -548,11 +548,14 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case VK_TAB:
 			Shaders::activeShader = (Shaders::activeShader + 1) % Shaders::shaderCount;
 			break;
-		// Period on main keyboard or numpad
+		if (gameState != GAME)
+		{
+				// Period on main keyboard or numpad
 		case VK_DECIMAL:
 		case VK_OEM_PERIOD:
 			s += '.';
 			break;
+		}
 		// Numpad 0-9
 		case 0x60:
 		case 0x61:
@@ -580,6 +583,8 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			s += ((char)wParam);
 			break;
 		}
+		const wchar_t* w = s.c_str();
+		menuObjects[0]->SetText(w);
 	}
 
 	return DirectXGame::MsgProc(hwnd, msg, wParam, lParam);
