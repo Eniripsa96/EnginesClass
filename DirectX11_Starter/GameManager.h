@@ -81,8 +81,11 @@ private:
 	SpriteFont* spriteFont32;
 	SpriteFont* spriteFont72;
 
-	Button* playButton;
+	Button* ipAddressBox;
+	Button* connectPlayButton;
 	Button* quitButton;
+
+	bool inputActive;
 
 	ParticleSystem* particleSystem;
 	Camera* camera;

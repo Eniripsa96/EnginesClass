@@ -229,12 +229,14 @@ bool GameManager::Init()
 	}*/
 
 	// Create buttons for UI
-	playButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Play");
+	ipAddressBox = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 100, 0), spriteBatch, spriteFont32, L"");
+	connectPlayButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Connect");
 	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
 	//mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
 	menuObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["title"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
-	menuObjects.emplace_back(playButton);
+	menuObjects.emplace_back(connectPlayButton);
 	menuObjects.emplace_back(quitButton);
+	menuObjects.emplace_back(ipAddressBox);
 
 	// Blend state - enabling alpha blending
 	BLEND_DESC blendDesc;
@@ -557,21 +559,24 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_KEYDOWN:
+	if (inputActive == true)
+	{
 		switch (wParam)
 		{
-		// Change the active shader
+			// Change the active shader
 		case VK_TAB:
 			Shaders::activeShader = (Shaders::activeShader + 1) % Shaders::shaderCount;
 			break;
+
 		if (gameState != GAME)
 		{
-				// Period on main keyboard or numpad
-		case VK_DECIMAL:
-		case VK_OEM_PERIOD:
-			userInputString += '.';
-			break;
+			// Period on main keyboard or numpad
+			case VK_DECIMAL:
+			case VK_OEM_PERIOD:
+				userInputString += '.';
+				break;
 		}
-		// Numpad 0-9
+			// Numpad 0-9
 		case 0x60:
 		case 0x61:
 		case 0x62:
@@ -584,7 +589,7 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case 0x69:
 			userInputString += ((char)wParam - 48);
 			break;
-		// Main keyboard 0-9
+			// Main keyboard 0-9
 		case 0x30:
 		case 0x31:
 		case 0x32:
@@ -597,6 +602,7 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case 0x39:
 			userInputString += ((char)wParam);
 			break;
+		// Set new particle color
 		case VK_RETURN:
 			if (userInputString.length() == 9)
 			{
@@ -605,8 +611,14 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		}
-		const wchar_t* w = userInputString.c_str();
-		menuObjects[0]->SetText(w);
+
+		if (gameState == MENU)
+		{
+			// Update text of IP box
+			const wchar_t* w = userInputString.c_str();
+			menuObjects[3]->SetText(w);
+		}
+	}
 	}
 
 	return DirectXGame::MsgProc(hwnd, msg, wParam, lParam);
@@ -629,9 +641,12 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 	// Main menu buttons
 	if (gameState == MENU)
 	{
-		if (playButton->IsOver(x, y))
+		if (connectPlayButton->IsOver(x, y))
 		{
 			gameState = GAME;
+
+			// Deactivate input, we are switching game states
+			inputActive = false;
 
 			// Clear the user input string - we don't need the data any more
 			userInputString.clear();
@@ -639,6 +654,11 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 		if (quitButton->IsOver(x, y))
 		{
 			PostQuitMessage(0);
+		}
+		if (ipAddressBox->IsOver(x, y))
+		{
+			// We clicked the input box, input is now active
+			inputActive = true;
 		}
 	}
 }
@@ -654,7 +674,8 @@ void GameManager::OnMouseMove(WPARAM btnState, int x, int y)
 		camera->Pitch(-dy);
 	}
 
-	playButton->Update(x, y);
+	ipAddressBox->Update(x, y);
+	connectPlayButton->Update(x, y);
 	quitButton->Update(x, y);
 
 	prevMousePos.x = x;
