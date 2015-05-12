@@ -174,6 +174,7 @@ void NetworkManager::disconnect() {
 	}
 }
 
+// The threaded method for listening to the hosting player as a client
 void threadClientListen(NetworkManager* manager)
 {
 	char recvbuf[DEFAULT_BUFLEN];

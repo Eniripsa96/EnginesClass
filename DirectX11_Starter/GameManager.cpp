@@ -453,7 +453,7 @@ void GameManager::DrawScene() { }
 #pragma region User Input
 
 struct test : packetStruct {
-	int type : 2;
+	UINT type : 2;
 	int num1 : 4;
 	int num2 : 4;
 	int num3 : 8;
@@ -505,7 +505,7 @@ void GameManager::CheckKeyBoard(float dt)
 		else {
 			if (GetAsyncKeyState('C')) {
 				test data;
-				data.type = PACKET_PARTICLE;
+				data.type = PACKET_RESULT;
 				data.num1 = 1;
 				data.num2 = 2;
 				data.num3 = 3;

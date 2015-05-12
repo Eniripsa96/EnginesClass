@@ -28,7 +28,7 @@ struct packet {
 
 // Struct used for reading the packet type of any kind of packet
 struct packetType {
-	int type  : 2;
+	UINT type  : 2;
 };
 
 // Packet for sharing a particle over the network
