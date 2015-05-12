@@ -82,6 +82,7 @@ private:
 	SpriteFont* spriteFont72;
 
 	Button* ipAddressBox;
+	Button* colorBox;
 	Button* connectPlayButton;
 	Button* quitButton;
 

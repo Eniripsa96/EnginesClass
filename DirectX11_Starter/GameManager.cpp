@@ -567,20 +567,19 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		switch (wParam)
 		{
-			// Change the active shader
+		// Change the active shader
 		case VK_TAB:
 			Shaders::activeShader = (Shaders::activeShader + 1) % Shaders::shaderCount;
 			break;
 
-		if (gameState != GAME)
-		{
-			// Period on main keyboard or numpad
-			case VK_DECIMAL:
-			case VK_OEM_PERIOD:
+		// Period on main keyboard or numpad
+		case VK_DECIMAL:
+		case VK_OEM_PERIOD:
+			if (gameState == MENU)
 				userInputString += '.';
-				break;
-		}
-			// Numpad 0-9
+			break;
+
+		// Numpad 0-9
 		case 0x60:
 		case 0x61:
 		case 0x62:
@@ -593,7 +592,8 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case 0x69:
 			userInputString += ((char)wParam - 48);
 			break;
-			// Main keyboard 0-9
+
+		// Main keyboard 0-9
 		case 0x30:
 		case 0x31:
 		case 0x32:
@@ -606,6 +606,13 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case 0x39:
 			userInputString += ((char)wParam);
 			break;
+
+		// Delete most recent character
+		case VK_BACK:
+			if (userInputString.length() > 0)
+				userInputString.pop_back();
+			break;
+
 		// Set new particle color
 		case VK_RETURN:
 			if (userInputString.length() == 9)
@@ -621,6 +628,12 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			// Update text of IP box
 			const wchar_t* w = userInputString.c_str();
 			menuObjects[3]->SetText(w);
+		}
+		else
+		{
+			// Update text of color box
+			const wchar_t* w = userInputString.c_str();
+			gameUIObjects[0]->SetText(w);
 		}
 	}
 	}
