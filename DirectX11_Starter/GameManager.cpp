@@ -204,7 +204,8 @@ bool GameManager::Init()
 	Shaders::LoadShadersAndInputLayout(device, deviceContext);
 	MeshesMaterials::LoadMeshesAndMaterials(device, deviceContext);
 	camera = new Camera();
-	particleSystem = new ParticleSystem();
+	particleSystem = new ParticleSystem(&Shaders::dataToSendToGSConstantBuffer, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(25.0f, 0.0f, 60.0f), 10.0f, 50);
+	network = new NetworkManager();
 
 	// Initialize the shadow camera
 		// None
@@ -413,7 +414,7 @@ void GameManager::UpdateScene(float dt)
 
 		if (gameState != DEBUG)
 			// [UPDATE] Update the particle system 
-			particleSystem->Update(&Shaders::dataToSendToGSConstantBuffer, dt);
+			particleSystem->Update(dt);
 
 		// [DRAW] Draw the particle system
 		particleSystem->Draw(deviceContext, *camera, Shaders::gsConstantBuffer, &Shaders::dataToSendToGSConstantBuffer);
