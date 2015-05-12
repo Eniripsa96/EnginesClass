@@ -57,6 +57,8 @@ void ParticleSystem::Reset(XMFLOAT3* pos, XMFLOAT3* col, float lifeTime, int num
 	cBufferData->misc.z = (float)numParticles;
 	cBufferData->world = world;
 
+	// Refresh particle mesh with new params
+	delete MeshesMaterials::meshes["particle"];
 	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos, col);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
 	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
 }
