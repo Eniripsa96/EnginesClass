@@ -28,6 +28,7 @@ void UIObject::Move(float x, float y) {
 
 void UIObject::Update(int x, int y) {
 	hovered = IsOver(x, y);
+	GameObject::Update(0.0f);
 }
 
 bool UIObject::IsOver(int x, int y) {
