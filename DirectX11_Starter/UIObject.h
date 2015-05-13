@@ -8,7 +8,7 @@ class UIObject : public GameObject
 
 public:
 	UIObject(Mesh* mesh, Material* mat, XMFLOAT3* pos, SpriteBatch* batch, SpriteFont* font, wchar_t* text);
-	~UIObject();
+	virtual ~UIObject();
 
 	void Draw(ID3D11DeviceContext* deviceContext, ID3D11Buffer* cBuffer, VertexShaderConstantBufferLayout* cBufferData);
 	void Update(int x, int y);
