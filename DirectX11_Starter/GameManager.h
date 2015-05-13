@@ -13,7 +13,7 @@
 
 #include "DirectXGame.h"
 #include "GameObject.h"
-#include "Button.h"
+#include "TextBox.h"
 #include "Camera.h"
 #include "ParticleSystem.h"
 #include "Math.h"
@@ -81,11 +81,14 @@ private:
 	SpriteFont* spriteFont32;
 	SpriteFont* spriteFont72;
 
-	Button* ipAddressBox;
-	Button* colorBox;
+	TextBox* ipAddressBox;
+	TextBox* colorBox1;
+	TextBox* colorBox2;
+	TextBox* colorBox3;
 	Button* connectPlayButton;
 	Button* quitButton;
 
+	TextBox* activeBox;
 	bool inputActive;
 
 	ParticleSystem* particleSystem;

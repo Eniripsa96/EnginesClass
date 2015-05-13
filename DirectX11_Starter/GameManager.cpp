@@ -229,8 +229,10 @@ bool GameManager::Init()
 	}*/
 
 	// Create buttons for UI
-	ipAddressBox = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 100, 0), spriteBatch, spriteFont32, L"");
-	colorBox = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 100, 0), spriteBatch, spriteFont32, L"hi");
+	ipAddressBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 100, 0), spriteBatch, spriteFont32, L"");
+	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 100, 0), spriteBatch, spriteFont32, L"Red");
+	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 215, 0), spriteBatch, spriteFont32, L"Green");
+	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 330, 0), spriteBatch, spriteFont32, L"Blue");
 	connectPlayButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Connect");
 	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
 	//mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
@@ -240,7 +242,9 @@ bool GameManager::Init()
 	menuObjects.emplace_back(connectPlayButton);
 	menuObjects.emplace_back(quitButton);
 	menuObjects.emplace_back(ipAddressBox);
-	gameUIObjects.emplace_back(colorBox);
+	gameUIObjects.emplace_back(colorBox1);
+	gameUIObjects.emplace_back(colorBox2);
+	gameUIObjects.emplace_back(colorBox3);
 
 	// Blend state - enabling alpha blending
 	BLEND_DESC blendDesc;
@@ -462,9 +466,9 @@ void GameManager::DrawScene() { }
 XMFLOAT3 GameManager::InputToColor()
 {
 	// Get the wstring version of each 3-digit set
-	wstring sRed = userInputString.substr(0, 3);// = userInputString[0] + userInputString[1] + userInputString[2];
-	wstring sBlue = userInputString.substr(3, 3);
-	wstring sGreen = userInputString.substr(6, 3);
+	wstring sRed = colorBox1->inputText;
+	wstring sGreen = colorBox2->inputText;
+	wstring sBlue = colorBox3->inputText;
 
 	// Convert to float versions
 	float red = stof(sRed);
@@ -563,79 +567,71 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_KEYDOWN:
-	if (inputActive == true)
-	{
-		switch (wParam)
+		if (inputActive == true)
 		{
-		// Change the active shader
-		case VK_TAB:
-			Shaders::activeShader = (Shaders::activeShader + 1) % Shaders::shaderCount;
-			break;
-
-		// Period on main keyboard or numpad
-		case VK_DECIMAL:
-		case VK_OEM_PERIOD:
-			if (gameState == MENU)
-				userInputString += '.';
-			break;
-
-		// Numpad 0-9
-		case 0x60:
-		case 0x61:
-		case 0x62:
-		case 0x63:
-		case 0x64:
-		case 0x65:
-		case 0x66:
-		case 0x67:
-		case 0x68:
-		case 0x69:
-			userInputString += ((char)wParam - 48);
-			break;
-
-		// Main keyboard 0-9
-		case 0x30:
-		case 0x31:
-		case 0x32:
-		case 0x33:
-		case 0x34:
-		case 0x35:
-		case 0x36:
-		case 0x37:
-		case 0x38:
-		case 0x39:
-			userInputString += ((char)wParam);
-			break;
-
-		// Delete most recent character
-		case VK_BACK:
-			if (userInputString.length() > 0)
-				userInputString.pop_back();
-			break;
-
-		// Set new particle color
-		case VK_RETURN:
-			if (userInputString.length() == 9)
+			switch (wParam)
 			{
-				particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), 10, 50);
-				userInputString.clear();
-			}
-			break;
-		}
+				// Change the active shader
+			case VK_TAB:
+				Shaders::activeShader = (Shaders::activeShader + 1) % Shaders::shaderCount;
+				break;
 
-		if (gameState == MENU)
-		{
-			// Update text of IP box
-			const wchar_t* w = userInputString.c_str();
-			menuObjects[3]->SetText(w);
-		}
-		else
-		{
+				// Period on main keyboard or numpad
+			case VK_DECIMAL:
+			case VK_OEM_PERIOD:
+				if (gameState == MENU)
+					activeBox->inputText += '.';
+				break;
+
+				// Numpad 0-9
+			case 0x60:
+			case 0x61:
+			case 0x62:
+			case 0x63:
+			case 0x64:
+			case 0x65:
+			case 0x66:
+			case 0x67:
+			case 0x68:
+			case 0x69:
+				activeBox->inputText += ((char)wParam - 48);
+				break;
+
+				// Main keyboard 0-9
+			case 0x30:
+			case 0x31:
+			case 0x32:
+			case 0x33:
+			case 0x34:
+			case 0x35:
+			case 0x36:
+			case 0x37:
+			case 0x38:
+			case 0x39:
+				activeBox->inputText += ((char)wParam);
+				break;
+
+				// Delete most recent character
+			case VK_BACK:
+				if (activeBox->inputText.length() > 0)
+					activeBox->inputText.pop_back();
+				break;
+
+				// Set new particle color
+			case VK_RETURN:
+				if (colorBox1->inputText.length() == 3 && colorBox2->inputText.length() == 3 && colorBox3->inputText.length() == 3)
+				{
+					particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), 10, 50);
+					colorBox1->inputText.clear();
+					colorBox2->inputText.clear();
+					colorBox3->inputText.clear();
+				}
+				break;
+			}
+
 			// Update text of color box
-			const wchar_t* w = userInputString.c_str();
-			gameUIObjects[0]->SetText(w);
+			activeBox->SetText(activeBox->inputText.c_str());
 		}
-	}
 	}
 
 	return DirectXGame::MsgProc(hwnd, msg, wParam, lParam);
@@ -663,27 +659,45 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 			gameState = GAME;
 
 			// Deactivate input, we are switching game states
-			inputActive = false;
+			ipAddressBox->active = inputActive = false;
 
 			// Clear the user input string - we don't need the data any more
-			userInputString.clear();
+			//current.clear();
 		}
 		if (quitButton->IsOver(x, y))
 		{
 			PostQuitMessage(0);
 		}
+
 		if (ipAddressBox->IsOver(x, y))
 		{
-			// We clicked the input box, input is now active
-			inputActive = true;
+			ipAddressBox->active = inputActive = true;
+			activeBox = ipAddressBox;
 		}
 	}
 	else
 	{
-		if (colorBox->IsOver(x, y))
+		if (colorBox1->IsOver(x, y))
 		{
-			// We clicked the input box, input is now active
-			inputActive = true;
+			colorBox1->active = inputActive = true;
+			colorBox2->active = colorBox3->active = false;
+			activeBox = colorBox1;
+
+		//	userInputString.clear();
+		}
+		else if (colorBox2->IsOver(x, y))
+		{
+			colorBox2->active = inputActive = true;
+			colorBox1->active = colorBox3->active = false;
+			activeBox = colorBox2;
+			//userInputString.clear();
+		}
+		else if (colorBox3->IsOver(x, y))
+		{
+			colorBox3->active = inputActive = true;
+			colorBox1->active = colorBox2->active = false;
+			activeBox = colorBox3;
+			//userInputString.clear();
 		}
 	}
 }
@@ -699,10 +713,19 @@ void GameManager::OnMouseMove(WPARAM btnState, int x, int y)
 		camera->Pitch(-dy);
 	}
 
-	ipAddressBox->Update(x, y);
-	colorBox->Update(x, y);
-	connectPlayButton->Update(x, y);
-	quitButton->Update(x, y);
+	if (gameState == MENU)
+	{
+		ipAddressBox->Update(x, y);
+		connectPlayButton->Update(x, y);
+		quitButton->Update(x, y);
+	}
+
+	if (gameState == GAME)
+	{
+		colorBox1->Update(x, y);
+		colorBox2->Update(x, y);
+		colorBox3->Update(x, y);
+	}
 
 	prevMousePos.x = x;
 	prevMousePos.y = y;
