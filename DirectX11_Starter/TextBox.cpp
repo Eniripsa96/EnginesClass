@@ -9,5 +9,6 @@ TextBox::TextBox(Mesh* mesh, Material* mat, XMFLOAT3* pos, SpriteBatch* pBatch, 
 
 TextBox::~TextBox()
 {
+	// This prevents a memory leak
 	inputText.clear();
 }

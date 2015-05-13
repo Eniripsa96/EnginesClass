@@ -622,6 +622,8 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				if (colorBox1->inputText.length() == 3 && colorBox2->inputText.length() == 3 && colorBox3->inputText.length() == 3)
 				{
 					particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), 10, 50);
+
+					// Clear out the previous values
 					colorBox1->inputText.clear();
 					colorBox2->inputText.clear();
 					colorBox3->inputText.clear();
@@ -660,15 +662,13 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 
 			// Deactivate input, we are switching game states
 			ipAddressBox->active = inputActive = false;
-
-			// Clear the user input string - we don't need the data any more
-			//current.clear();
 		}
 		if (quitButton->IsOver(x, y))
 		{
 			PostQuitMessage(0);
 		}
 
+		// Activate the ip address box if it was clicked
 		if (ipAddressBox->IsOver(x, y))
 		{
 			ipAddressBox->active = inputActive = true;
@@ -677,27 +677,24 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 	}
 	else
 	{
+		// Activate the appropriate color box if one was clicked
 		if (colorBox1->IsOver(x, y))
 		{
 			colorBox1->active = inputActive = true;
 			colorBox2->active = colorBox3->active = false;
 			activeBox = colorBox1;
-
-		//	userInputString.clear();
 		}
 		else if (colorBox2->IsOver(x, y))
 		{
 			colorBox2->active = inputActive = true;
 			colorBox1->active = colorBox3->active = false;
 			activeBox = colorBox2;
-			//userInputString.clear();
 		}
 		else if (colorBox3->IsOver(x, y))
 		{
 			colorBox3->active = inputActive = true;
 			colorBox1->active = colorBox2->active = false;
 			activeBox = colorBox3;
-			//userInputString.clear();
 		}
 	}
 }
@@ -713,18 +710,19 @@ void GameManager::OnMouseMove(WPARAM btnState, int x, int y)
 		camera->Pitch(-dy);
 	}
 
-	if (gameState == MENU)
-	{
-		ipAddressBox->Update(x, y);
-		connectPlayButton->Update(x, y);
-		quitButton->Update(x, y);
-	}
-
+	// Update game buttons/text boxes
 	if (gameState == GAME)
 	{
 		colorBox1->Update(x, y);
 		colorBox2->Update(x, y);
 		colorBox3->Update(x, y);
+	}
+	// Update menu buttons/text boxes
+	else if (gameState == MENU)
+	{
+		ipAddressBox->Update(x, y);
+		connectPlayButton->Update(x, y);
+		quitButton->Update(x, y);
 	}
 
 	prevMousePos.x = x;
