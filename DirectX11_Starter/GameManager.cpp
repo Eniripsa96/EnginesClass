@@ -229,12 +229,12 @@ bool GameManager::Init()
 	}*/
 
 	// Create buttons for UI
-	ipAddressBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 100, 0), spriteBatch, spriteFont32, L"");
-	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 100, 0), spriteBatch, spriteFont32, L"Red");
-	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 215, 0), spriteBatch, spriteFont32, L"Green");
-	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 330, 0), spriteBatch, spriteFont32, L"Blue");
-	connectPlayButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 250, 0), spriteBatch, spriteFont32, L"Connect");
-	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 400, 0), spriteBatch, spriteFont32, L"Quit");
+	ipAddressBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"", 15);
+	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 100, 0), spriteBatch, spriteFont32, L"Red", 3);
+	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 215, 0), spriteBatch, spriteFont32, L"Green", 3);
+	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 330, 0), spriteBatch, spriteFont32, L"Blue", 3);
+	connectPlayButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 500, 0), spriteBatch, spriteFont32, L"Connect");
+	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(400, 500, 0), spriteBatch, spriteFont32, L"Quit");
 	//mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
 
 	// Add buttons to object lists
@@ -471,9 +471,9 @@ XMFLOAT3 GameManager::InputToColor()
 	wstring sBlue = colorBox3->inputText;
 
 	// Convert to float versions
-	float red = stof(sRed);
-	float green = stof(sGreen);
-	float blue = stof(sBlue);
+	float red = stof(sRed) / 255;
+	float green = stof(sGreen) / 255;
+	float blue = stof(sBlue) / 255;
 
 	// Return color vector3
 	return XMFLOAT3(red, green, blue);
@@ -608,7 +608,10 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			case 0x37:
 			case 0x38:
 			case 0x39:
-				activeBox->inputText += ((char)wParam);
+				if (activeBox->inputText.length() < activeBox->maxSize)
+				{
+					activeBox->inputText += ((char)wParam);
+				}
 				break;
 
 				// Delete most recent character
@@ -619,7 +622,7 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 				// Set new particle color
 			case VK_RETURN:
-				if (colorBox1->inputText.length() == 3 && colorBox2->inputText.length() == 3 && colorBox3->inputText.length() == 3)
+				if (colorBox1->inputText.length() >= 1 && colorBox2->inputText.length() >= 1 && colorBox3->inputText.length() >= 1)
 				{
 					particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), 10, 50);
 
