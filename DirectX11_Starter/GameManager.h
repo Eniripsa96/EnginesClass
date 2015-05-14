@@ -34,6 +34,7 @@ enum GAME_STATE
 	MENU,
 	GAME,
 	GAME_OVER,
+	NETWORK,
 	DEBUG
 };
 
@@ -72,6 +73,7 @@ private:
 	std::vector<GameObject*> gameObjects;
 	std::vector<UIObject*> gameUIObjects;
 	std::vector<UIObject*> menuObjects;
+	std::vector<UIObject*> networkObjects;
 	std::vector<UIObject*> gameOverObjects;
 
 	NetworkManager* network;
@@ -85,8 +87,10 @@ private:
 	TextBox* colorBox1;
 	TextBox* colorBox2;
 	TextBox* colorBox3;
+	Button* hostButton;
 	Button* connectPlayButton;
 	Button* quitButton;
+	UIObject* networkLabel;
 
 	TextBox* activeBox;
 	bool inputActive;

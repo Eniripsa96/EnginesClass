@@ -84,7 +84,7 @@ public:
 	// Starts listening to a hosting user at the given IP/Port combination.
 	// If the IP and Port are not provided, this will listen on local host.
 	// Returns whether or not the connection was successful.
-	bool startListening(PCSTR ip = DEFAULT_IP, PCSTR port = DEFAULT_PORT);
+	bool startListening(LPCSTR ip = DEFAULT_IP, PCSTR port = DEFAULT_PORT);
 
 	// Starts a host setup to listen for other joining users
 	// Returns whether or not the setup was successful.
@@ -122,7 +122,7 @@ private:
 
 	// Attempts to connect to a hosting user at the given IP/Port combination.
 	// Returns whether or not the connection was successful.
-	bool tryConnect(PCSTR ip, PCSTR port);
+	bool tryConnect(LPCSTR ip, PCSTR port);
 
 	WSADATA wsaData;
 	std::thread* listenThread;

@@ -99,7 +99,7 @@ bool NetworkManager::tryHost() {
 // be used to reconnect after an error causes
 // a disconnection or if it was disconnected
 // manually.
-bool NetworkManager::tryConnect(PCSTR ip, PCSTR port) {
+bool NetworkManager::tryConnect(LPCSTR ip, PCSTR port) {
 
 	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
@@ -211,7 +211,7 @@ void threadClientListen(NetworkManager* manager)
 // Listens to the connection for incomming data. This
 // repeats indefinitely so it should be started on
 // a separate thread.
-bool NetworkManager::startListening(PCSTR ip, PCSTR port)
+bool NetworkManager::startListening(LPCSTR ip, PCSTR port)
 {
 	if (!setUp) {
 		bool worked = tryConnect(ip, port);

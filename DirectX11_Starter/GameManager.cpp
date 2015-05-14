@@ -229,22 +229,27 @@ bool GameManager::Init()
 	}*/
 
 	// Create buttons for UI
-	ipAddressBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"", 15);
+	ipAddressBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 390, 0), spriteBatch, spriteFont32, L"", 15);
 	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 100, 0), spriteBatch, spriteFont32, L"Red", 3);
 	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 215, 0), spriteBatch, spriteFont32, L"Green", 3);
 	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 330, 0), spriteBatch, spriteFont32, L"Blue", 3);
-	connectPlayButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 500, 0), spriteBatch, spriteFont32, L"Connect");
+	hostButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 500, 0), spriteBatch, spriteFont32, L"Host");
+	connectPlayButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(400, 390, 0), spriteBatch, spriteFont32, L"Connect");
 	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(400, 500, 0), spriteBatch, spriteFont32, L"Quit");
+	networkLabel = new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"");
 	//mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
 
 	// Add buttons to object lists
 	menuObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["title"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
+	menuObjects.emplace_back(hostButton);
 	menuObjects.emplace_back(connectPlayButton);
 	menuObjects.emplace_back(quitButton);
 	menuObjects.emplace_back(ipAddressBox);
+	networkObjects.emplace_back(networkLabel);
 	gameUIObjects.emplace_back(colorBox1);
 	gameUIObjects.emplace_back(colorBox2);
 	gameUIObjects.emplace_back(colorBox3);
+	networkObjects.emplace_back(networkLabel);
 
 	// Blend state - enabling alpha blending
 	BLEND_DESC blendDesc;
@@ -315,6 +320,9 @@ void GameManager::CreateShadowMapResources()
 // and draws for each gameObject
 void GameManager::UpdateScene(float dt)
 {
+	if (network->connected && gameState == NETWORK)
+		gameState = GAME;
+
 	CheckKeyBoard(dt);
 
 	// Update the game
@@ -332,8 +340,9 @@ void GameManager::UpdateScene(float dt)
 	// Active UI list
 	std::vector<UIObject*> *uiObjects = 0;
 	if (gameState == MENU) uiObjects = &menuObjects;
-	if (gameState == GAME || gameState == DEBUG) uiObjects = &gameUIObjects;
-	if (gameState == GAME_OVER) uiObjects = &gameOverObjects;
+	else  if (gameState == GAME || gameState == DEBUG) uiObjects = &gameUIObjects;
+	else if (gameState == GAME_OVER) uiObjects = &gameOverObjects;
+	else if (gameState == NETWORK) uiObjects = &networkObjects;
 
 	// [DRAW] Set up the input assembler for objects
 	deviceContext->IASetInputLayout(InputLayouts::Vertex);
@@ -466,9 +475,9 @@ void GameManager::DrawScene() { }
 XMFLOAT3 GameManager::InputToColor()
 {
 	// Get the wstring version of each 3-digit set
-	wstring sRed = colorBox1->inputText;
-	wstring sGreen = colorBox2->inputText;
-	wstring sBlue = colorBox3->inputText;
+	const char* sRed = colorBox1->getText();
+	const char* sGreen = colorBox2->getText();
+	const char* sBlue = colorBox3->getText();
 
 	// Convert to float versions
 	float red = stof(sRed) / 255;
@@ -479,6 +488,7 @@ XMFLOAT3 GameManager::InputToColor()
 	return XMFLOAT3(red, green, blue);
 }
 
+/*
 struct test : packetStruct {
 	int type : 2;
 	int num1 : 4;
@@ -486,10 +496,11 @@ struct test : packetStruct {
 	int num3 : 8;
 	int num4 : 14;
 };
+*/
 
 // Continuous while key pressed
-bool first = true;
-bool holding = false;
+//bool first = true;
+//bool holding = false;
 void GameManager::CheckKeyBoard(float dt)
 {
 	// Game controls
@@ -517,6 +528,7 @@ void GameManager::CheckKeyBoard(float dt)
 	else if (GetAsyncKeyState('E'))
 		camera->MoveVertical(-CAMERA_MOVE_FACTOR * dt);
 
+	/*
 	if (!holding)
 	{
 		// Text input
@@ -559,6 +571,7 @@ void GameManager::CheckKeyBoard(float dt)
 		holding = false;
 		first = false;
 	}
+	*/
 }
 
 // Once per key press
@@ -579,8 +592,8 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				// Period on main keyboard or numpad
 			case VK_DECIMAL:
 			case VK_OEM_PERIOD:
-				if (gameState == MENU)
-					activeBox->inputText += '.';
+				if (gameState == MENU && activeBox->length() < activeBox->maxSize)
+					activeBox->append('.');
 				break;
 
 				// Numpad 0-9
@@ -594,7 +607,10 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			case 0x67:
 			case 0x68:
 			case 0x69:
-				activeBox->inputText += ((char)wParam - 48);
+				if (activeBox->length() < activeBox->maxSize)
+				{
+					activeBox->append(wParam - 48);
+				}
 				break;
 
 				// Main keyboard 0-9
@@ -608,34 +624,34 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			case 0x37:
 			case 0x38:
 			case 0x39:
-				if (activeBox->inputText.length() < activeBox->maxSize)
+				if (activeBox->length() < activeBox->maxSize)
 				{
-					activeBox->inputText += ((char)wParam);
+					activeBox->append((char)wParam);
 				}
 				break;
 
 				// Delete most recent character
 			case VK_BACK:
-				if (activeBox->inputText.length() > 0)
-					activeBox->inputText.pop_back();
+				if (activeBox->length() > 0)
+					activeBox->backspace();
 				break;
 
 				// Set new particle color
 			case VK_RETURN:
-				if (colorBox1->inputText.length() >= 1 && colorBox2->inputText.length() >= 1 && colorBox3->inputText.length() >= 1)
+				if (colorBox1->length() >= 1 && colorBox2->length() >= 1 && colorBox3->length() >= 1)
 				{
 					particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), 10, 50);
 
 					// Clear out the previous values
-					colorBox1->inputText.clear();
-					colorBox2->inputText.clear();
-					colorBox3->inputText.clear();
+					colorBox1->clear();
+					colorBox2->clear();
+					colorBox3->clear();
 				}
 				break;
 			}
 
 			// Update text of color box
-			activeBox->SetText(activeBox->inputText.c_str());
+			activeBox->SetText(activeBox->getWideText());
 		}
 	}
 
@@ -659,9 +675,19 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 	// Main menu buttons
 	if (gameState == MENU)
 	{
+		if (hostButton->IsOver(x, y))
+		{
+			gameState = NETWORK;
+			networkLabel->SetText(L"Searching...");
+			network->startServer();
+		}
 		if (connectPlayButton->IsOver(x, y))
 		{
-			gameState = GAME;
+			if (network->startListening(ipAddressBox->getText()))
+			{
+				gameState = GAME;
+			}
+			else ipAddressBox->SetText(L"Failed");
 
 			// Deactivate input, we are switching game states
 			ipAddressBox->active = inputActive = false;
