@@ -153,10 +153,15 @@ GameManager::~GameManager()
 	{
 		delete gameOverObjects[i];
 	}
+	for (UINT i = 0; i < networkObjects.size(); i++)
+	{
+		delete networkObjects[i];
+	}
 	gameObjects.clear();
 	menuObjects.clear();
 	gameOverObjects.clear();
 	gameUIObjects.clear();
+	networkObjects.clear();
 
 	// Clean up engine components
 	MeshesMaterials::Destructor();
@@ -249,7 +254,6 @@ bool GameManager::Init()
 	gameUIObjects.emplace_back(colorBox1);
 	gameUIObjects.emplace_back(colorBox2);
 	gameUIObjects.emplace_back(colorBox3);
-	networkObjects.emplace_back(networkLabel);
 
 	// Blend state - enabling alpha blending
 	BLEND_DESC blendDesc;
