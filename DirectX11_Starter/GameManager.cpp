@@ -224,14 +224,8 @@ bool GameManager::Init()
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::materials["tile"], &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
-	
-	/*float m = 10.0f / RAND_MAX;
-	for (int i = 0; i < 500; i++) {
-		float x = rand() * m;
-		float y = rand() * m;
-		float z = rand() * m;
-		gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(x, y, z), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
-	}*/
+	// ^^^ Don't need frame or cube
+	// Judges will be gameobjects represented by cubes
 
 	// Create buttons for UI
 	ipAddressBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 390, 0), spriteBatch, spriteFont32, L"", 15);
@@ -240,6 +234,7 @@ bool GameManager::Init()
 	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 230, 0), spriteBatch, spriteFont32, L"Blue", 3);
 	lifeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Lifetime", 2);
 	numPBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 460, 0), spriteBatch, spriteFont32, L"Number", 2);
+	readyButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 230, 0), spriteBatch, spriteFont32, L"Ready");
 	hostButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 500, 0), spriteBatch, spriteFont32, L"Host");
 	connectPlayButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(400, 390, 0), spriteBatch, spriteFont32, L"Connect");
 	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(400, 500, 0), spriteBatch, spriteFont32, L"Quit");
@@ -258,6 +253,7 @@ bool GameManager::Init()
 	gameUIObjects.emplace_back(colorBox3);
 	gameUIObjects.emplace_back(lifeBox);
 	gameUIObjects.emplace_back(numPBox);
+	gameUIObjects.emplace_back(readyButton);
 
 	// Blend state - enabling alpha blending
 	BLEND_DESC blendDesc;
@@ -744,6 +740,10 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 			numPBox->active = inputActive = true;
 			lifeBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
 			activeBox = numPBox;
+		}
+		else if (readyButton->IsOver(x, y))
+		{
+			// ready = true
 		}
 	}
 }
