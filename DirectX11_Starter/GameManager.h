@@ -54,6 +54,7 @@ public:
 	void UpdateScene(float dt);
 	void CheckKeyBoard(float dt);
 	XMFLOAT3 InputToColor();
+	int InputToInt(string);
 
 	void DrawScene();	// Deprecated
 
@@ -87,6 +88,8 @@ private:
 	TextBox* colorBox1;
 	TextBox* colorBox2;
 	TextBox* colorBox3;
+	TextBox* lifeBox;
+	TextBox* numPBox;
 	Button* hostButton;
 	Button* connectPlayButton;
 	Button* quitButton;

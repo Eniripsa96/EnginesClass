@@ -235,9 +235,11 @@ bool GameManager::Init()
 
 	// Create buttons for UI
 	ipAddressBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 390, 0), spriteBatch, spriteFont32, L"", 15);
-	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 100, 0), spriteBatch, spriteFont32, L"Red", 3);
-	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 215, 0), spriteBatch, spriteFont32, L"Green", 3);
-	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 330, 0), spriteBatch, spriteFont32, L"Blue", 3);
+	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 0, 0), spriteBatch, spriteFont32, L"Red", 3);
+	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 115, 0), spriteBatch, spriteFont32, L"Green", 3);
+	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 230, 0), spriteBatch, spriteFont32, L"Blue", 3);
+	lifeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Lifetime", 2);
+	numPBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 460, 0), spriteBatch, spriteFont32, L"Number", 2);
 	hostButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 500, 0), spriteBatch, spriteFont32, L"Host");
 	connectPlayButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(400, 390, 0), spriteBatch, spriteFont32, L"Connect");
 	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(400, 500, 0), spriteBatch, spriteFont32, L"Quit");
@@ -245,7 +247,7 @@ bool GameManager::Init()
 	//mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
 
 	// Add buttons to object lists
-	menuObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["title"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Tetris"));
+	menuObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["title"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont72, L"Particle Fun"));
 	menuObjects.emplace_back(hostButton);
 	menuObjects.emplace_back(connectPlayButton);
 	menuObjects.emplace_back(quitButton);
@@ -254,6 +256,8 @@ bool GameManager::Init()
 	gameUIObjects.emplace_back(colorBox1);
 	gameUIObjects.emplace_back(colorBox2);
 	gameUIObjects.emplace_back(colorBox3);
+	gameUIObjects.emplace_back(lifeBox);
+	gameUIObjects.emplace_back(numPBox);
 
 	// Blend state - enabling alpha blending
 	BLEND_DESC blendDesc;
@@ -324,7 +328,7 @@ void GameManager::CreateShadowMapResources()
 // and draws for each gameObject
 void GameManager::UpdateScene(float dt)
 {
-	if (network->connected && gameState == NETWORK)
+	//if (network->connected && gameState == NETWORK)
 		gameState = GAME;
 
 	CheckKeyBoard(dt);
@@ -492,6 +496,11 @@ XMFLOAT3 GameManager::InputToColor()
 	return XMFLOAT3(red, green, blue);
 }
 
+int GameManager::InputToInt(string str)
+{
+	return atoi(str.c_str());
+}
+
 /*
 struct test : packetStruct {
 	int type : 2;
@@ -644,7 +653,7 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			case VK_RETURN:
 				if (colorBox1->length() >= 1 && colorBox2->length() >= 1 && colorBox3->length() >= 1)
 				{
-					particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), 10, 50);
+					particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), InputToInt(lifeBox->getText()), InputToInt(numPBox->getText()));
 				}
 				break;
 			}
@@ -709,20 +718,32 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 		if (colorBox1->IsOver(x, y))
 		{
 			colorBox1->active = inputActive = true;
-			colorBox2->active = colorBox3->active = false;
+			numPBox->active = lifeBox->active = colorBox2->active = colorBox3->active = false;
 			activeBox = colorBox1;
 		}
 		else if (colorBox2->IsOver(x, y))
 		{
 			colorBox2->active = inputActive = true;
-			colorBox1->active = colorBox3->active = false;
+			numPBox->active = lifeBox->active = colorBox1->active = colorBox3->active = false;
 			activeBox = colorBox2;
 		}
 		else if (colorBox3->IsOver(x, y))
 		{
 			colorBox3->active = inputActive = true;
-			colorBox1->active = colorBox2->active = false;
+			numPBox->active = lifeBox->active = colorBox1->active = colorBox2->active = false;
 			activeBox = colorBox3;
+		}
+		else if (lifeBox->IsOver(x, y))
+		{
+			lifeBox->active = inputActive = true;
+			numPBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
+			activeBox = lifeBox;
+		}
+		else if (numPBox->IsOver(x, y))
+		{
+			numPBox->active = inputActive = true;
+			lifeBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
+			activeBox = numPBox;
 		}
 	}
 }
@@ -741,9 +762,10 @@ void GameManager::OnMouseMove(WPARAM btnState, int x, int y)
 	// Update game buttons/text boxes
 	if (gameState == GAME)
 	{
-		colorBox1->Update(x, y);
-		colorBox2->Update(x, y);
-		colorBox3->Update(x, y);
+		for (UINT i = 0; i < gameUIObjects.size(); i++)
+		{
+			gameUIObjects[i]->Update(x, y);
+		}
 	}
 	// Update menu buttons/text boxes
 	else if (gameState == MENU)
