@@ -221,7 +221,7 @@ bool GameManager::Init()
 	spriteFont32 = new SpriteFont(device, L"jing32.spritefont");
 	spriteFont72 = new SpriteFont(device, L"jing72.spritefont");
 
-	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
+	//gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::materials["tile"], &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	// ^^^ Don't need frame or cube
@@ -235,6 +235,7 @@ bool GameManager::Init()
 	lifeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Lifetime", 2);
 	numPBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 460, 0), spriteBatch, spriteFont32, L"Number", 2);
 	readyButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 230, 0), spriteBatch, spriteFont32, L"Ready");
+	testButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 115, 0), spriteBatch, spriteFont32, L"Test");
 	hostButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 500, 0), spriteBatch, spriteFont32, L"Host");
 	connectPlayButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(400, 390, 0), spriteBatch, spriteFont32, L"Connect");
 	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(400, 500, 0), spriteBatch, spriteFont32, L"Quit");
@@ -253,6 +254,7 @@ bool GameManager::Init()
 	gameUIObjects.emplace_back(colorBox3);
 	gameUIObjects.emplace_back(lifeBox);
 	gameUIObjects.emplace_back(numPBox);
+	gameUIObjects.emplace_back(testButton);
 	gameUIObjects.emplace_back(readyButton);
 
 	// Blend state - enabling alpha blending
@@ -644,14 +646,6 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				if (activeBox->length() > 0)
 					activeBox->backspace();
 				break;
-
-				// Set new particle color
-			case VK_RETURN:
-				if (colorBox1->length() >= 1 && colorBox2->length() >= 1 && colorBox3->length() >= 1)
-				{
-					particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), InputToInt(lifeBox->getText()), InputToInt(numPBox->getText()));
-				}
-				break;
 			}
 
 			// Update text of color box
@@ -744,6 +738,14 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 		else if (readyButton->IsOver(x, y))
 		{
 			// ready = true
+		}
+		else if (testButton->IsOver(x, y))
+		{
+			if (colorBox1->length() >= 1 && colorBox2->length() >= 1 && colorBox3->length() >= 1 && lifeBox->length() >= 1 && numPBox->length() >= 1)
+			{
+				particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), InputToInt(lifeBox->getText()), InputToInt(numPBox->getText()));
+				particleSystem->Emit();
+			}
 		}
 	}
 }

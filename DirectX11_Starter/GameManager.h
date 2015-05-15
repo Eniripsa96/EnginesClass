@@ -90,6 +90,7 @@ private:
 	TextBox* colorBox3;
 	TextBox* lifeBox;
 	TextBox* numPBox;
+	Button* testButton;
 	Button* readyButton;
 	Button* hostButton;
 	Button* connectPlayButton;
