@@ -1,6 +1,6 @@
 #include "ParticleSystem.h"
 
-ParticleSystem::ParticleSystem(GeometryShaderConstantBufferLayout* cBuff, XMFLOAT3* pos, XMFLOAT3* color, float lifeTime, int numP)
+ParticleSystem::ParticleSystem(GeometryShaderConstantBufferLayout* cBuff, XMFLOAT3* pos, XMFLOAT3* col, float lifeTime, int numP)
 {
 	// Start out without activating the particle effect
 	age = 0.0f;
@@ -20,13 +20,15 @@ ParticleSystem::ParticleSystem(GeometryShaderConstantBufferLayout* cBuff, XMFLOA
 	cBufferData->misc.z = (float)numParticles;
 	cBufferData->world = world;
 
-	// Set the material and mesh (which we initialize here to give it 
+	// Set the material and mesh (which we initialize here to give it desired params)
 	material = MeshesMaterials::materials["particle"];
-	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos, color);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
+	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos, col);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
 	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
 
 	// Create the 1D randomized textures for GPU randomness
 	oneD_SRV = Material::CreateRandomTex(mesh->device);
+
+	params = PartParams{ *pos, *col, lifeTime, numParticles };
 
 	// NOTE:
 	// Need two Geometry buffers, an update one and a drawing one
@@ -61,6 +63,8 @@ void ParticleSystem::Reset(XMFLOAT3* pos, XMFLOAT3* col, float lifeTime, int num
 	delete MeshesMaterials::meshes["particle"];
 	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos, col);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
 	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
+
+	params = PartParams{ *pos, *col, lifeTime, numParticles };
 }
 
 // Restart the particle system
@@ -77,6 +81,11 @@ void ParticleSystem::Emit()
 Material* ParticleSystem::GetMaterial() const
 {
 	return this->material;
+}
+
+PartParams* ParticleSystem::GetParams()
+{
+	return &params;
 }
 
 void ParticleSystem::Update(float dt)

@@ -23,8 +23,7 @@ public:
 	ParticleSystem(GeometryShaderConstantBufferLayout*, XMFLOAT3*, XMFLOAT3*, float, int);
 	~ParticleSystem();
 
-	// Time elapsed since the systm was reset
-	float GetAge() const;
+	PartParams* GetParams();
 	Material* GetMaterial() const;
 
 	void Emit();
