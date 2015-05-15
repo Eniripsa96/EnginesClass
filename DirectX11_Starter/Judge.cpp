@@ -21,7 +21,7 @@ Judge::~Judge()
 void Judge::JudgeEffect(XMFLOAT3* color)
 {
 	float maxScoreFactor = 10.0f / 127.5f;	// Max score over max color value
-	int score = 10 - (abs(color->x*255 - favColor.x) * maxScoreFactor);
+	int score = (10 - (abs(color->x*255 - favColor.x) * maxScoreFactor)) + 0.5f;
 	score = score < 0 ? 0 : score;
 
 	if (score == 0)
@@ -38,4 +38,12 @@ void Judge::JudgeEffect(XMFLOAT3* color)
 		material = MeshesMaterials::materials["judge5"];
 	else if (score == 6)
 		material = MeshesMaterials::materials["judge6"];
+	else if (score == 7)
+		material = MeshesMaterials::materials["judge7"];
+	else if (score == 8)
+		material = MeshesMaterials::materials["judge8"];
+	else if (score == 9)
+		material = MeshesMaterials::materials["judge9"];
+	else
+		material = MeshesMaterials::materials["judge10"];
 }

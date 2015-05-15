@@ -223,6 +223,7 @@ bool GameManager::Init()
 
 	// Create the judges
 	judge1 = new Judge(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["judge"], &XMFLOAT3(0.0f, 0.0f, 5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f));
+	judge1->Scale(&XMFLOAT3(2.0f, 2.0f, 2.0f));
 
 	//gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::materials["tile"], &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
