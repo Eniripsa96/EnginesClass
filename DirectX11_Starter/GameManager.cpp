@@ -645,11 +645,6 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				if (colorBox1->length() >= 1 && colorBox2->length() >= 1 && colorBox3->length() >= 1)
 				{
 					particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), 10, 50);
-
-					// Clear out the previous values
-					colorBox1->clear();
-					colorBox2->clear();
-					colorBox3->clear();
 				}
 				break;
 			}
