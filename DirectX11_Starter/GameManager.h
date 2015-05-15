@@ -12,7 +12,7 @@
 #include <ctime>
 
 #include "DirectXGame.h"
-#include "GameObject.h"
+#include "Judge.h"
 #include "TextBox.h"
 #include "Camera.h"
 #include "ParticleSystem.h"
@@ -83,6 +83,8 @@ private:
 	SpriteFont* spriteFont24;
 	SpriteFont* spriteFont32;
 	SpriteFont* spriteFont72;
+
+	Judge* judge1;
 
 	TextBox* ipAddressBox;
 	TextBox* colorBox1;

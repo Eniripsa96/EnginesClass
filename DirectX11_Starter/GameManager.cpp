@@ -209,7 +209,7 @@ bool GameManager::Init()
 	Shaders::LoadShadersAndInputLayout(device, deviceContext);
 	MeshesMaterials::LoadMeshesAndMaterials(device, deviceContext);
 	camera = new Camera();
-	particleSystem = new ParticleSystem(&Shaders::dataToSendToGSConstantBuffer, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(25.0f, 0.0f, 60.0f), 10.0f, 50);
+	particleSystem = new ParticleSystem(&Shaders::dataToSendToGSConstantBuffer, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(25.0f / 255.0f, 0.0f, 60.0f / 255.0f), 10.0f, 50);
 	network = new NetworkManager();
 
 	// Initialize the shadow camera
@@ -221,11 +221,13 @@ bool GameManager::Init()
 	spriteFont32 = new SpriteFont(device, L"jing32.spritefont");
 	spriteFont72 = new SpriteFont(device, L"jing72.spritefont");
 
+	// Create the judges
+	judge1 = new Judge(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["judge"], &XMFLOAT3(0.0f, 0.0f, 5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f));
+
 	//gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::materials["tile"], &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
-	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
-	// ^^^ Don't need frame or cube
-	// Judges will be gameobjects represented by cubes
+	gameObjects.emplace_back(judge1);
+	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, -5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 
 	// Create buttons for UI
 	ipAddressBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 390, 0), spriteBatch, spriteFont32, L"", 15);
@@ -646,10 +648,22 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				if (activeBox->length() > 0)
 					activeBox->backspace();
 				break;
+			case VK_RETURN:
+				judge1->JudgeEffect(&(particleSystem->GetParams()->color));
+				break;
 			}
 
 			// Update text of color box
 			activeBox->SetText(activeBox->getWideText());
+		}
+		else
+		{
+			switch (wParam)
+			{
+			case VK_RETURN:
+				judge1->JudgeEffect(&(particleSystem->GetParams()->color));
+				break;
+			}
 		}
 	}
 
@@ -741,6 +755,8 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 		}
 		else if (testButton->IsOver(x, y))
 		{
+			numPBox->active = lifeBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
+			//activeBox = NULL;
 			if (colorBox1->length() >= 1 && colorBox2->length() >= 1 && colorBox3->length() >= 1 && lifeBox->length() >= 1 && numPBox->length() >= 1)
 			{
 				particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), InputToInt(lifeBox->getText()), InputToInt(numPBox->getText()));
