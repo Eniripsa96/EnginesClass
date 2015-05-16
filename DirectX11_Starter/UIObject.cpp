@@ -7,6 +7,7 @@ UIObject::UIObject(Mesh* mesh, Material* mat, XMFLOAT3* pos, SpriteBatch* pBatch
 	batch = pBatch;
 	font = pFont;
 	SetText(pText);
+	rect = RECT{ pos->x, pos->y, 0, 0};
 }
 
 UIObject::~UIObject()
@@ -14,9 +15,12 @@ UIObject::~UIObject()
 }
 
 void UIObject::Draw(ID3D11DeviceContext* deviceContext, ID3D11Buffer* cBuffer, VertexShaderConstantBufferLayout* cBufferData) {
-	batch->Draw(material->resourceView, XMFLOAT2(position.x, position.y));
+	//batch->Draw(material->resourceView, XMFLOAT2(position.x, position.y));
+	batch->Draw(material->resourceView, XMFLOAT2(position.x, position.y), &rect, Colors::White, 0.0f, XMFLOAT2(-position.x, -position.y),XMFLOAT2(scale.x, scale.y), SpriteEffects_None, 0.0f);
 	font->DrawString(batch, text, XMLoadFloat2(&textPos));
 }
+
+
 
 void UIObject::Move(float x, float y) {
 	position.x += x;

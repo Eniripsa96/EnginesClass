@@ -24,5 +24,6 @@ protected:
 	float textWidth;
 	float textHeight;
 	bool hovered = false;
+	RECT rect;
 };
 
