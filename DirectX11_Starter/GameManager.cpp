@@ -325,7 +325,7 @@ void GameManager::CreateShadowMapResources()
 void GameManager::UpdateScene(float dt)
 {
 	//if (network->connected && gameState == NETWORK)
-		gameState = GAME;
+		//gameState = GAME;
 
 	CheckKeyBoard(dt);
 
