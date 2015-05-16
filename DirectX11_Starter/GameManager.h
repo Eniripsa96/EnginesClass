@@ -85,6 +85,8 @@ private:
 	SpriteFont* spriteFont72;
 
 	Judge* judge1;
+	Judge* judge2;
+	Judge* judge3;
 
 	TextBox* ipAddressBox;
 	TextBox* colorBox1;

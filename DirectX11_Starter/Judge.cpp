@@ -4,6 +4,9 @@
 Judge::Judge(Mesh* mesh, Material* mat, XMFLOAT3* pos, XMFLOAT3* vel)
 	: GameObject(mesh, mat, pos, vel)
 {
+	// Increase the size of all judges
+	Scale(&XMFLOAT3(2.0f, 2.0f, 2.0f));
+
 	int r = rand() % 256;
 	int b = rand() % 256;
 	int g = rand() % 256;

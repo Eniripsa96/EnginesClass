@@ -222,12 +222,16 @@ bool GameManager::Init()
 	spriteFont72 = new SpriteFont(device, L"jing72.spritefont");
 
 	// Create the judges
-	judge1 = new Judge(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["judge"], &XMFLOAT3(0.0f, 0.0f, 5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f));
-	judge1->Scale(&XMFLOAT3(2.0f, 2.0f, 2.0f));
+	judge1 = new Judge(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["judge"], &XMFLOAT3(0.0f, 3.5f, 5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f));
+	judge2 = new Judge(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["judge"], &XMFLOAT3(1.5f, 3.5f, 5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f));
+	judge3 = new Judge(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["judge"], &XMFLOAT3(3.0f, 3.5f, 5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f));
 
+	// Add gameobjects to the game
 	//gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::materials["tile"], &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
 	gameObjects.emplace_back(judge1);
+	gameObjects.emplace_back(judge2);
+	gameObjects.emplace_back(judge3);
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, -5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 
 	// Create buttons for UI
@@ -651,6 +655,8 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				break;
 			case VK_RETURN:
 				judge1->JudgeEffect(&(particleSystem->GetParams()->color));
+				judge2->JudgeEffect(&(particleSystem->GetParams()->color));
+				judge3->JudgeEffect(&(particleSystem->GetParams()->color));
 				break;
 			}
 
@@ -663,6 +669,8 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			{
 			case VK_RETURN:
 				judge1->JudgeEffect(&(particleSystem->GetParams()->color));
+				judge2->JudgeEffect(&(particleSystem->GetParams()->color));
+				judge3->JudgeEffect(&(particleSystem->GetParams()->color));
 				break;
 			}
 		}
