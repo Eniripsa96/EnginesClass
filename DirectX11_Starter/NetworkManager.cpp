@@ -18,6 +18,8 @@ NetworkManager::~NetworkManager()
 		WSACleanup();
 		if (listenThread) {
 			listenThread->join();
+
+			delete listenThread;
 		}
 	}
 }

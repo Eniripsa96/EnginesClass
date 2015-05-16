@@ -772,6 +772,7 @@ void GameManager::OnMouseMove(WPARAM btnState, int x, int y)
 	{
 		ipAddressBox->Update(x, y);
 		connectPlayButton->Update(x, y);
+		hostButton->Update(x, y);
 		quitButton->Update(x, y);
 	}
 
