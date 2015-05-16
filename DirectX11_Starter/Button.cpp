@@ -12,3 +12,9 @@ void Button::Draw(ID3D11DeviceContext* deviceContext, ID3D11Buffer* cBuffer, Ver
 	batch->Draw(material->resourceView, XMFLOAT2(position.x, position.y), XMLoadFloat4(&XMFLOAT4(hovered ? 0.5f : 1.0f, 1.0f, 1.0f, 1.0f)));
 	font->DrawString(batch, text, XMLoadFloat2(&textPos));
 }
+
+void Button::Draw(ID3D11DeviceContext* deviceContext, ID3D11Buffer* cBuffer, VertexShaderConstantBufferLayout* cBufferData, float scale)
+{
+	batch->Draw(material->resourceView, XMFLOAT2(position.x, position.y), nullptr, FXMVECTOR(), 0.0f, XMFLOAT2(0.0f,0.0f),scale,SpriteEffects_None,0.0f);
+	font->DrawString(batch, text, XMLoadFloat2(&textPos));
+}
