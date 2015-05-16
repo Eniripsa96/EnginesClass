@@ -12,7 +12,7 @@ struct PartParams
 {
 	XMFLOAT3 position;
 	XMFLOAT3 color;
-	float lifeTime;
+	float size;
 	int numParts;
 };
 
@@ -51,7 +51,7 @@ private:
 	int numParticles;
 	
 	float age;
-	float MAX_AGE;
+	const float MAX_AGE = 10.0f;
 };
 
 #endif

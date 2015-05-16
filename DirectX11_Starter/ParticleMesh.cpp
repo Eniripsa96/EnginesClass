@@ -1,10 +1,13 @@
 #include "ParticleMesh.h"
 #include "Shaders.h"
 
-ParticleMesh::ParticleMesh(ID3D11Device* device, ID3D11DeviceContext* context, XMFLOAT3* pos, XMFLOAT3* col) : Mesh(device, context, PARTICLE)
+ParticleMesh::ParticleMesh(ID3D11Device* device, ID3D11DeviceContext* context, XMFLOAT3* pos, XMFLOAT3* col, float s) : Mesh(device, context, PARTICLE)
 {
 	// Next time this draws will be the first time, so EMIT
 	firstTime = true;
+
+	// Get in terms of default particle size
+	this->size = s * PARTICLE_SIZE;
 
 	position = *pos;
 	color = *col;
@@ -32,7 +35,7 @@ void ParticleMesh::CreateParticlePoints()
 	{
 		// NOTE: This gives the semi-even distribution of velocities directly outwards
 		XMFLOAT3 vel = XMFLOAT3((rand() % 200) / 100.0f - 0.5f, (rand() % 200) / 100.0f - 0.5f, 0.0f);
-		particles.push_back(Particle{ position, vel, XMFLOAT2(PARTICLE_SIZE, PARTICLE_SIZE), color });
+		particles.push_back(Particle{ position, vel, XMFLOAT2(size, size), color });
 	}
 
 	CreateGeometryBuffers(&particles[0]);

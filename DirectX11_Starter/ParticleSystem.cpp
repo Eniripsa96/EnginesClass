@@ -1,16 +1,15 @@
 #include "ParticleSystem.h"
 
-ParticleSystem::ParticleSystem(GeometryShaderConstantBufferLayout* cBuff, XMFLOAT3* pos, XMFLOAT3* col, float lifeTime, int numP)
+ParticleSystem::ParticleSystem(GeometryShaderConstantBufferLayout* cBuff, XMFLOAT3* pos, XMFLOAT3* col, float size, int numP)
 {
 	// Start out without activating the particle effect
 	age = 0.0f;
-	MAX_AGE = lifeTime;
 	
 	// Cap the number of particles at 75 (GS max supported)
 	numP = (numP > 75) ? 75 : numP;
 	
 	// Initialize the world matrix
-	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
+	XMStoreFloat4x4(&world, (XMMatrixTranslation(pos->x, pos->y, pos->z)));
 
 	// Set data from params
 	spawnPos = XMFLOAT4(pos->x, pos->y, pos->z, 1.0f);
@@ -22,13 +21,13 @@ ParticleSystem::ParticleSystem(GeometryShaderConstantBufferLayout* cBuff, XMFLOA
 
 	// Set the material and mesh (which we initialize here to give it desired params)
 	material = MeshesMaterials::materials["particle"];
-	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos, col);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
+	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos, col, size);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
 	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
 
 	// Create the 1D randomized textures for GPU randomness
 	oneD_SRV = Material::CreateRandomTex(mesh->device);
 
-	params = PartParams{ *pos, *col, lifeTime, numParticles };
+	params = PartParams{ *pos, *col, size, numParticles };
 
 	// NOTE:
 	// Need two Geometry buffers, an update one and a drawing one
@@ -43,10 +42,9 @@ ParticleSystem::~ParticleSystem()
 	ReleaseMacro(oneD_SRV);
 }
 
-void ParticleSystem::Reset(XMFLOAT3* pos, XMFLOAT3* col, float lifeTime, int numP)
+void ParticleSystem::Reset(XMFLOAT3* pos, XMFLOAT3* col, float size, int numP)
 {
 	age = 0.0f;
-	MAX_AGE = lifeTime;
 
 	// Cap the number of particles at 75 (GS max supported)
 	numP = (numP > 75) ? 75 : numP;
@@ -61,10 +59,10 @@ void ParticleSystem::Reset(XMFLOAT3* pos, XMFLOAT3* col, float lifeTime, int num
 
 	// Refresh particle mesh with new params
 	delete MeshesMaterials::meshes["particle"];
-	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos, col);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
+	MeshesMaterials::meshes["particle"] = new ParticleMesh(material->device, material->deviceContext, pos, col, size);	// CHANGE THIS TO WORK FOR MULTIPLE PARTICLE EFFECTS
 	mesh = (ParticleMesh*)MeshesMaterials::meshes["particle"];
 
-	params = PartParams{ *pos, *col, lifeTime, numParticles };
+	params = PartParams{ *pos, *col, size, numParticles };
 }
 
 // Restart the particle system
@@ -74,7 +72,7 @@ void ParticleSystem::Emit()
 
 	// Reset age and position (world matrix)
 	age = MAX_AGE;
-	XMStoreFloat4x4(&world, (XMMatrixTranslation(0.0f, 0.0f, 0.0f)));
+	//XMStoreFloat4x4(&world, (XMMatrixTranslation(position->x, pos->y, pos->z)));
 	cBufferData->world = world;
 }
 

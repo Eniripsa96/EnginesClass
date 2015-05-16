@@ -90,7 +90,7 @@ private:
 	TextBox* colorBox1;
 	TextBox* colorBox2;
 	TextBox* colorBox3;
-	TextBox* lifeBox;
+	TextBox* sizeBox;
 	TextBox* numPBox;
 	Button* testButton;
 	Button* readyButton;

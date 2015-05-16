@@ -209,7 +209,7 @@ bool GameManager::Init()
 	Shaders::LoadShadersAndInputLayout(device, deviceContext);
 	MeshesMaterials::LoadMeshesAndMaterials(device, deviceContext);
 	camera = new Camera();
-	particleSystem = new ParticleSystem(&Shaders::dataToSendToGSConstantBuffer, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(25.0f / 255.0f, 0.0f, 60.0f / 255.0f), 10.0f, 50);
+	particleSystem = new ParticleSystem(&Shaders::dataToSendToGSConstantBuffer, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(25.0f / 255.0f, 0.0f, 60.0f / 255.0f), 1.0f, 50);
 	network = new NetworkManager();
 
 	// Initialize the shadow camera
@@ -235,7 +235,7 @@ bool GameManager::Init()
 	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 0, 0), spriteBatch, spriteFont32, L"Red", 3);
 	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 115, 0), spriteBatch, spriteFont32, L"Green", 3);
 	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 230, 0), spriteBatch, spriteFont32, L"Blue", 3);
-	lifeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Lifetime", 2);
+	sizeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Size", 2);
 	numPBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 460, 0), spriteBatch, spriteFont32, L"Number", 2);
 	readyButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 230, 0), spriteBatch, spriteFont32, L"Ready");
 	testButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 115, 0), spriteBatch, spriteFont32, L"Test");
@@ -255,7 +255,7 @@ bool GameManager::Init()
 	gameUIObjects.emplace_back(colorBox1);
 	gameUIObjects.emplace_back(colorBox2);
 	gameUIObjects.emplace_back(colorBox3);
-	gameUIObjects.emplace_back(lifeBox);
+	gameUIObjects.emplace_back(sizeBox);
 	gameUIObjects.emplace_back(numPBox);
 	gameUIObjects.emplace_back(testButton);
 	gameUIObjects.emplace_back(readyButton);
@@ -723,31 +723,31 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 		if (colorBox1->IsOver(x, y))
 		{
 			colorBox1->active = inputActive = true;
-			numPBox->active = lifeBox->active = colorBox2->active = colorBox3->active = false;
+			numPBox->active = sizeBox->active = colorBox2->active = colorBox3->active = false;
 			activeBox = colorBox1;
 		}
 		else if (colorBox2->IsOver(x, y))
 		{
 			colorBox2->active = inputActive = true;
-			numPBox->active = lifeBox->active = colorBox1->active = colorBox3->active = false;
+			numPBox->active = sizeBox->active = colorBox1->active = colorBox3->active = false;
 			activeBox = colorBox2;
 		}
 		else if (colorBox3->IsOver(x, y))
 		{
 			colorBox3->active = inputActive = true;
-			numPBox->active = lifeBox->active = colorBox1->active = colorBox2->active = false;
+			numPBox->active = sizeBox->active = colorBox1->active = colorBox2->active = false;
 			activeBox = colorBox3;
 		}
-		else if (lifeBox->IsOver(x, y))
+		else if (sizeBox->IsOver(x, y))
 		{
-			lifeBox->active = inputActive = true;
+			sizeBox->active = inputActive = true;
 			numPBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
-			activeBox = lifeBox;
+			activeBox = sizeBox;
 		}
 		else if (numPBox->IsOver(x, y))
 		{
 			numPBox->active = inputActive = true;
-			lifeBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
+			sizeBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
 			activeBox = numPBox;
 		}
 		else if (readyButton->IsOver(x, y))
@@ -756,11 +756,11 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 		}
 		else if (testButton->IsOver(x, y))
 		{
-			numPBox->active = lifeBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
+			numPBox->active = sizeBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
 			//activeBox = NULL;
-			if (colorBox1->length() >= 1 && colorBox2->length() >= 1 && colorBox3->length() >= 1 && lifeBox->length() >= 1 && numPBox->length() >= 1)
+			if (colorBox1->length() >= 1 && colorBox2->length() >= 1 && colorBox3->length() >= 1 && sizeBox->length() >= 1 && numPBox->length() >= 1)
 			{
-				particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), InputToInt(lifeBox->getText()), InputToInt(numPBox->getText()));
+				particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), InputToInt(sizeBox->getText()), InputToInt(numPBox->getText()));
 				particleSystem->Emit();
 			}
 		}
