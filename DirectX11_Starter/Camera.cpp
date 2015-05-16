@@ -174,7 +174,8 @@ void Camera::Reset() {
 
 	// Set up view matrix (camera)
 	// In an actual game, update this when the camera moves (every frame)
-	position = XMFLOAT3(xPos, yPos, zPos);
+	//position = XMFLOAT3(xPos, yPos, zPos);
+	position = XMFLOAT3(-1.69394691f, 3.26212711f, -11.9702101f);
 	target = XMFLOAT3(xTar, yTar, zTar);
 	XMMATRIX V = XMMatrixLookAtLH(XMLoadFloat3(&position), XMLoadFloat3(&target), GetUpXM());
 	XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(V));
