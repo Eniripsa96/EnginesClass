@@ -524,7 +524,7 @@ void GameManager::handleNetwork()
 	}
 
 	// Play results when receiving oppoent's data
-	if (ready && network->getDataType == PACKET_PARTICLE)
+	if (ready && network->getDataType() == PACKET_PARTICLE)
 	{
 		packet data = network->getData();
 		received = *(particlePacket*)data.buffer;

@@ -192,6 +192,9 @@ void threadClientListen(NetworkManager* manager)
 			data.buffer = new char[iResult];
 			memcpy(data.buffer, recvbuf, iResult);
 			data.length = iResult;
+			
+			packetType* info = (packetType*)data.buffer;
+			data.type = info->type;
 
 			manager->received.push(data);
 		}
