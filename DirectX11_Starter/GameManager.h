@@ -103,6 +103,8 @@ private:
 
 	TextBox* activeBox;
 	bool inputActive;
+	bool ready = false;
+	particlePacket received;
 
 	ParticleSystem* particleSystem;
 	Camera* camera;

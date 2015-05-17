@@ -35,7 +35,7 @@ struct packetType {
 // Likely additions:
 // - position
 // - emit shape
-struct particlePacket {
+struct particlePacket : packetStruct {
 
 	particlePacket() : type(PACKET_PARTICLE) {}
 
@@ -43,12 +43,12 @@ struct particlePacket {
 	UINT colorR : 8;
 	UINT colorG : 8;
 	UINT colorB : 8;
-	UINT life   : 4;
+	UINT size   : 4;
 	UINT amount : 10;
 };
 
 // Packet for sending judge data over the network
-struct judgePacket {
+struct judgePacket : packetStruct {
 
 	judgePacket() : type(PACKET_JUDGES) {}
 
@@ -60,7 +60,7 @@ struct judgePacket {
 };
 
 // Packet for sending a game result over the network
-struct resultPacket {
+struct resultPacket : packetStruct {
 
 	resultPacket() : type(PACKET_RESULT) {}
 

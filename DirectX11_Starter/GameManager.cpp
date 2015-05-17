@@ -239,8 +239,8 @@ bool GameManager::Init()
 	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 0, 0), spriteBatch, spriteFont32, L"Red", 3);
 	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 115, 0), spriteBatch, spriteFont32, L"Green", 3);
 	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 230, 0), spriteBatch, spriteFont32, L"Blue", 3);
-	sizeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Size", 2);
-	numPBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 460, 0), spriteBatch, spriteFont32, L"Number", 2);
+	sizeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Size", 1);
+	numPBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 460, 0), spriteBatch, spriteFont32, L"Number", 3);
 	readyButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 230, 0), spriteBatch, spriteFont32, L"Ready");
 	testButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 115, 0), spriteBatch, spriteFont32, L"Test");
 	hostButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 500, 0), spriteBatch, spriteFont32, L"Host");
@@ -333,8 +333,19 @@ void GameManager::CreateShadowMapResources()
 // and draws for each gameObject
 void GameManager::UpdateScene(float dt)
 {
-	//if (network->connected && gameState == NETWORK)
+	// Start game upon receiving a client
+	if (network->connected && gameState == NETWORK)
 		gameState = GAME;
+
+	// Play results when receiving oppoent's data
+	if (ready && network->hasData())
+	{
+		packet data = network->getData();
+		if (data.type == PACKET_PARTICLE) {
+			received = *((particlePacket*)data.buffer);
+			int i = 1;
+		}
+	}
 
 	CheckKeyBoard(dt);
 
@@ -353,7 +364,7 @@ void GameManager::UpdateScene(float dt)
 	// Active UI list
 	std::vector<UIObject*> *uiObjects = 0;
 	if (gameState == MENU) uiObjects = &menuObjects;
-	else  if (gameState == GAME || gameState == DEBUG) uiObjects = &gameUIObjects;
+	else  if (gameState == GAME || gameState == DEBUG) uiObjects = ready ? &networkObjects : &gameUIObjects;
 	else if (gameState == GAME_OVER) uiObjects = &gameOverObjects;
 	else if (gameState == NETWORK) uiObjects = &networkObjects;
 
@@ -527,6 +538,7 @@ void GameManager::CheckKeyBoard(float dt)
 	// Camera controls
 
 	// Move camera (WASD)
+	/*
 	if (GetAsyncKeyState('A'))
 		camera->MoveHorizontal(-CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('D'))
@@ -535,16 +547,21 @@ void GameManager::CheckKeyBoard(float dt)
 		camera->MoveDepth(CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('S'))
 		camera->MoveDepth(-CAMERA_MOVE_FACTOR * dt);
+	*/
 
 	// Space bar to activate particle effect
+	/*
 	if (GetAsyncKeyState(' '))
 		particleSystem->Emit();
+	*/
 
 	// Change height of camera (QE)
+	/*
 	if (GetAsyncKeyState('Q'))
 		camera->MoveVertical(CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('E'))
 		camera->MoveVertical(-CAMERA_MOVE_FACTOR * dt);
+	*/
 
 	/*
 	if (!holding)
@@ -663,6 +680,7 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			// Update text of color box
 			activeBox->SetText(activeBox->getWideText());
 		}
+		/*
 		else
 		{
 			switch (wParam)
@@ -674,6 +692,7 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 		}
+		*/
 	}
 
 	return DirectXGame::MsgProc(hwnd, msg, wParam, lParam);
@@ -725,7 +744,7 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 			activeBox = ipAddressBox;
 		}
 	}
-	else
+	else if (gameState == GAME)
 	{
 		// Activate the appropriate color box if one was clicked
 		if (colorBox1->IsOver(x, y))
@@ -761,6 +780,16 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 		else if (readyButton->IsOver(x, y))
 		{
 			// ready = true
+			particlePacket data;
+			data.amount = InputToInt(numPBox->getText());
+			data.size = InputToInt(sizeBox->getText());
+			data.colorR = InputToInt(colorBox1->getText());
+			data.colorG = InputToInt(colorBox2->getText());
+			data.colorB = InputToInt(colorBox3->getText());
+
+			network->emit(&data);
+			ready = true;
+			networkLabel->SetText(L"Waiting...");
 		}
 		else if (testButton->IsOver(x, y))
 		{

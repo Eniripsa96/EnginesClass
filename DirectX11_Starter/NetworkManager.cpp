@@ -238,6 +238,7 @@ void threadServerHost(NetworkManager* manager)
 		WSACleanup();
 		return;
 	}
+	manager->Socket = client;
 
 	// Listen to the client
 	char buffer[DEFAULT_BUFLEN];
@@ -292,11 +293,13 @@ bool NetworkManager::emit(packetStruct* packet) {
 	if (!connected) return false;
 
 	// Attempt to send the data
+	particlePacket p = *(particlePacket*)packet;
 	int iResult = send(Socket, (char*)packet, sizeof(packet), 0);
 
 	// If there was an error, print the message
 	if (iResult == SOCKET_ERROR) {
-		printf("shutdown failed: %d\n", WSAGetLastError());
+		int err = WSAGetLastError();
+		printf("shutdown failed: %d\n", err);
 		closesocket(Socket);
 		WSACleanup();
 		setUp = false;
