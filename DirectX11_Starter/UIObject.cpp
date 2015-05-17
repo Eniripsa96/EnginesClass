@@ -7,7 +7,7 @@ UIObject::UIObject(Mesh* mesh, Material* mat, XMFLOAT3* pos, SpriteBatch* pBatch
 	batch = pBatch;
 	font = pFont;
 	SetText(pText);
-	rect = RECT{ pos->x, pos->y, 0, 0};
+	rect = RECT{ 0, 0, 600, 150};
 }
 
 UIObject::~UIObject()
