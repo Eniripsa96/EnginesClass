@@ -670,11 +670,13 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				if (activeBox->length() > 0)
 					activeBox->backspace();
 				break;
+				/*
 			case VK_RETURN:
 				judge1->JudgeEffect(&(particleSystem->GetParams()->color));
 				judge2->JudgeEffect(&(particleSystem->GetParams()->color));
 				judge3->JudgeEffect(&(particleSystem->GetParams()->color));
 				break;
+				*/
 			}
 
 			// Update text of color box
@@ -787,7 +789,7 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 			data.colorG = InputToInt(colorBox2->getText());
 			data.colorB = InputToInt(colorBox3->getText());
 
-			network->emit(&data);
+			network->emit(&data, sizeof(particlePacket));
 			ready = true;
 			networkLabel->SetText(L"Waiting...");
 		}

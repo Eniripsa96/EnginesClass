@@ -289,12 +289,11 @@ bool NetworkManager::startServer()
 }
 
 // Sends data over the network if currently connected
-bool NetworkManager::emit(packetStruct* packet) {
+bool NetworkManager::emit(packetStruct* packet, int size) {
 	if (!connected) return false;
 
 	// Attempt to send the data
-	particlePacket p = *(particlePacket*)packet;
-	int iResult = send(Socket, (char*)packet, sizeof(packet), 0);
+	int iResult = send(Socket, (char*)packet, size, 0);
 
 	// If there was an error, print the message
 	if (iResult == SOCKET_ERROR) {

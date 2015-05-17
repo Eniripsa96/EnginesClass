@@ -28,7 +28,7 @@ struct packet {
 
 // Struct used for reading the packet type of any kind of packet
 struct packetType {
-	int type  : 2;
+	unsigned short type : 2;
 };
 
 // Packet for sharing a particle over the network
@@ -39,12 +39,13 @@ struct particlePacket : packetStruct {
 
 	particlePacket() : type(PACKET_PARTICLE) {}
 
-	UINT type   : 2;
-	UINT colorR : 8;
-	UINT colorG : 8;
-	UINT colorB : 8;
-	UINT size   : 4;
-	UINT amount : 10;
+	unsigned short type : 2;
+	unsigned short size : 4;
+	unsigned short amount : 10;
+	unsigned short colorR : 8;
+	unsigned short colorG : 8;
+	unsigned short colorB : 8;
+	unsigned short extra : 8;
 };
 
 // Packet for sending judge data over the network
@@ -52,11 +53,11 @@ struct judgePacket : packetStruct {
 
 	judgePacket() : type(PACKET_JUDGES) {}
 
-	UINT type   : 2;
-	UINT colorR : 8;
-	UINT colorG : 8;
-	UINT colorB : 8;
-	UINT shape  : 6;
+	unsigned short type : 2;
+	unsigned short shape : 6;
+	unsigned short colorR : 8;
+	unsigned short colorG : 8;
+	unsigned short colorB : 8;
 };
 
 // Packet for sending a game result over the network
@@ -64,8 +65,8 @@ struct resultPacket : packetStruct {
 
 	resultPacket() : type(PACKET_RESULT) {}
 
-	UINT type  : 2;
-	UINT other : 6;
+	unsigned short type : 2;
+	unsigned short other : 6;
 };
 
 // Main class for managing the network connections
@@ -95,7 +96,7 @@ public:
 
 	// Emits data over the network to other users.
 	// If not currently connected, this will do nothing.
-	bool emit(packetStruct* packet);
+	bool emit(packetStruct* packet, int size);
 
 	// Checks whether or not the network has received any data.
 	bool hasData();
