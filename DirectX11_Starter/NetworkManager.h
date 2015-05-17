@@ -40,12 +40,11 @@ struct particlePacket : packetStruct {
 	particlePacket() : type(PACKET_PARTICLE) {}
 
 	unsigned short type : 2;
-	unsigned short size : 4;
-	unsigned short amount : 10;
+	unsigned short amount : 14;
+	unsigned short size : 8;
 	unsigned short colorR : 8;
 	unsigned short colorG : 8;
 	unsigned short colorB : 8;
-	unsigned short extra : 8;
 };
 
 // Packet for sending judge data over the network
