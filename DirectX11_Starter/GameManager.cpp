@@ -333,18 +333,7 @@ void GameManager::CreateShadowMapResources()
 // and draws for each gameObject
 void GameManager::UpdateScene(float dt)
 {
-	// Start game upon receiving a client
-	if (network->connected && gameState == NETWORK)
-		gameState = GAME;
-
-	// Play results when receiving oppoent's data
-	if (ready && network->hasData())
-	{
-		packet data = network->getData();
-		if (data.type == PACKET_PARTICLE) {
-			received = *((particlePacket*)data.buffer);
-		}
-	}
+	handleNetwork();
 
 	CheckKeyBoard(dt);
 
@@ -490,6 +479,57 @@ void GameManager::UpdateScene(float dt)
 // NOTE: DEPRECATED
 // Clear the screen, redraw everything, present
 void GameManager::DrawScene() { } 
+
+void GameManager::handleNetwork()
+{
+	// Start game upon receiving a client
+	if (network->connected && gameState == NETWORK) {
+
+		judgePacket data;
+
+		data.colorR1 = judge1->favColor.x;
+		data.colorG1 = judge1->favColor.y;
+		data.colorB1 = judge1->favColor.z;
+
+		data.colorR2 = judge2->favColor.x;
+		data.colorG2 = judge2->favColor.y;
+		data.colorB2 = judge2->favColor.z;
+
+		data.colorR3 = judge3->favColor.x;
+		data.colorG3 = judge3->favColor.y;
+		data.colorB3 = judge3->favColor.z;
+
+		network->emit(&data, sizeof(judgePacket));
+
+		gameState = GAME;
+	}
+
+	// Accepting judge data from host 
+	if (needsJudges && network->getDataType() == PACKET_JUDGES)
+	{
+		packet data = network->getData();
+		judgePacket judges = *(judgePacket*)data.buffer;
+
+		judge1->favColor.x = judges.colorR1;
+		judge1->favColor.y = judges.colorG1;
+		judge1->favColor.z = judges.colorB1;
+
+		judge2->favColor.x = judges.colorR2;
+		judge2->favColor.y = judges.colorG2;
+		judge2->favColor.z = judges.colorB2;
+
+		judge3->favColor.x = judges.colorR3;
+		judge3->favColor.y = judges.colorG3;
+		judge3->favColor.z = judges.colorB3;
+	}
+
+	// Play results when receiving oppoent's data
+	if (ready && network->getDataType == PACKET_PARTICLE)
+	{
+		packet data = network->getData();
+		received = *(particlePacket*)data.buffer;
+	}
+}
 
 #pragma endregion
 
@@ -727,6 +767,7 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 			if (network->startListening(ipAddressBox->getText()))
 			{
 				gameState = GAME;
+				needsJudges = true;
 			}
 			else ipAddressBox->SetText(L"Failed");
 

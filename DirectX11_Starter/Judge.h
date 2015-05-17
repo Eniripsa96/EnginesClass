@@ -13,9 +13,10 @@ public:
 
 	void JudgeEffect(XMFLOAT3*);
 
-private:
 	XMFLOAT3 favColor;
 
+private:
+	
 	int currentScore;
 };
 

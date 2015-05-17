@@ -53,10 +53,16 @@ struct judgePacket : packetStruct {
 	judgePacket() : type(PACKET_JUDGES) {}
 
 	unsigned short type : 2;
-	unsigned short shape : 6;
-	unsigned short colorR : 8;
-	unsigned short colorG : 8;
-	unsigned short colorB : 8;
+	unsigned short extra : 6;
+	unsigned short colorR1 : 8;
+	unsigned short colorG1 : 8;
+	unsigned short colorB1 : 8;
+	unsigned short colorR2 : 8;
+	unsigned short colorG2 : 8;
+	unsigned short colorB2 : 8;
+	unsigned short colorR3 : 8;
+	unsigned short colorG3 : 8;
+	unsigned short colorB3 : 8;
 };
 
 // Packet for sending a game result over the network
@@ -65,7 +71,7 @@ struct resultPacket : packetStruct {
 	resultPacket() : type(PACKET_RESULT) {}
 
 	unsigned short type : 2;
-	unsigned short other : 6;
+	unsigned short decision : 14;
 };
 
 // Main class for managing the network connections

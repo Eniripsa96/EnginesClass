@@ -71,6 +71,9 @@ public:
 	GAME_STATE gameState;
 
 private:
+
+	void handleNetwork();
+
 	std::vector<GameObject*> gameObjects;
 	std::vector<UIObject*> gameUIObjects;
 	std::vector<UIObject*> menuObjects;
@@ -104,6 +107,7 @@ private:
 	TextBox* activeBox;
 	bool inputActive;
 	bool ready = false;
+	bool needsJudges = false;
 	particlePacket received;
 
 	ParticleSystem* particleSystem;
