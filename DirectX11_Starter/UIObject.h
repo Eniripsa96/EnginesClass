@@ -15,6 +15,7 @@ public:
 	void Move(float x, float y);
 	bool IsOver(int x, int y);
 	void SetText(const wchar_t* text);
+	void Scale(XMFLOAT3*);
 
 protected:
 	SpriteBatch* batch;
