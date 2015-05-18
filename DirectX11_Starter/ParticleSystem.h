@@ -51,7 +51,7 @@ private:
 	int numParticles;
 	
 	float age;
-	const float MAX_AGE = 10.0f;
+	const float MAX_AGE = 3.0f;
 };
 
 #endif

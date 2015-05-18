@@ -60,6 +60,7 @@ void ParticleSystem::Reset(XMFLOAT3* col, float size, int numP, XMFLOAT3* pos)
 	cBufferData->spawnPos = spawnPos;
 	cBufferData->misc.z = (float)numParticles;
 	cBufferData->world = world;
+	cBufferData->misc.w = MAX_AGE;
 
 	// Refresh particle mesh with new params
 	delete MeshesMaterials::meshes["particle"];

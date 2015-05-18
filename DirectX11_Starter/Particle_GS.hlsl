@@ -36,7 +36,7 @@ void main(point VertexOutput input[1] /*: SV_POSITION*/, inout TriangleStream<GS
 	float3 up = cross(look, right);
 	// Calculate half the width/height of the resulting quad
 	// Size is just hard-coded here for simplicity
-	float2 size = float2(input[0].size.x, input[0].size.y); // Could be stored in vertex
+	float2 size = float2(input[0].size.x * (misc.x / misc.w), input[0].size.y * (misc.x / misc.w)); // Could be stored in vertex
 	float halfW = 0.5f * size.x;
 	float halfH = 0.5f * size.y;
 
