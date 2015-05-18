@@ -494,7 +494,7 @@ void EmitGuest(ParticleSystem* p, Judge* j1, Judge* j2, Judge* j3, particlePacke
 	// Reset for the guest and emit
 	Sleep(2 * 1000.0f);
 	// Play the guest's particle effect
-	p->Reset(&XMFLOAT3(p2.colorR, p2.colorG, p2.colorB), p2.size, p2.amount);
+	p->Reset(&XMFLOAT3(p2.colorR / 255.0f, p2.colorG / 255.0f, p2.colorB / 255.0f), p2.size, p2.amount);
 	p->Emit();
 
 	// Judge guest's effect after it has ended
