@@ -239,7 +239,7 @@ bool GameManager::Init()
 	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 0, 0), spriteBatch, spriteFont32, L"Red", 3);
 	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 115, 0), spriteBatch, spriteFont32, L"Green", 3);
 	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 230, 0), spriteBatch, spriteFont32, L"Blue", 3);
-	sizeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Size", 2);
+	sizeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Size", 1);
 	numPBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 460, 0), spriteBatch, spriteFont32, L"Number", 4);
 	readyButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 230, 0), spriteBatch, spriteFont32, L"Ready");
 	testButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 115, 0), spriteBatch, spriteFont32, L"Test");
