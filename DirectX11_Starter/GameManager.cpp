@@ -483,7 +483,7 @@ void GameManager::UpdateScene(float dt)
 }
 
 // Method to be called by a new thread to delay the playing of a subsequent particle effect
-void EmitGuest(ParticleSystem* p, Judge* j1, Judge* j2, Judge* j3, particlePacket p2)
+void EmitGuest(ParticleSystem* p, Judge* j1, Judge* j2, Judge* j3, particlePacket p2, bool* ready)
 {
 	// Judge players's effect after it has ended
 	Sleep(3 * 1000.0f);
@@ -503,6 +503,9 @@ void EmitGuest(ParticleSystem* p, Judge* j1, Judge* j2, Judge* j3, particlePacke
 	j1->JudgeEffect(&(p->GetParams()->color));
 	j2->JudgeEffect(&(p->GetParams()->color));
 	j3->JudgeEffect(&(p->GetParams()->color));
+
+	Sleep(1 * 1000.0f);
+	*ready = false;
 }
 
 // NOTE: DEPRECATED
@@ -511,7 +514,7 @@ void GameManager::DrawScene() { }
 
 void GameManager::handleNetwork()
 {
-	gameState = GAME;
+	//gameState = GAME;
 
 	// Start game upon receiving a clienti
 	if (network->connected && gameState == NETWORK) {
@@ -570,7 +573,7 @@ void GameManager::handleNetwork()
 			emitThread->join();
 			delete emitThread;
 		}
-		emitThread = new std::thread(EmitGuest, particleSystem, judge1, judge2, judge3, received);
+		emitThread = new std::thread(EmitGuest, particleSystem, judge1, judge2, judge3, received, &ready);
 
 		// Play the guest's particle effect
 		//particleSystem->Reset(&XMFLOAT3(received.colorR, received.colorG, received.colorB), received.size, received.amount);
