@@ -42,8 +42,12 @@ ParticleSystem::~ParticleSystem()
 	ReleaseMacro(oneD_SRV);
 }
 
-void ParticleSystem::Reset(XMFLOAT3* pos, XMFLOAT3* col, float size, int numP)
+/// <summary>
+/// XMFLOAT color, float size, int numP
+/// </summary>
+void ParticleSystem::Reset(XMFLOAT3* col, float size, int numP, XMFLOAT3* pos)
 {
+	*pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	age = 0.0f;
 
 	// Cap the number of particles at 75 (GS max supported)

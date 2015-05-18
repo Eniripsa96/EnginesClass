@@ -27,7 +27,7 @@ public:
 	Material* GetMaterial() const;
 
 	void Emit();
-	void Reset(XMFLOAT3*, XMFLOAT3*, float, int);
+	void Reset(XMFLOAT3*, float, int, XMFLOAT3* = &XMFLOAT3());
 	void Draw(ID3D11DeviceContext*, const Camera&, ID3D11Buffer*, GeometryShaderConstantBufferLayout*);
 	void Update(float);
 

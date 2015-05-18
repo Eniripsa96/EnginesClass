@@ -839,7 +839,7 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 			//activeBox = NULL;
 			if (colorBox1->length() >= 1 && colorBox2->length() >= 1 && colorBox3->length() >= 1 && sizeBox->length() >= 1 && numPBox->length() >= 1)
 			{
-				particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), InputToInt(sizeBox->getText()), InputToInt(numPBox->getText()));
+				particleSystem->Reset(&InputToColor(), InputToInt(sizeBox->getText()), InputToInt(numPBox->getText()));
 				particleSystem->Emit();
 			}
 		}
