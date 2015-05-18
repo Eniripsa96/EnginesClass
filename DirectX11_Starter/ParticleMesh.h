@@ -21,7 +21,7 @@ public:
 	bool firstTime;
 
 private:
-	const float PARTICLE_SIZE = 0.1875f / 2.0f;
+	const float PARTICLE_SIZE = 0.1875f / 4.0f;
 	float size;
 	XMFLOAT3 position;
 	XMFLOAT3 color;
