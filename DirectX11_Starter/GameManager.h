@@ -72,7 +72,8 @@ public:
 
 private:
 
-	void handleNetwork();
+	void handleNetwork();	
+	thread* emitThread;
 
 	std::vector<GameObject*> gameObjects;
 	std::vector<UIObject*> gameUIObjects;

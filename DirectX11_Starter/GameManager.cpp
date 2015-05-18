@@ -136,6 +136,12 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 // Clean up here
 GameManager::~GameManager()
 {
+	if (emitThread)
+	{
+		emitThread->join();
+		delete emitThread;
+	}
+
 	// Clean up objects
 	for (UINT i = 0; i < gameObjects.size(); i++)
 	{
@@ -476,13 +482,38 @@ void GameManager::UpdateScene(float dt)
 	HR(swapChain->Present(0, 0));
 }
 
+// Method to be called by a new thread to delay the playing of a subsequent particle effect
+void EmitGuest(ParticleSystem* p, Judge* j1, Judge* j2, Judge* j3, particlePacket p2)
+{
+	// Judge players's effect after it has ended
+	Sleep(3 * 1000.0f);
+	j1->JudgeEffect(&(p->GetParams()->color));
+	j2->JudgeEffect(&(p->GetParams()->color));
+	j3->JudgeEffect(&(p->GetParams()->color));
+
+	// Reset for the guest and emit
+	Sleep(2 * 1000.0f);
+	// Play the guest's particle effect
+	p->Reset(&XMFLOAT3(p2.colorR, p2.colorG, p2.colorB), p2.size, p2.amount);
+	p->Emit();
+
+	// Judge guest's effect after it has ended
+	Sleep(3 * 1000.0f);
+	//p->GetParams()->color.x = 0;
+	j1->JudgeEffect(&(p->GetParams()->color));
+	j2->JudgeEffect(&(p->GetParams()->color));
+	j3->JudgeEffect(&(p->GetParams()->color));
+}
+
 // NOTE: DEPRECATED
 // Clear the screen, redraw everything, present
 void GameManager::DrawScene() { } 
 
 void GameManager::handleNetwork()
 {
-	// Start game upon receiving a client
+	gameState = GAME;
+
+	// Start game upon receiving a clienti
 	if (network->connected && gameState == NETWORK) {
 
 		judgePacket data;
@@ -526,8 +557,24 @@ void GameManager::handleNetwork()
 	// Play results when receiving oppoent's data
 	if (ready && network->getDataType() == PACKET_PARTICLE)
 	{
+		// Get the guest's particle data
 		packet data = network->getData();
 		received = *(particlePacket*)data.buffer;
+
+		// Play our particle effect
+		particleSystem->Reset(&InputToColor(), InputToInt(sizeBox->getText()), InputToInt(numPBox->getText()));
+		particleSystem->Emit();
+
+		if (emitThread)
+		{
+			emitThread->join();
+			delete emitThread;
+		}
+		emitThread = new std::thread(EmitGuest, particleSystem, judge1, judge2, judge3, received);
+
+		// Play the guest's particle effect
+		//particleSystem->Reset(&XMFLOAT3(received.colorR, received.colorG, received.colorB), received.size, received.amount);
+		//particleSystem->Emit();
 	}
 }
 
