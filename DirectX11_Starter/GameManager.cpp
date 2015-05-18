@@ -238,7 +238,7 @@ bool GameManager::Init()
 	gameObjects.emplace_back(judge1);
 	gameObjects.emplace_back(judge2);
 	gameObjects.emplace_back(judge3);
-	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, -5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
+	//gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, -5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 
 	// Create buttons for UI
 	ipAddressBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(0, 390, 0), spriteBatch, spriteFont32, L"", 15);
@@ -350,7 +350,7 @@ void GameManager::UpdateScene(float dt)
 	std::vector<GameObject*> *meshObjects = 0;
 	if (gameState == GAME || gameState == DEBUG)
 	{
-		gameObjects[gameObjects.size() - 1]->Rotate(&XMFLOAT3(0.0f * dt, 1.0f * dt, 0.0f * dt));
+		//gameObjects[gameObjects.size() - 1]->Rotate(&XMFLOAT3(0.0f * dt, 1.0f * dt, 0.0f * dt));
 
 		meshObjects = &gameObjects;
 	}
