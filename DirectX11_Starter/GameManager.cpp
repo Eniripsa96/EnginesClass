@@ -570,6 +570,8 @@ void GameManager::handleNetwork()
 		judge3->favColor.x = judges.colorR3;
 		judge3->favColor.y = judges.colorG3;
 		judge3->favColor.z = judges.colorB3;
+
+		delete data.buffer;
 	}
 
 	// Play results when receiving oppoent's data
