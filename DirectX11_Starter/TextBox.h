@@ -25,7 +25,7 @@ public:
 private:
 
 	wstring wideText;
-	string text;
+	string stringText;
 };
 
 #endif

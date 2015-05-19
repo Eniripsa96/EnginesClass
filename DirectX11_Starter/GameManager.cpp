@@ -242,25 +242,32 @@ bool GameManager::Init()
 
 	// Create buttons for UI
 	ipAddressBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(90, 250, 0), spriteBatch, spriteFont32, L"Enter IP", 15);
-	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 0, 0), spriteBatch, spriteFont32, L"Red", 3);
-	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 115, 0), spriteBatch, spriteFont32, L"Green", 3);
-	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 230, 0), spriteBatch, spriteFont32, L"Blue", 3);
-	sizeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Size", 1);
-	numPBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 460, 0), spriteBatch, spriteFont32, L"Number", 4);
-	readyButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 230, 0), spriteBatch, spriteFont32, L"Ready");
-	testButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 115, 0), spriteBatch, spriteFont32, L"Test");
+	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 25, 0), spriteBatch, spriteFont32, L"Red", 3);
+	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 100, 0), spriteBatch, spriteFont32, L"Green", 3);
+	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 175, 0), spriteBatch, spriteFont32, L"Blue", 3);
+	sizeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 275, 0), spriteBatch, spriteFont32, L"Size", 1);
+	numPBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 350, 0), spriteBatch, spriteFont32, L"Number", 4);
+	readyButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(175, 265, 0), spriteBatch, spriteFont32, L"Ready");
+	testButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(175, 190, 0), spriteBatch, spriteFont32, L"Test");
 	hostButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(90, 375, 0), spriteBatch, spriteFont32, L"Host");
 	connectPlayButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(410, 250, 0), spriteBatch, spriteFont32, L"Connect");
 	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(410, 375, 0), spriteBatch, spriteFont32, L"Quit");
-	networkLabel = new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"");
+	networkLabel = new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(50, 500, 0), spriteBatch, spriteFont32, L"");
 	//mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
 
-	ipAddressBox->SetText(L"Enter IP");
-
-	ipAddressBox->Scale(&XMFLOAT3(0.75f, 1.0f, 0.0f));
-	connectPlayButton->Scale(&XMFLOAT3(0.75f, 1.0f, 0.0f));
-	quitButton->Scale(&XMFLOAT3(0.75f, 1.0f, 0.0f));
-	hostButton->Scale(&XMFLOAT3(0.75f, 1.0f, 0.0f));
+	//scale each object down to correct size
+	ipAddressBox->Scale(&XMFLOAT3(0.75, 1.0, 0.0));
+	connectPlayButton->Scale(&XMFLOAT3(0.75, 1.0, 0.0));
+	quitButton->Scale(&XMFLOAT3(0.75, 1.0, 0.0));
+	hostButton->Scale(&XMFLOAT3(0.75, 1.0, 0.0));
+	colorBox1->Scale(&XMFLOAT3(0.75, 0.6, 0.0));
+	colorBox2->Scale(&XMFLOAT3(0.75, 0.6, 0.0));
+	colorBox3->Scale(&XMFLOAT3(0.75, 0.6, 0.0));
+	sizeBox->Scale(&XMFLOAT3(0.75, 0.6, 0.0));
+	numPBox->Scale(&XMFLOAT3(0.75, 0.6, 0.0));
+	testButton->Scale(&XMFLOAT3(0.75, 0.6, 0.0));
+	readyButton->Scale(&XMFLOAT3(0.75, 0.6, 0.0));
+	networkLabel->Scale(&XMFLOAT3(0.7, 0.6, 0.0));
 
 	// Add buttons to object lists
 	menuObjects.emplace_back(new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(100, 50, 0), spriteBatch, spriteFont32, L"Particle Fun"));
@@ -522,7 +529,7 @@ void GameManager::DrawScene() { }
 
 void GameManager::handleNetwork()
 {
-	//gameState = GAME;
+	gameState = GAME;
 
 	// Start game upon receiving a clienti
 	if (network->connected && gameState == NETWORK) {
