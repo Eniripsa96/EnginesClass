@@ -20,11 +20,12 @@ public:
 
 	bool active;
 	int maxSize;
+	void Draw(ID3D11DeviceContext* deviceContext, ID3D11Buffer* cBuffer, VertexShaderConstantBufferLayout* cBufferData);
 
 private:
 
 	wstring wideText;
-	string text;
+	string stringText;
 };
 
 #endif
