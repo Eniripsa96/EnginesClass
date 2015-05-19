@@ -529,7 +529,7 @@ void GameManager::DrawScene() { }
 
 void GameManager::handleNetwork()
 {
-	gameState = GAME;
+	//gameState = GAME;
 
 	// Start game upon receiving a clienti
 	if (network->connected && gameState == NETWORK) {
