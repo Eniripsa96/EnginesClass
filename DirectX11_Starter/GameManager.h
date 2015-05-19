@@ -12,7 +12,7 @@
 #include <ctime>
 
 #include "DirectXGame.h"
-#include "GameObject.h"
+#include "Judge.h"
 #include "TextBox.h"
 #include "Camera.h"
 #include "ParticleSystem.h"
@@ -71,6 +71,10 @@ public:
 	GAME_STATE gameState;
 
 private:
+
+	void handleNetwork();	
+	thread* emitThread;
+
 	std::vector<GameObject*> gameObjects;
 	std::vector<UIObject*> gameUIObjects;
 	std::vector<UIObject*> menuObjects;
@@ -84,12 +88,17 @@ private:
 	SpriteFont* spriteFont32;
 	SpriteFont* spriteFont72;
 
+	Judge* judge1;
+	Judge* judge2;
+	Judge* judge3;
+
 	TextBox* ipAddressBox;
 	TextBox* colorBox1;
 	TextBox* colorBox2;
 	TextBox* colorBox3;
-	TextBox* lifeBox;
+	TextBox* sizeBox;
 	TextBox* numPBox;
+	Button* testButton;
 	Button* readyButton;
 	Button* hostButton;
 	Button* connectPlayButton;
@@ -98,6 +107,9 @@ private:
 
 	TextBox* activeBox;
 	bool inputActive;
+	bool ready = false;
+	bool needsJudges = false;
+	particlePacket received;
 
 	ParticleSystem* particleSystem;
 	Camera* camera;

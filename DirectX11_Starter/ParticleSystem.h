@@ -12,7 +12,7 @@ struct PartParams
 {
 	XMFLOAT3 position;
 	XMFLOAT3 color;
-	float lifeTime;
+	float size;
 	int numParts;
 };
 
@@ -23,12 +23,11 @@ public:
 	ParticleSystem(GeometryShaderConstantBufferLayout*, XMFLOAT3*, XMFLOAT3*, float, int);
 	~ParticleSystem();
 
-	// Time elapsed since the systm was reset
-	float GetAge() const;
+	PartParams* GetParams();
 	Material* GetMaterial() const;
 
 	void Emit();
-	void Reset(XMFLOAT3*, XMFLOAT3*, float, int);
+	void Reset(XMFLOAT3*, float, int, XMFLOAT3* = &XMFLOAT3());
 	void Draw(ID3D11DeviceContext*, const Camera&, ID3D11Buffer*, GeometryShaderConstantBufferLayout*);
 	void Update(float);
 
@@ -52,7 +51,7 @@ private:
 	int numParticles;
 	
 	float age;
-	float MAX_AGE;
+	const float MAX_AGE = 3.0f;
 };
 
 #endif

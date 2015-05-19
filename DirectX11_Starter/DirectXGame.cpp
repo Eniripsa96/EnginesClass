@@ -10,9 +10,6 @@
 #include "DirectXGame.h"
 #include <WindowsX.h>
 #include <sstream>
-#include "easylogging++.h"
-
-INITIALIZE_EASYLOGGINGPP
 
 #pragma region Global Window Callback
 namespace
@@ -308,8 +305,6 @@ void DirectXGame::OnResize()
 // and calls our Update & Draw methods
 int DirectXGame::Run()
 {
-	//test logger
-	LOG(INFO) << "test logger";
 
 	MSG msg = {0};
 	timer.Reset();

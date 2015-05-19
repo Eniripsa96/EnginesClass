@@ -18,6 +18,8 @@ NetworkManager::~NetworkManager()
 		WSACleanup();
 		if (listenThread) {
 			listenThread->join();
+
+			delete listenThread;
 		}
 	}
 }
@@ -190,6 +192,9 @@ void threadClientListen(NetworkManager* manager)
 			data.buffer = new char[iResult];
 			memcpy(data.buffer, recvbuf, iResult);
 			data.length = iResult;
+			
+			packetType* info = (packetType*)data.buffer;
+			data.type = info->type;
 
 			manager->received.push(data);
 		}
@@ -236,6 +241,7 @@ void threadServerHost(NetworkManager* manager)
 		WSACleanup();
 		return;
 	}
+	manager->Socket = client;
 
 	// Listen to the client
 	char buffer[DEFAULT_BUFLEN];
@@ -286,15 +292,16 @@ bool NetworkManager::startServer()
 }
 
 // Sends data over the network if currently connected
-bool NetworkManager::emit(packetStruct* packet) {
+bool NetworkManager::emit(packetStruct* packet, int size) {
 	if (!connected) return false;
 
 	// Attempt to send the data
-	int iResult = send(Socket, (char*)packet, sizeof(packet), 0);
+	int iResult = send(Socket, (char*)packet, size, 0);
 
 	// If there was an error, print the message
 	if (iResult == SOCKET_ERROR) {
-		printf("shutdown failed: %d\n", WSAGetLastError());
+		int err = WSAGetLastError();
+		printf("shutdown failed: %d\n", err);
 		closesocket(Socket);
 		WSACleanup();
 		setUp = false;

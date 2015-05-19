@@ -136,6 +136,12 @@ GameManager::GameManager(HINSTANCE hInstance) : DirectXGame(hInstance)
 // Clean up here
 GameManager::~GameManager()
 {
+	if (emitThread)
+	{
+		emitThread->join();
+		delete emitThread;
+	}
+
 	// Clean up objects
 	for (UINT i = 0; i < gameObjects.size(); i++)
 	{
@@ -209,7 +215,7 @@ bool GameManager::Init()
 	Shaders::LoadShadersAndInputLayout(device, deviceContext);
 	MeshesMaterials::LoadMeshesAndMaterials(device, deviceContext);
 	camera = new Camera();
-	particleSystem = new ParticleSystem(&Shaders::dataToSendToGSConstantBuffer, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(25.0f, 0.0f, 60.0f), 10.0f, 50);
+	particleSystem = new ParticleSystem(&Shaders::dataToSendToGSConstantBuffer, &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(25.0f / 255.0f, 0.0f, 60.0f / 255.0f), 1.0f, 50);
 	network = new NetworkManager();
 
 	// Initialize the shadow camera
@@ -221,25 +227,35 @@ bool GameManager::Init()
 	spriteFont32 = new SpriteFont(device, L"jing32.spritefont");
 	spriteFont72 = new SpriteFont(device, L"jing72.spritefont");
 
-	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
+	// Create the judges
+	judge1 = new Judge(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["judge"], &XMFLOAT3(0.0f, 3.5f, 5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f));
+	judge2 = new Judge(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["judge"], &XMFLOAT3(1.5f, 3.5f, 5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f));
+	judge3 = new Judge(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["judge"], &XMFLOAT3(3.0f, 3.5f, 5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f));
+
+	// Add gameobjects to the game
+	//gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["frame"], MeshesMaterials::materials["frame"], &XMFLOAT3(-3.0f, -5.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["environment"], MeshesMaterials::materials["tile"], &XMFLOAT3(-50.0f, -5.0f, -75.0f), &XMFLOAT3(0, 0, 0)));
-	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, 0.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
-	// ^^^ Don't need frame or cube
-	// Judges will be gameobjects represented by cubes
+	gameObjects.emplace_back(judge1);
+	gameObjects.emplace_back(judge2);
+	gameObjects.emplace_back(judge3);
+	gameObjects.emplace_back(new GameObject(MeshesMaterials::meshes["cube"], MeshesMaterials::materials["shape"], &XMFLOAT3(0.0f, 0.0f, -5.0f), &XMFLOAT3(0.0f, 0.0f, 0.0f)));
 
 	// Create buttons for UI
 	ipAddressBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(90, 250, 0), spriteBatch, spriteFont32, L"Enter IP", 15);
 	colorBox1 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 0, 0), spriteBatch, spriteFont32, L"Red", 3);
 	colorBox2 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 115, 0), spriteBatch, spriteFont32, L"Green", 3);
 	colorBox3 = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 230, 0), spriteBatch, spriteFont32, L"Blue", 3);
-	lifeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Lifetime", 2);
-	numPBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 460, 0), spriteBatch, spriteFont32, L"Number", 2);
+	sizeBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 345, 0), spriteBatch, spriteFont32, L"Size", 1);
+	numPBox = new TextBox(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(0, 460, 0), spriteBatch, spriteFont32, L"Number", 4);
 	readyButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 230, 0), spriteBatch, spriteFont32, L"Ready");
+	testButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["label"], &XMFLOAT3(200, 115, 0), spriteBatch, spriteFont32, L"Test");
 	hostButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(90, 375, 0), spriteBatch, spriteFont32, L"Host");
 	connectPlayButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(410, 250, 0), spriteBatch, spriteFont32, L"Connect");
 	quitButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(410, 375, 0), spriteBatch, spriteFont32, L"Quit");
 	networkLabel = new UIObject(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"");
 	//mainMenuButton = new Button(MeshesMaterials::meshes["quad"], MeshesMaterials::materials["button"], &XMFLOAT3(200, 300, 0), spriteBatch, spriteFont32, L"Main Menu");
+
+	ipAddressBox->SetText(L"Enter IP");
 
 	ipAddressBox->Scale(&XMFLOAT3(0.75f, 1.0f, 0.0f));
 	connectPlayButton->Scale(&XMFLOAT3(0.75f, 1.0f, 0.0f));
@@ -257,8 +273,9 @@ bool GameManager::Init()
 	gameUIObjects.emplace_back(colorBox1);
 	gameUIObjects.emplace_back(colorBox2);
 	gameUIObjects.emplace_back(colorBox3);
-	gameUIObjects.emplace_back(lifeBox);
+	gameUIObjects.emplace_back(sizeBox);
 	gameUIObjects.emplace_back(numPBox);
+	gameUIObjects.emplace_back(testButton);
 	gameUIObjects.emplace_back(readyButton);
 
 	// Blend state - enabling alpha blending
@@ -330,8 +347,7 @@ void GameManager::CreateShadowMapResources()
 // and draws for each gameObject
 void GameManager::UpdateScene(float dt)
 {
-	if (network->connected && gameState == NETWORK)
-		gameState = GAME;
+	handleNetwork();
 
 	CheckKeyBoard(dt);
 
@@ -350,7 +366,7 @@ void GameManager::UpdateScene(float dt)
 	// Active UI list
 	std::vector<UIObject*> *uiObjects = 0;
 	if (gameState == MENU) uiObjects = &menuObjects;
-	else  if (gameState == GAME || gameState == DEBUG) uiObjects = &gameUIObjects;
+	else  if (gameState == GAME || gameState == DEBUG) uiObjects = ready ? &networkObjects : &gameUIObjects;
 	else if (gameState == GAME_OVER) uiObjects = &gameOverObjects;
 	else if (gameState == NETWORK) uiObjects = &networkObjects;
 
@@ -474,9 +490,104 @@ void GameManager::UpdateScene(float dt)
 	HR(swapChain->Present(0, 0));
 }
 
+// Method to be called by a new thread to delay the playing of a subsequent particle effect
+void EmitGuest(ParticleSystem* p, Judge* j1, Judge* j2, Judge* j3, particlePacket p2, bool* ready)
+{
+	// Judge players's effect after it has ended
+	Sleep(3 * 1000.0f);
+	j1->JudgeEffect(&(p->GetParams()->color));
+	j2->JudgeEffect(&(p->GetParams()->color));
+	j3->JudgeEffect(&(p->GetParams()->color));
+
+	// Reset for the guest and emit
+	Sleep(2 * 1000.0f);
+	// Play the guest's particle effect
+	p->Reset(&XMFLOAT3(p2.colorR / 255.0f, p2.colorG / 255.0f, p2.colorB / 255.0f), p2.size, p2.amount);
+	p->Emit();
+
+	// Judge guest's effect after it has ended
+	Sleep(3 * 1000.0f);
+	//p->GetParams()->color.x = 0;
+	j1->JudgeEffect(&(p->GetParams()->color));
+	j2->JudgeEffect(&(p->GetParams()->color));
+	j3->JudgeEffect(&(p->GetParams()->color));
+
+	Sleep(1 * 1000.0f);
+	*ready = false;
+}
+
 // NOTE: DEPRECATED
 // Clear the screen, redraw everything, present
 void GameManager::DrawScene() { } 
+
+void GameManager::handleNetwork()
+{
+	//gameState = GAME;
+
+	// Start game upon receiving a clienti
+	if (network->connected && gameState == NETWORK) {
+
+		judgePacket data;
+
+		data.colorR1 = judge1->favColor.x;
+		data.colorG1 = judge1->favColor.y;
+		data.colorB1 = judge1->favColor.z;
+
+		data.colorR2 = judge2->favColor.x;
+		data.colorG2 = judge2->favColor.y;
+		data.colorB2 = judge2->favColor.z;
+
+		data.colorR3 = judge3->favColor.x;
+		data.colorG3 = judge3->favColor.y;
+		data.colorB3 = judge3->favColor.z;
+
+		network->emit(&data, sizeof(judgePacket));
+
+		gameState = GAME;
+	}
+
+	// Accepting judge data from host 
+	if (needsJudges && network->getDataType() == PACKET_JUDGES)
+	{
+		packet data = network->getData();
+		judgePacket judges = *(judgePacket*)data.buffer;
+
+		judge1->favColor.x = judges.colorR1;
+		judge1->favColor.y = judges.colorG1;
+		judge1->favColor.z = judges.colorB1;
+
+		judge2->favColor.x = judges.colorR2;
+		judge2->favColor.y = judges.colorG2;
+		judge2->favColor.z = judges.colorB2;
+
+		judge3->favColor.x = judges.colorR3;
+		judge3->favColor.y = judges.colorG3;
+		judge3->favColor.z = judges.colorB3;
+	}
+
+	// Play results when receiving oppoent's data
+	if (ready && network->getDataType() == PACKET_PARTICLE)
+	{
+		// Get the guest's particle data
+		packet data = network->getData();
+		received = *(particlePacket*)data.buffer;
+
+		// Play our particle effect
+		particleSystem->Reset(&InputToColor(), InputToInt(sizeBox->getText()), InputToInt(numPBox->getText()));
+		particleSystem->Emit();
+
+		if (emitThread)
+		{
+			emitThread->join();
+			delete emitThread;
+		}
+		emitThread = new std::thread(EmitGuest, particleSystem, judge1, judge2, judge3, received, &ready);
+
+		// Play the guest's particle effect
+		//particleSystem->Reset(&XMFLOAT3(received.colorR, received.colorG, received.colorB), received.size, received.amount);
+		//particleSystem->Emit();
+	}
+}
 
 #pragma endregion
 
@@ -524,6 +635,7 @@ void GameManager::CheckKeyBoard(float dt)
 	// Camera controls
 
 	// Move camera (WASD)
+	/*
 	if (GetAsyncKeyState('A'))
 		camera->MoveHorizontal(-CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('D'))
@@ -532,16 +644,21 @@ void GameManager::CheckKeyBoard(float dt)
 		camera->MoveDepth(CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('S'))
 		camera->MoveDepth(-CAMERA_MOVE_FACTOR * dt);
+	*/
 
 	// Space bar to activate particle effect
+	/*
 	if (GetAsyncKeyState(' '))
 		particleSystem->Emit();
+	*/
 
 	// Change height of camera (QE)
+	/*
 	if (GetAsyncKeyState('Q'))
 		camera->MoveVertical(CAMERA_MOVE_FACTOR * dt);
 	else if (GetAsyncKeyState('E'))
 		camera->MoveVertical(-CAMERA_MOVE_FACTOR * dt);
+	*/
 
 	/*
 	if (!holding)
@@ -650,19 +767,31 @@ LRESULT GameManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				if (activeBox->length() > 0)
 					activeBox->backspace();
 				break;
-
-				// Set new particle color
+				/*
 			case VK_RETURN:
-				if (colorBox1->length() >= 1 && colorBox2->length() >= 1 && colorBox3->length() >= 1)
-				{
-					particleSystem->Reset(&XMFLOAT3(0.0f, 0.0f, 0.0f), &InputToColor(), InputToInt(lifeBox->getText()), InputToInt(numPBox->getText()));
-				}
+				judge1->JudgeEffect(&(particleSystem->GetParams()->color));
+				judge2->JudgeEffect(&(particleSystem->GetParams()->color));
+				judge3->JudgeEffect(&(particleSystem->GetParams()->color));
 				break;
+				*/
 			}
 
 			// Update text of color box
 			activeBox->SetText(activeBox->getWideText());
 		}
+		/*
+		else
+		{
+			switch (wParam)
+			{
+			case VK_RETURN:
+				judge1->JudgeEffect(&(particleSystem->GetParams()->color));
+				judge2->JudgeEffect(&(particleSystem->GetParams()->color));
+				judge3->JudgeEffect(&(particleSystem->GetParams()->color));
+				break;
+			}
+		}
+		*/
 	}
 
 	return DirectXGame::MsgProc(hwnd, msg, wParam, lParam);
@@ -696,6 +825,7 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 			if (network->startListening(ipAddressBox->getText()))
 			{
 				gameState = GAME;
+				needsJudges = true;
 			}
 			else ipAddressBox->SetText(L"Failed");
 
@@ -714,42 +844,62 @@ void GameManager::OnMouseUp(WPARAM btnState, int x, int y)
 			activeBox = ipAddressBox;
 		}
 	}
-	else
+	else if (gameState == GAME)
 	{
 		// Activate the appropriate color box if one was clicked
 		if (colorBox1->IsOver(x, y))
 		{
 			colorBox1->active = inputActive = true;
-			numPBox->active = lifeBox->active = colorBox2->active = colorBox3->active = false;
+			numPBox->active = sizeBox->active = colorBox2->active = colorBox3->active = false;
 			activeBox = colorBox1;
 		}
 		else if (colorBox2->IsOver(x, y))
 		{
 			colorBox2->active = inputActive = true;
-			numPBox->active = lifeBox->active = colorBox1->active = colorBox3->active = false;
+			numPBox->active = sizeBox->active = colorBox1->active = colorBox3->active = false;
 			activeBox = colorBox2;
 		}
 		else if (colorBox3->IsOver(x, y))
 		{
 			colorBox3->active = inputActive = true;
-			numPBox->active = lifeBox->active = colorBox1->active = colorBox2->active = false;
+			numPBox->active = sizeBox->active = colorBox1->active = colorBox2->active = false;
 			activeBox = colorBox3;
 		}
-		else if (lifeBox->IsOver(x, y))
+		else if (sizeBox->IsOver(x, y))
 		{
-			lifeBox->active = inputActive = true;
+			sizeBox->active = inputActive = true;
 			numPBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
-			activeBox = lifeBox;
+			activeBox = sizeBox;
 		}
 		else if (numPBox->IsOver(x, y))
 		{
 			numPBox->active = inputActive = true;
-			lifeBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
+			sizeBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
 			activeBox = numPBox;
 		}
 		else if (readyButton->IsOver(x, y))
 		{
 			// ready = true
+			particlePacket data;
+			data.amount = InputToInt(numPBox->getText());
+			data.size = InputToInt(sizeBox->getText());
+			data.colorR = InputToInt(colorBox1->getText());
+			data.colorG = InputToInt(colorBox2->getText());
+			data.colorB = InputToInt(colorBox3->getText());
+
+			network->emit(&data, sizeof(particlePacket));
+			ready = true;
+			networkLabel->SetText(L"Waiting...");
+		}
+		else if (testButton->IsOver(x, y))
+		{
+			numPBox->active = sizeBox->active = colorBox1->active = colorBox2->active = colorBox3->active = false;
+			//activeBox = NULL;
+			if (colorBox1->length() >= 1 && colorBox2->length() >= 1 && colorBox3->length() >= 1 && sizeBox->length() >= 1 && numPBox->length() >= 1)
+			{
+				particleSystem->Reset(&InputToColor(), InputToInt(sizeBox->getText()), InputToInt(numPBox->getText()));
+				particleSystem->Emit();
+			}
 		}
 	}
 }
@@ -778,6 +928,7 @@ void GameManager::OnMouseMove(WPARAM btnState, int x, int y)
 	{
 		ipAddressBox->Update(x, y);
 		connectPlayButton->Update(x, y);
+		hostButton->Update(x, y);
 		quitButton->Update(x, y);
 	}
 
